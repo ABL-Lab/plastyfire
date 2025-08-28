@@ -1,10 +1,10 @@
 label: L23PC_L5TTPC
 reference: Sjostrom and Hausser 2006
 seed: 19091997
-npairs: 100
+npairs: 1
 circuit:
-    config: "/gpfs/bbp.cscs.ch/project/proj96/circuits/O1/circuit_config.json"
-    node_set: "/gpfs/bbp.cscs.ch/project/proj96/circuits/O1/node_sets.json"
+    config: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
+    node_set: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
     target: "hex_O1Excitatory"
     node_pop: "S1nonbarrel_neurons"
     edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"

@@ -1,7 +1,7 @@
 label: L5TTPC_L5TTPC
 reference: Markram et al. 1997
 seed: 19091997
-npairs: 100
+npairs: 1
 circuit:
     config: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
     node_set: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"

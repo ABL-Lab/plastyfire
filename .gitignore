@@ -14,3 +14,4 @@ plastyfire/x86_64/
 *.pyc
 
 .cursor/
+/refitting_results/

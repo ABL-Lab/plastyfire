@@ -19,6 +19,7 @@ from plastyfire.epg import ParamsGenerator
 
 bluecellulab.set_verbose(2)
 bluecellulab.neuron.h.cvode.atolscale("v", .1)
+bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
 SPIKE_THRESHOLD = -30  # mV
 EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
