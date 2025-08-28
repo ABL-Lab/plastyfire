@@ -15,6 +15,8 @@ import warnings
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from bluepysnap import Circuit
 from conntility.connectivity import ConnectivityMatrix
 
@@ -162,6 +164,17 @@ def plot_epsp_ratios(res_db, fig_name):
 
 class OptSimWriter(OptConfig):
     """Class to setup single cell simulations for the optimization of model parameters"""
+    
+    def _process_post_gid(self, args):
+        """Worker function to process a single post_gid for parallel execution"""
+        post_gid, i, conn_mat, pre_mtype, max_dist, sim_config_path, stim_config, save_dir, seed = args
+        pre_gids = check_geom_constraint(conn_mat, pre_mtype, post_gid, max_dist)
+        if pre_gids is not None:
+            if check_electrical_constraint(sim_config_path, post_gid, stim_config, save_dir):
+                np.random.seed(seed + i)
+                return (np.random.choice(pre_gids, 1)[0], post_gid)
+        return None
+    
     def find_pairs(self):
         """Finds connected pairs of gids based on constraints specified in the config"""
         save_dir = os.path.join(self.out_dir, "single_cells")
@@ -189,19 +202,38 @@ class OptSimWriter(OptConfig):
         post_gids = nrn.loc[nrn["mtype"].isin(self.post_mtype), "node_ids"].to_numpy()
         np.random.seed(self.seed)
         np.random.shuffle(post_gids)
-        # Find pairs (TODO: parallelize)
+        # Find pairs (parallelized)
         pairs = []
         pbar = tqdm(total=self.npairs, desc="Finding pairs")
-        for i, post_gid in enumerate(post_gids):
-            # Check if post_gid fulfills constraints
-            pre_gids = check_geom_constraint(conn_mat, self.pre_mtype, post_gid, self.max_dist)
-            if pre_gids is not None:
-                if check_electrical_constraint(sim_config_path, post_gid, self.config["stimulus"], save_dir):
-                    np.random.seed(self.seed + i)
-                    pairs.append((np.random.choice(pre_gids, 1)[0], post_gid))  # select a random presynaptic partner
-                    pbar.update(1)
-            if len(pairs) == self.npairs:
-                break
+        
+        # Prepare arguments for parallel processing
+        args_list = [(post_gid, i, conn_mat, self.pre_mtype, self.max_dist, 
+                     sim_config_path, self.config["stimulus"], save_dir, self.seed) 
+                    for i, post_gid in enumerate(post_gids)]
+        
+        # Process in parallel
+        with ThreadPoolExecutor(max_workers=min(8, self.npairs)) as pool:
+            futures = [pool.submit(self._process_post_gid, args) for args in args_list]
+            try:
+                for future in futures:
+                    if len(pairs) >= self.npairs:
+                        break
+                    try:
+                        result = future.result(timeout=300)  # 5 minute timeout per future
+                        if result is not None:
+                            pairs.append(result)
+                            pbar.update(1)
+                            if len(pairs) >= self.npairs:
+                                break
+                    except TimeoutError:
+                        print(f"Warning: Operation timed out, skipping...")
+                        continue
+            finally:
+                # Cancel remaining futures when enough pairs found
+                for future in futures:
+                    if not future.done():
+                        future.cancel()
+        
         pbar.close()
         if len(pairs) < self.npairs:
             warnings.warn("Not enough pairs found")
