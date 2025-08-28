@@ -13,7 +13,7 @@
 #SBATCH --output=logs/eval-%j.log
 
 # Set environment
-source /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/setupenv.sh
+source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
 set -x
 set -e
 echo "TMPDIR:" $TMPDIR

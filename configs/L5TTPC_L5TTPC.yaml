@@ -30,6 +30,6 @@ stimulus:
     C01_duration: 4  # min
     C02_duration: 4  # min
 simulator:
-    env: "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/setupenv.sh"
-    run: "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/plastyfire/pairrunner.py"
+    env: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
 

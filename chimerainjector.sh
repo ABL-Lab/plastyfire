@@ -12,7 +12,7 @@
 #SBATCH --chdir=/gpfs/bbp.cscs.ch/project/proj96/scratch/home/ecker/bcl-plastyfire/fitting/n100/seed19091997/
 #SBATCH --output=logs/chimera.log
 
-source /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/setupenv.sh
-cp /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/plastyfire/chimerainjector.py .
+source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
+cp /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/chimerainjector.py .
 python chimerainjector.py --gen=100 --seed=19091997
 

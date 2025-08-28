@@ -24,7 +24,7 @@ from plastyfire.simulator import spike_threshold_finder
 MIN2MS = 60 * 1000.
 OPT_CPU_TIME = 2.  # heuristics: it takes ~2x compute time (w/ CVode w/ reporting w/o fastforward) as biological time
 CPU_TIME = 1.  # heuristics: c_pre and c_post for a single connection takes <1 minute to simulate/calculate
-FIGS_DIR = "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/figures/plastyfire"
+FIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/figures/plastyfire"
 
 
 def check_geom_constraint(conn_mat, pre_mtype, post_gid, max_dist):

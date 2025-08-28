@@ -14,16 +14,16 @@
 #SBATCH --output=opt-%j.log
 
 # Set environment
-source /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/setupenv.sh
+source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
 krenew -b -K 10
 set -x
 set -e
 
 # Set next job
-cp /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/modelfitter.sh .
+cp /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/modelfitter.sh .
 sbatch --dependency=afterany:${SLURM_JOBID} modelfitter.sh
 
 # Run
-cp /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/ipp.sh .
-python /gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/plastyfire/modelfitter.py --gen=100 --sample_size=100 --seed=19091997 -v
+cp /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/ipp.sh .
+python /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/modelfitter.py --gen=100 --sample_size=100 --seed=19091997 -v
 

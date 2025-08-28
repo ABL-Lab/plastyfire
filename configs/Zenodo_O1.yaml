@@ -20,5 +20,5 @@ fit_params:
     a30: 5.2356637311
     a31: 1.7822214534
 simulator:
-    env: "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/setupenv.sh"
-    run: "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/plastyfire/thresholdfinder.py"
+    env: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/thresholdfinder.py"

@@ -26,7 +26,7 @@ MIN2MS = 60 * 1000.
 FITTED_TAU = 278.3177658387  # previously optimized time constant of Ca*
 # could use `SingletonWeightObjective`s, but it's easier to just multiply the (ordered) errors with the values below...
 WEIGHT_REDUCE = np.array([1 / 8] * 2 + [1 / 4] * 3)  # weights of each protocol (lower for the first two)
-CONFIGS_DIR = "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/configs"
+CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
 logger = logging.getLogger(__name__)
 DEBUG = False
 

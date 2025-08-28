@@ -12,3 +12,5 @@ plastyfire/__pycache__
 plastyfire/mod_fix/
 plastyfire/x86_64/
 *.pyc
+
+.cursor/

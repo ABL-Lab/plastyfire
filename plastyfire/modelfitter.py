@@ -16,7 +16,7 @@ from bluepyopt.deapext.optimisations import IBEADEAPOptimisation
 import plastyfire.evaluator as eval
 
 logger = logging.getLogger("modelfitter")
-CSVF_NAME = "/gpfs/bbp.cscs.ch/project/proj96/home/ecker/plastyfire/biodata/paired_recordings.csv"
+CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
 PROTOCOL_IDX = ["mrk97_01", "mrk97_02", "mrk97_07", "mrk97_08", "sjh06_02"]  # protocols to use for optimization
 # model parameters to be optimized (and their boundaries)
 FIT_PARAMS = [  # ("tau_effca_GB_GluSynapse", 150., 350.),
