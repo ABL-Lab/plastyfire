@@ -413,15 +413,15 @@ class SimWriter(Config):
 
 
 if __name__ == "__main__":
-    # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
-    # pairs = writer.find_pairs()
-    # writer.write_sim_files(pairs)
-    # writer = OptSimWriter("../configs/L23PC_L5TTPC.yaml")
-    # pairs = writer.find_pairs()
-    # writer.write_sim_files(pairs)
-
     writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
-    fit_params = writer.read_opt_params()
+    pairs = writer.find_pairs()
+    writer.write_sim_files(pairs)
+    writer = OptSimWriter("../configs/L23PC_L5TTPC.yaml")
+    pairs = writer.find_pairs()
+    writer.write_sim_files(pairs)
+
+    # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
+    # fit_params = writer.read_opt_params()
     # TODO: rewrite a couple of files with opt. params and run them with `pairrunner.py`
 
     # writer = SimWriter("../configs/Zenodo_O1.yaml")

@@ -10,7 +10,7 @@
 #SBATCH --no-requeue
 #SBATCH --exclusive
 #SBATCH --mem=0
-#SBATCH --chdir=/gpfs/bbp.cscs.ch/project/proj96/scratch/home/ecker/bcl-plastyfire/fitting/n100/seed19091997/
+#SBATCH --chdir=/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_resultsfitting/n100/seed19091997/
 #SBATCH --output=opt-%j.log
 
 # Set environment

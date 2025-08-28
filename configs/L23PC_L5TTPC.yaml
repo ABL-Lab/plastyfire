@@ -14,7 +14,7 @@ postgid_conf:
     mtype: ["L5_TPC:A", "L5_TPC:B"]
 geom_cons:
     max_dist: [50.0, 700.0, 10.0]  # [x, y, z] um
-sims_dir: "/gpfs/bbp.cscs.ch/project/proj96/scratch/home/ecker/bcl-plastyfire/"
+sims_dir: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results"
 stimulus:
     freq: [50.]  # Hz
     amp: "find"  # nA
