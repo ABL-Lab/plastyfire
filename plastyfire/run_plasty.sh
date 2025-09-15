@@ -1,1 +1,1 @@
-python modelfitter.py --gen=100 --pop_size=100 --sample_size=100 --seed=19091998 -v
+python modelfitter.py --gen=100 --pop_size=100 --sample_size=50 --seed=19091998 -v

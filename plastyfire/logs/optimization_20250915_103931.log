@@ -1,0 +1,371 @@
+2025-09-15 10:39:31,150 - modelfitter - INFO - Logging to file: logs/optimization_20250915_103931.log
+2025-09-15 10:39:31,150 - modelfitter - INFO - Log level: INFO
+2025-09-15 10:39:31,205 - plastyfire.evaluator - INFO - paths: frequency  dt 
+2.0        5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+                                        ...                        
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+Name: path, Length: 100, dtype: object
+2025-09-15 10:39:31,216 - plastyfire.evaluator - INFO - paths: frequency  dt 
+5.0        5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+                                        ...                        
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           5.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+Name: path, Length: 100, dtype: object
+2025-09-15 10:39:31,226 - plastyfire.evaluator - INFO - paths: frequency  dt  
+10.0       10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+                                         ...                        
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+Name: path, Length: 100, dtype: object
+2025-09-15 10:39:31,236 - plastyfire.evaluator - INFO - paths: frequency  dt   
+10.0       -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+                                          ...                        
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           -10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+Name: path, Length: 100, dtype: object
+2025-09-15 10:39:31,278 - plastyfire.evaluator - INFO - paths: frequency  dt  
+50.0       10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+                                         ...                        
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+           10.0    /home/dhuruva/projects/ctb-emuller/dhuruva/pla...
+Name: path, Length: 100, dtype: object
+2025-09-15 10:39:31,278 - plastyfire.evaluator - INFO - Found 500 simulations
+2025-09-15 10:39:31,595 - modelfitter - INFO - Optimization parameters
+Eta = 20.000000 Mut = 0.700000 Cx = 0.300000
+2025-09-15 10:39:31,597 - modelfitter - INFO - Starting a new optimization
+2025-09-15 10:39:31,602 - plastyfire.evaluator - INFO - Evaluating individual: [80.14335952548504, 192.71192121279145, 4.356647240431789, 4.933209954989812, 4.681662853030768, 3.432218862627312, 8.978228380176283, 1.1646860863669457, 7.410949690216055, 1.1060995761687815]
+2025-09-15 10:39:31,603 - plastyfire.evaluator - INFO - Evaluating individual: [126.73016691172069, 177.73461362030721, 1.6462048057707204, 4.400245195678808, 3.6241021801859272, 1.3771723814697316, 2.47026990856065, 4.3278565094867645, 4.565522180390063, 2.771125433799292]
+2025-09-15 10:39:31,605 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_5edda0cb46ca.pkl, submitting batch job
+2025-09-15 10:39:31,605 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_eb290be8552d.pkl, submitting batch job
+2025-09-15 10:39:31,606 - plastyfire.evaluator - INFO - Evaluating individual: [94.13601789061144, 233.1788407502795, 3.753223103741013, 4.959172079266695, 1.3137781602725132, 2.0573229950247653, 4.20005227133649, 2.7239411993627156, 1.7610359650890035, 3.139044016671428]
+2025-09-15 10:39:31,609 - plastyfire.evaluator - INFO - Evaluating individual: [69.48055133248708, 224.62589030232192, 4.598044346453675, 2.488926266226395, 2.304925433192934, 1.2871486539983459, 2.1787593169106225, 1.0873109227783786, 7.328064609826368, 3.5143235687500654]
+2025-09-15 10:39:31,611 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_d2129fcc96e4.pkl, submitting batch job
+2025-09-15 10:39:31,611 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_5ae072602bfa.pkl, submitting batch job
+2025-09-15 10:39:31,613 - plastyfire.evaluator - INFO - Evaluating individual: [148.35694621608314, 197.09114341984287, 4.85593875785289, 4.046698866312777, 2.874707290102395, 2.4357887173437462, 2.5583407489694046, 2.7924253591636905, 2.738691266774203, 1.063437115396208]
+2025-09-15 10:39:31,614 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_87380040a94a.pkl, submitting batch job
+2025-09-15 10:39:31,614 - plastyfire.evaluator - INFO - Evaluating individual: [141.43907814677488, 203.5949483226201, 4.092875402461076, 4.327501851443357, 3.5958878962937915, 4.119027396186768, 9.329453112705409, 2.6159585488272734, 2.0688157759958083, 3.4605937456526656]
+2025-09-15 10:39:31,616 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_06a407fa07ec.pkl, submitting batch job
+2025-09-15 10:39:31,617 - plastyfire.evaluator - INFO - Evaluating individual: [59.84624861379712, 230.35627432192047, 1.4005252531322778, 1.9308894144792421, 3.2349366622470583, 2.4060725652315087, 2.578941923333344, 4.231017215390644, 2.097266790087456, 1.4355265769413355]
+2025-09-15 10:39:31,618 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_147c708914ab.pkl, submitting batch job
+2025-09-15 10:39:31,618 - plastyfire.evaluator - INFO - Evaluating individual: [121.67078627294029, 156.1201610840784, 3.0739662413831037, 1.5673330909171836, 1.5703838985105927, 4.541544719947886, 1.7441225085296996, 3.5532050615294817, 4.866154248923561, 4.219755414822277]
+2025-09-15 10:39:31,619 - plastyfire.evaluator - INFO - Evaluating individual: [78.01777977117561, 190.87476296298607, 4.9647242157935345, 2.9936239360172454, 3.373722228281543, 2.4049907335699965, 2.9708258122979965, 1.8090303893840178, 5.934282196974695, 2.205322892972435]
+2025-09-15 10:39:31,620 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_875c02e867b1.pkl, submitting batch job
+2025-09-15 10:39:31,623 - plastyfire.evaluator - INFO - Evaluating individual: [114.33607443232104, 203.90629788545687, 3.982742985830608, 4.066046349236743, 3.9885746940139453, 4.484785548742948, 6.906923431418484, 4.276353392131767, 4.880998355940391, 2.586244469749013]
+2025-09-15 10:39:31,623 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_3089daa9fd7b.pkl, submitting batch job
+2025-09-15 10:39:31,624 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_01ab0cd24ee9.pkl, submitting batch job
+2025-09-15 10:39:31,624 - plastyfire.evaluator - INFO - Evaluating individual: [160.16502874792963, 299.49894756806503, 4.853770856758163, 1.632970667207708, 1.5066541434248495, 4.016911718857575, 3.1536979318909486, 3.1826630626464505, 7.800057636416845, 4.289754925203759]
+2025-09-15 10:39:31,625 - plastyfire.evaluator - INFO - Evaluating individual: [85.49627730372427, 274.2047131281744, 3.647209682717714, 3.222173149246172, 3.742539401722555, 3.75645060898279, 3.436044658955571, 1.0993139878214455, 9.821480518148945, 4.2082446399337545]
+2025-09-15 10:39:31,625 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_fd346d301a88.pkl, submitting batch job
+2025-09-15 10:39:31,628 - plastyfire.evaluator - INFO - Evaluating individual: [180.1502236763908, 260.848339900622, 2.2972876333568437, 3.269346883457051, 2.394731682018587, 4.0690365293836255, 9.449142179797377, 4.693588434724686, 2.3150408069779154, 2.5452699099153073]
+2025-09-15 10:39:31,629 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_d4ce0072d111.pkl, submitting batch job
+2025-09-15 10:39:31,629 - plastyfire.evaluator - INFO - Evaluating individual: [135.65201949813246, 200.7060772807168, 1.2643380850313464, 1.524543921227068, 4.017703997033124, 4.1116790211080545, 5.067010992801883, 3.5235907528785138, 3.123918922686464, 4.879721824110677]
+2025-09-15 10:39:31,630 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_55e84cae6893.pkl, submitting batch job
+2025-09-15 10:39:31,630 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c44fa99c4618.pkl, submitting batch job
+2025-09-15 10:39:31,630 - plastyfire.evaluator - INFO - Evaluating individual: [162.91512295136192, 236.83124403879057, 2.1788863763541344, 4.220839128814508, 3.0311302047817406, 2.088794338317477, 9.372160635790134, 1.5878758444426362, 9.117674733867915, 4.211968177010169]
+2025-09-15 10:39:31,633 - plastyfire.evaluator - INFO - Evaluating individual: [178.38589746326423, 194.83255378630798, 3.052485774660975, 1.6857555955113215, 4.004409687171889, 4.706875504199724, 2.3046745809700684, 4.417758615317277, 8.921340235093506, 1.6866320991390804]
+2025-09-15 10:39:31,634 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_f25daf63aa4b.pkl, submitting batch job
+2025-09-15 10:39:31,634 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_6af15550506e.pkl, submitting batch job
+2025-09-15 10:39:31,634 - plastyfire.evaluator - INFO - Evaluating individual: [117.59364952919496, 182.54276656029248, 4.048732796527477, 1.689548047698056, 2.3673185689740035, 4.328719001449398, 4.0931212064656695, 4.809982762097173, 1.1253490095909222, 4.41162002353127]
+2025-09-15 10:39:31,635 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_6096e5934c4e.pkl, submitting batch job
+2025-09-15 10:39:31,637 - plastyfire.evaluator - INFO - Evaluating individual: [135.08154453827743, 209.7950952110732, 1.759098463628451, 4.184145127596276, 2.6058245786906373, 4.499369771389013, 8.667689859473654, 3.3069705488888355, 9.337192029302585, 2.3624334407861576]
+2025-09-15 10:39:31,638 - plastyfire.evaluator - INFO - Evaluating individual: [120.31125238846998, 233.17692592639816, 4.357316935502714, 4.876978172493664, 2.0769335432542135, 4.519921863807342, 8.989289868007678, 1.7054990597201156, 6.466307856760315, 2.2549929133141493]
+2025-09-15 10:39:31,638 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_fae7ff4c1a72.pkl, submitting batch job
+2025-09-15 10:39:31,639 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ac33d9426d39.pkl, submitting batch job
+2025-09-15 10:39:31,640 - plastyfire.evaluator - INFO - Evaluating individual: [188.91130129191075, 202.931703205909, 1.909852055161616, 4.7377756279481815, 4.848261550878293, 3.2058151800581407, 2.8091856396624957, 2.8521716485828907, 9.873251781309186, 4.425306082471648]
+2025-09-15 10:39:31,641 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_0cedd464a4ad.pkl, submitting batch job
+2025-09-15 10:39:31,641 - plastyfire.evaluator - INFO - Evaluating individual: [135.63043670020812, 233.2139915104051, 4.976231260320647, 2.755817314172573, 1.6017772338966405, 1.8134700959653491, 9.769771808450802, 4.996787233407631, 9.733073895965052, 1.0527755271877797]
+2025-09-15 10:39:31,645 - plastyfire.evaluator - INFO - Evaluating individual: [61.60820101425043, 167.28493051153424, 1.170454991577536, 4.6452286539912535, 2.953666922291921, 4.201617991502873, 9.407369322092812, 4.494694932623758, 6.071159800104319, 3.8409553736761577]
+2025-09-15 10:39:31,646 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_315acaa76d3a.pkl, submitting batch job
+2025-09-15 10:39:31,646 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b8c73bdc6988.pkl, submitting batch job
+2025-09-15 10:39:31,646 - plastyfire.evaluator - INFO - Evaluating individual: [79.94296963346571, 218.95328280255922, 4.4426246763885855, 2.429990874238269, 3.405181098064637, 3.28423244693616, 8.439748590335917, 4.4745392582269155, 8.907860491944836, 1.2124531476654696]
+2025-09-15 10:39:31,647 - plastyfire.evaluator - INFO - Evaluating individual: [135.01540074269013, 262.34666294981776, 1.2296456333846013, 3.0478994942035733, 1.2170908550185304, 2.481173090231585, 8.578561267862051, 3.2908475270268753, 7.220762543074784, 3.2012414682248567]
+2025-09-15 10:39:31,648 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_eb7794f8f1c2.pkl, submitting batch job
+2025-09-15 10:39:31,648 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_306f1e9457dc.pkl, submitting batch job
+2025-09-15 10:39:31,650 - plastyfire.evaluator - INFO - Evaluating individual: [93.27793456527876, 296.85962512400704, 1.152671165904139, 1.5789683976091737, 1.6506702033352965, 2.631866020311388, 6.0339819914819275, 3.710714655151862, 2.9416027731077805, 3.339377619522528]
+2025-09-15 10:39:31,651 - plastyfire.evaluator - INFO - Evaluating individual: [196.8762095088809, 162.5267886812698, 2.235722146436521, 3.718383729373479, 1.7774570088883843, 3.7750231678382984, 3.4962581115123594, 3.231292109681153, 9.932261836754833, 3.4513257846403005]
+2025-09-15 10:39:31,652 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_75c096e2812e.pkl, submitting batch job
+2025-09-15 10:39:31,652 - plastyfire.evaluator - INFO - Evaluating individual: [143.94846590242875, 165.50113853791794, 1.9769943457171948, 4.326178514475847, 2.934017633700634, 1.285537926754389, 3.5779573863151217, 1.7796934857857827, 5.887951611670889, 4.427088373832423]
+2025-09-15 10:39:31,652 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c4ebfca53111.pkl, submitting batch job
+2025-09-15 10:39:31,653 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ec59d0306985.pkl, submitting batch job
+2025-09-15 10:39:31,653 - plastyfire.evaluator - INFO - Evaluating individual: [129.88018239498228, 218.4243610387078, 4.185081789504144, 4.043223059073567, 2.249390103568182, 1.583878986260682, 4.414092654300941, 1.1665807594803188, 9.168411118655314, 4.87920790950167]
+2025-09-15 10:39:31,654 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_9adf486d6dd1.pkl, submitting batch job
+2025-09-15 10:39:31,657 - plastyfire.evaluator - INFO - Evaluating individual: [97.15624683481181, 212.99195776766288, 1.8664522516133175, 2.4370624924721733, 2.69524606240754, 2.199243483856535, 8.010388943168826, 4.736917047534898, 3.6796901533500916, 2.0581417574936314]
+2025-09-15 10:39:31,660 - plastyfire.evaluator - INFO - Evaluating individual: [106.49903644735406, 211.8987685360973, 3.5560667198486384, 2.275573758640778, 2.267504704644661, 3.259360391907582, 4.556158520040764, 3.9140328838932934, 8.254391527840138, 4.7752254686351785]
+2025-09-15 10:39:31,661 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b6fc5d17dcf0.pkl, submitting batch job
+2025-09-15 10:39:31,662 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_e659e09b2414.pkl, submitting batch job
+2025-09-15 10:39:31,664 - plastyfire.evaluator - INFO - Evaluating individual: [76.70411173863044, 151.0708113611725, 1.243125488422049, 1.3784083362745956, 3.1058419006753324, 1.891542878462023, 8.54755196383384, 3.639322062855128, 3.046760218320534, 1.025778603371505]
+2025-09-15 10:39:31,665 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b544bfcdd9ec.pkl, submitting batch job
+2025-09-15 10:39:31,667 - plastyfire.evaluator - INFO - Evaluating individual: [190.63578259371778, 169.64597146168822, 2.578650276195208, 2.1313897115254425, 3.3949466002003006, 3.614491154739376, 3.229095557823004, 4.045385409124238, 1.8017788341421166, 4.59710124215206]
+2025-09-15 10:39:31,669 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_5699f445e241.pkl, submitting batch job
+2025-09-15 10:39:31,671 - plastyfire.evaluator - INFO - Evaluating individual: [170.46772879653915, 177.74101767343197, 3.275477935205538, 1.4559919779879618, 1.664151066221525, 3.4590836277582215, 1.5110630993018468, 3.0638295942156697, 7.173091851278658, 3.838135851052811]
+2025-09-15 10:39:31,672 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ff168a27d058.pkl, submitting batch job
+2025-09-15 10:39:31,672 - plastyfire.evaluator - INFO - Evaluating individual: [89.32388009316566, 219.2711216476192, 3.966398451594433, 1.0685832385879261, 4.677818747654629, 1.4049791485044891, 8.43056586778605, 3.7868596192748663, 3.585200584541095, 1.0872466856979859]
+2025-09-15 10:39:31,673 - plastyfire.evaluator - INFO - Evaluating individual: [111.49277330268494, 229.44875051668188, 4.87478829271457, 2.0936164219720816, 3.5533035153088024, 2.4888748408439403, 4.135345735733063, 3.9466952867853706, 3.39392885412075, 2.3014369497244807]
+2025-09-15 10:39:31,674 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_0c0390ea85f8.pkl, submitting batch job
+2025-09-15 10:39:31,674 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_7066a1de2f82.pkl, submitting batch job
+2025-09-15 10:39:31,675 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,675 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,676 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,677 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,677 - plastyfire.evaluator - INFO - Evaluating individual: [94.4166068155459, 212.66628168605337, 4.237939754281069, 1.6644269221513288, 4.5290321275196135, 1.3497653412171453, 1.2368930918417878, 1.8664089026491877, 1.8598875848977925, 3.914534354143869]
+2025-09-15 10:39:31,678 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,678 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_08fff52cbe67.pkl, submitting batch job
+2025-09-15 10:39:31,678 - plastyfire.evaluator - INFO - Evaluating individual: [154.61933261302553, 294.0835601499511, 2.410659112220318, 1.2001177991172982, 4.677508543291298, 1.2238745165017875, 7.416627447644501, 2.085100671350159, 6.340597996428026, 2.6381814281573464]
+2025-09-15 10:39:31,680 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_50b20672d5b8.pkl, submitting batch job
+2025-09-15 10:39:31,680 - plastyfire.evaluator - INFO - Evaluating individual: [153.62903974411572, 216.9214808935067, 3.7896791901989086, 4.648372583893588, 2.6356489424516334, 2.7311258840842654, 3.980804398052208, 2.3238797194002596, 2.594496394616389, 4.043180928807532]
+2025-09-15 10:39:31,682 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,683 - plastyfire.evaluator - INFO - Evaluating individual: [165.79178470597674, 212.1780500126623, 4.9735833573416794, 1.0804500999541289, 1.1665540994384584, 4.183206286438736, 9.97322312003487, 2.2811037171008657, 6.649210021587792, 1.3167571035498842]
+2025-09-15 10:39:31,684 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,684 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c55f98296b08.pkl, submitting batch job
+2025-09-15 10:39:31,684 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b41a3c97b7cc.pkl, submitting batch job
+2025-09-15 10:39:31,684 - plastyfire.evaluator - INFO - Evaluating individual: [83.30335255090587, 219.37220796074843, 3.4008423499783698, 3.913815434824088, 1.1797367202147302, 3.787504448157959, 3.150616547937217, 1.5646221196007457, 9.465670538253786, 2.7109953605046364]
+2025-09-15 10:39:31,685 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,685 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_fa74df45ead2.pkl, submitting batch job
+2025-09-15 10:39:31,685 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,686 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,688 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,688 - plastyfire.evaluator - INFO - Evaluating individual: [69.63480801495687, 174.34405040824177, 2.233247671856866, 1.7083535009072937, 1.2763009023539356, 2.0718035449801255, 9.263527213991273, 2.82344313012077, 9.184993428813817, 4.419619496458538]
+2025-09-15 10:39:31,689 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,689 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ff79639142e5.pkl, submitting batch job
+2025-09-15 10:39:31,692 - plastyfire.evaluator - INFO - Evaluating individual: [118.34016939892476, 291.58472642501727, 2.9412425684888355, 3.507784309770399, 1.882540735338634, 1.6717447734170943, 6.50154041804156, 3.691765925941206, 3.882974694101922, 1.1337931160298025]
+2025-09-15 10:39:31,693 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_01318c57ba01.pkl, submitting batch job
+2025-09-15 10:39:31,692 - plastyfire.evaluator - INFO - Evaluating individual: [68.787005440245, 291.62952984846413, 3.7302379905270886, 2.062859722910887, 4.0677878935394, 3.298097297299374, 7.536659902663351, 4.479411366133393, 6.009650236723506, 3.588099349540188]
+2025-09-15 10:39:31,692 - plastyfire.evaluator - INFO - Evaluating individual: [110.41587976525145, 296.9540787030006, 3.489803385633632, 1.9795705525787, 2.53281006476189, 3.1716379191451574, 2.9649059098671615, 1.5381381525317046, 3.210890185507563, 1.4885113694061323]
+2025-09-15 10:39:31,694 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_52911f2f0b81.pkl, submitting batch job
+2025-09-15 10:39:31,694 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c1bbae52a733.pkl, submitting batch job
+2025-09-15 10:39:31,694 - plastyfire.evaluator - INFO - Evaluating individual: [130.3375579679606, 179.97030823749648, 3.251383578034393, 1.6018439697593307, 2.4465355510824267, 4.491057019996896, 4.586017054156613, 3.4242368430888606, 9.24045090656904, 2.3659457074811554]
+2025-09-15 10:39:31,695 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b11bb42acd8e.pkl, submitting batch job
+2025-09-15 10:39:31,698 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,697 - plastyfire.evaluator - INFO - Evaluating individual: [199.84102281444052, 232.64124705237364, 3.512757780502992, 1.3675718330188555, 4.056917932815004, 4.8767825716836395, 1.6830790525522763, 3.564809368795882, 9.842383874126467, 3.1845385198430143]
+2025-09-15 10:39:31,699 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_24cfd9b8d91b.pkl, submitting batch job
+2025-09-15 10:39:31,701 - plastyfire.evaluator - INFO - Evaluating individual: [183.9800277519498, 216.5492609833256, 4.4854464926353215, 2.7506045481940142, 2.0667840239354125, 2.7001067565548547, 1.472426759162608, 4.094865039443656, 4.703384807465206, 2.3629102725250744]
+2025-09-15 10:39:31,702 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_2fe5b81a4f9c.pkl, submitting batch job
+2025-09-15 10:39:31,702 - plastyfire.evaluator - INFO - Evaluating individual: [106.64156367223654, 236.73104194424144, 1.3268765968772676, 1.1582543587951206, 3.33224082803268, 4.2572867560702985, 1.1955516193407667, 4.780784750267664, 1.8168127848051359, 2.2538299883419657]
+2025-09-15 10:39:31,703 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_66839e651503.pkl, submitting batch job
+2025-09-15 10:39:31,703 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,705 - plastyfire.evaluator - INFO - Evaluating individual: [179.5329208205178, 240.4219875630706, 3.663572034050881, 4.6378413094943305, 2.1970122376634427, 4.127793737511361, 8.808515177985218, 3.7466164147941177, 5.854417531294784, 2.4721386266040954]
+2025-09-15 10:39:31,707 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_0accedeabae7.pkl, submitting batch job
+2025-09-15 10:39:31,709 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,709 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,708 - plastyfire.evaluator - INFO - Evaluating individual: [115.54296046742293, 218.0219514133056, 2.6982830017504496, 1.4786482770809752, 4.542139779932501, 3.43178196559969, 2.7968931276268485, 3.578690021136247, 7.075373697458082, 4.4650706842835834]
+2025-09-15 10:39:31,709 - plastyfire.evaluator - INFO - Evaluating individual: [103.884926151379, 219.47611723365364, 4.1351313943426184, 3.6834509659642602, 4.3216199030444695, 3.5340435224256215, 8.150004975545023, 4.537973861076289, 4.9297630325073705, 4.5294609664740895]
+2025-09-15 10:39:31,710 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_7515c274f0ce.pkl, submitting batch job
+2025-09-15 10:39:31,710 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_620929977063.pkl, submitting batch job
+2025-09-15 10:39:31,711 - plastyfire.evaluator - INFO - Evaluating individual: [158.7459307511158, 294.47393907991636, 3.2795201078809053, 3.141664672796505, 2.7461834436421735, 4.588453248243642, 7.0984271196341595, 4.928040297451119, 7.311148652348397, 3.9503644434256286]
+2025-09-15 10:39:31,712 - plastyfire.evaluator - INFO - Evaluating individual: [184.77704621622027, 213.91964026155256, 4.014462671815192, 4.300123879556915, 4.14192609263446, 1.8087941800129506, 5.2232958118714965, 3.5183842981642557, 1.5860638762021817, 2.784530220381582]
+2025-09-15 10:39:31,713 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_dcd6d9939ef2.pkl, submitting batch job
+2025-09-15 10:39:31,712 - plastyfire.evaluator - INFO - Evaluating individual: [135.36614956676823, 178.5684739792705, 2.7982804826045387, 1.3748385629007869, 4.382177030268421, 1.8394300559571866, 5.712417615001936, 4.921787327625896, 4.69380177004455, 2.814171750873588]
+2025-09-15 10:39:31,714 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b1f4f8c27bcb.pkl, submitting batch job
+2025-09-15 10:39:31,713 - plastyfire.evaluator - INFO - Evaluating individual: [114.53956006398299, 186.70682912934785, 4.274447793618288, 2.531618413122694, 3.236798289844526, 2.746918151918902, 1.8417399045945892, 3.900083427161189, 3.828977483121964, 4.244218192758809]
+2025-09-15 10:39:31,714 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c8223c7cc9a4.pkl, submitting batch job
+2025-09-15 10:39:31,714 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,714 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_7b36efbcbc95.pkl, submitting batch job
+2025-09-15 10:39:31,714 - plastyfire.evaluator - INFO - Evaluating individual: [190.99500774738965, 260.5239903666279, 1.980672627786272, 1.0814628100643624, 4.5535271081352455, 3.4691915843663765, 3.1645440588696303, 4.760971372841815, 9.506000401380428, 3.2897718204027604]
+2025-09-15 10:39:31,716 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_409ddb469786.pkl, submitting batch job
+2025-09-15 10:39:31,715 - plastyfire.evaluator - INFO - Evaluating individual: [183.8244286140176, 165.57944341463707, 1.886946690324662, 4.036385590948706, 4.709430105891679, 2.804700570455958, 8.530528525679655, 1.4850243810839174, 9.461724681701359, 4.928416304378599]
+2025-09-15 10:39:31,717 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_048145d1e05e.pkl, submitting batch job
+2025-09-15 10:39:31,717 - plastyfire.evaluator - INFO - Evaluating individual: [51.24732764709961, 179.82971481653263, 1.282554383927255, 4.333642539462948, 2.3655052676363626, 1.5509897304902545, 2.645195415231403, 1.5071782216906064, 4.5904249682485005, 2.5017082165257825]
+2025-09-15 10:39:31,718 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,719 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_f95b92377fdf.pkl, submitting batch job
+2025-09-15 10:39:31,718 - plastyfire.evaluator - INFO - Evaluating individual: [107.44490735800952, 299.0054621586631, 2.376280776517203, 2.3306889444826995, 4.933123599350248, 3.9748998102171442, 8.378676564336256, 3.2268919901132107, 4.575426199892012, 1.0608453772378281]
+2025-09-15 10:39:31,720 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_7d33cb2fe067.pkl, submitting batch job
+2025-09-15 10:39:31,720 - plastyfire.evaluator - INFO - Evaluating individual: [101.01024532470981, 273.31307576157286, 2.477363121052649, 3.5400020020603056, 1.7941626024309758, 1.6127586769491828, 4.345769179639108, 1.7063977484096897, 2.3830748096223364, 3.373010692479162]
+2025-09-15 10:39:31,720 - plastyfire.evaluator - INFO - Evaluating individual: [57.85666537906657, 293.5815593774361, 3.578756585172589, 1.4300796898252401, 3.807420338161829, 3.5502454444745037, 1.4954810670020624, 4.552415667809862, 9.308234376444226, 4.621831727623484]
+2025-09-15 10:39:31,721 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_6c7fdedd9b12.pkl, submitting batch job
+2025-09-15 10:39:31,721 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_464743f17e3a.pkl, submitting batch job
+2025-09-15 10:39:31,724 - plastyfire.evaluator - INFO - Evaluating individual: [109.26095550650297, 159.12001280332703, 2.1674189845888177, 2.129972786795671, 4.238829169080487, 4.936493732899542, 8.449728484167181, 4.560420977327235, 7.831141415845357, 2.047978541254404]
+2025-09-15 10:39:31,724 - plastyfire.evaluator - INFO - Evaluating individual: [172.91790981858992, 153.73286790609257, 3.026435078738787, 1.9937517560272218, 4.789410403942011, 3.3170723348098043, 1.09266592882706, 3.873041469677301, 5.24989316537595, 3.7216958138979352]
+2025-09-15 10:39:31,725 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_16cf8940a67d.pkl, submitting batch job
+2025-09-15 10:39:31,726 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_9a505b662022.pkl, submitting batch job
+2025-09-15 10:39:31,726 - plastyfire.evaluator - INFO - Evaluating individual: [188.03195746662908, 293.98737932046015, 1.949934974430429, 3.2268559934030825, 3.1950321543363893, 3.624819188611172, 9.627857922271964, 1.1808245742451606, 7.784450603890718, 4.444211976045364]
+2025-09-15 10:39:31,727 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_90faed4b1ae7.pkl, submitting batch job
+2025-09-15 10:39:31,728 - plastyfire.evaluator - INFO - Evaluating individual: [135.62613923072303, 274.8359896779047, 3.5025980477593137, 4.361106632777483, 3.736335830603529, 3.375781108831678, 8.527796376373502, 1.9177979307243547, 6.853702019256652, 2.9276930063216122]
+2025-09-15 10:39:31,729 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_a7b5016dc457.pkl, submitting batch job
+2025-09-15 10:39:31,729 - plastyfire.evaluator - INFO - Evaluating individual: [72.30162663180809, 252.44645533380594, 1.0413562875137297, 4.42805414501474, 4.545686147239101, 3.1010497048656602, 4.891865942459608, 2.101390546915787, 1.1079252235885861, 2.823920159052218]
+2025-09-15 10:39:31,730 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,730 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_7dac875d058f.pkl, submitting batch job
+2025-09-15 10:39:31,730 - plastyfire.evaluator - INFO - Evaluating individual: [50.10503855941182, 266.09312162237416, 4.083488843317777, 1.148448622486447, 1.6881118616999067, 1.9485021273994323, 8.571528965109946, 3.1895822579944233, 8.874303407345131, 2.546892127834984]
+2025-09-15 10:39:31,732 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_9cb81e091890.pkl, submitting batch job
+2025-09-15 10:39:31,733 - plastyfire.evaluator - INFO - Evaluating individual: [100.45776890083994, 264.90111926811375, 3.6113074479740708, 3.8050633623394874, 2.725095458124434, 1.5460896864148346, 3.355955334494511, 3.1132730244012174, 5.573109020014186, 1.6910062067211467]
+2025-09-15 10:39:31,734 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,734 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_2bf4ed8be8b1.pkl, submitting batch job
+2025-09-15 10:39:31,734 - plastyfire.evaluator - INFO - Evaluating individual: [181.4624074703, 236.80493192052393, 3.4098139279191133, 3.9875232184000344, 1.6925288807687413, 3.0834383625991615, 4.521251727238284, 3.8902039391031438, 6.577036333321338, 2.4402364861735912]
+2025-09-15 10:39:31,735 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,736 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_854f352952f9.pkl, submitting batch job
+2025-09-15 10:39:31,736 - plastyfire.evaluator - INFO - Evaluating individual: [129.95276105519417, 243.22315388726634, 2.074216197959868, 3.3079346171174477, 1.7887888977469943, 3.1481267346532116, 6.196442844005692, 3.5564972092230573, 1.7462809558590129, 2.595915443266684]
+2025-09-15 10:39:31,737 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_5cc0afaa23b0.pkl, submitting batch job
+2025-09-15 10:39:31,737 - plastyfire.evaluator - INFO - Evaluating individual: [61.379843057211446, 263.87200291109207, 3.64281826695431, 4.731159737326282, 2.9708135999621392, 4.545633402484114, 6.840721972016011, 4.316931727078245, 2.7184464971887308, 2.0974496148883612]
+2025-09-15 10:39:31,738 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_781c0859cb63.pkl, submitting batch job
+2025-09-15 10:39:31,741 - plastyfire.evaluator - INFO - Evaluating individual: [196.80858729283756, 151.69546205822007, 1.9512601283644289, 3.552514464585658, 2.9571464304443627, 3.7981614326505513, 5.428467730058098, 3.3064351006501345, 8.584092424948397, 3.900643014274049]
+2025-09-15 10:39:31,742 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_3c16f3eb27c2.pkl, submitting batch job
+2025-09-15 10:39:31,742 - plastyfire.evaluator - INFO - Evaluating individual: [149.92040530068795, 232.15041293071113, 4.008303690540426, 4.522406503277224, 4.110645333251859, 1.7299613202251765, 2.3931307305040432, 2.1203714944516734, 5.931863195484578, 1.652083898145253]
+2025-09-15 10:39:31,744 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ad19fddb7118.pkl, submitting batch job
+2025-09-15 10:39:31,744 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,744 - plastyfire.evaluator - INFO - Evaluating individual: [185.36303076339277, 202.3250292531622, 3.8169915338784555, 3.6095748600341806, 3.8365090769591315, 1.6058823927842085, 5.544871361739752, 3.627067977172196, 4.433112820793855, 2.8739445360055114]
+2025-09-15 10:39:31,745 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_f9fc97483a97.pkl, submitting batch job
+2025-09-15 10:39:31,748 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,748 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,748 - plastyfire.evaluator - INFO - Evaluating individual: [99.98660515294337, 172.35297232130972, 3.714464813788383, 3.7761719208146673, 2.353681359174899, 1.626061657213433, 4.145079536713375, 1.8750840583151134, 6.714122965746582, 2.5318402209022324]
+2025-09-15 10:39:31,749 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_fb74d07ab6e5.pkl, submitting batch job
+2025-09-15 10:39:31,749 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,751 - plastyfire.evaluator - INFO - Evaluating individual: [111.56836772485181, 246.1480792649232, 3.273817544433866, 4.978391111288317, 3.9861109137570025, 2.018081692349947, 4.621191905451087, 3.2416941718502414, 4.866747198645411, 1.6089789165037258]
+2025-09-15 10:39:31,753 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_96ccefcf1639.pkl, submitting batch job
+2025-09-15 10:39:31,753 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,754 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,754 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,755 - plastyfire.evaluator - INFO - Evaluating individual: [76.50539643926919, 179.88242662231653, 2.2020449263737367, 2.3097270971520207, 1.6968141513352744, 1.147749146289887, 8.783718723368402, 3.1255592206502256, 5.484316128881835, 2.431638302528265]
+2025-09-15 10:39:31,756 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_e192ba602017.pkl, submitting batch job
+2025-09-15 10:39:31,759 - plastyfire.evaluator - INFO - Evaluating individual: [145.35986851934655, 198.292524001299, 2.4033008457618026, 1.542186554778496, 2.4995350268884517, 2.7823255709873873, 4.40715874068597, 4.739745102995472, 4.478010064377278, 2.533560410085115]
+2025-09-15 10:39:31,760 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,760 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_bc083c66e055.pkl, submitting batch job
+2025-09-15 10:39:31,761 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,761 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,761 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,762 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,763 - plastyfire.evaluator - INFO - Evaluating individual: [131.90470390886185, 193.43958411987416, 1.2476923082337206, 2.0910130714934496, 4.603750560256375, 2.1740533667525432, 4.623577677589927, 2.0785936473379145, 1.9174240947424992, 4.211611629940925]
+2025-09-15 10:39:31,763 - plastyfire.evaluator - INFO - Evaluating individual: [106.33965005160273, 235.97059823334754, 2.7620282414720037, 4.461015253542513, 3.6677667477190683, 1.2086814245979767, 3.7775514377707893, 4.757688135122257, 2.3201764675472036, 3.3122967432311667]
+2025-09-15 10:39:31,764 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_fbe368ac34c5.pkl, submitting batch job
+2025-09-15 10:39:31,765 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_62999fb7b7d8.pkl, submitting batch job
+2025-09-15 10:39:31,764 - plastyfire.evaluator - INFO - Evaluating individual: [115.26405655395013, 254.4804012772919, 4.718557766886906, 1.2440443318390115, 1.066139911272158, 1.7990818671626099, 6.217888063864592, 4.20672147055238, 4.892740213338417, 1.4500093289595277]
+2025-09-15 10:39:31,766 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_035d46e7c74b.pkl, submitting batch job
+2025-09-15 10:39:31,768 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,768 - plastyfire.evaluator - INFO - Evaluating individual: [129.02680464560456, 184.55238601622213, 2.2830665091448625, 4.461221133254255, 4.7156453778196905, 4.016364590180471, 1.1140672692354734, 2.9422371757245234, 9.420025932347842, 2.727661552065952]
+2025-09-15 10:39:31,769 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_23a14c9dccd3.pkl, submitting batch job
+2025-09-15 10:39:31,769 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,769 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,770 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,771 - plastyfire.evaluator - INFO - Evaluating individual: [174.95021492070754, 213.03521603125597, 4.341772216844697, 1.967422638388305, 1.198937880031413, 2.2065031229728964, 3.3431466978783018, 1.7519583325701285, 8.328305397991322, 2.536472519825376]
+2025-09-15 10:39:31,772 - plastyfire.evaluator - INFO - Evaluating individual: [98.73395325632427, 241.655834738223, 4.071427775004971, 1.4994240307378703, 1.0364396766349078, 2.1855265527725427, 1.0381056720173305, 3.196033812047694, 8.942037745514874, 1.539002290699314]
+2025-09-15 10:39:31,773 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,773 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_1b74a906f39b.pkl, submitting batch job
+2025-09-15 10:39:31,773 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,773 - plastyfire.evaluator - INFO - Evaluating individual: [109.13259547347343, 171.0686392535707, 2.60969068781412, 2.3373060715351683, 4.024246164721014, 1.9211154235952397, 9.141424662959993, 3.047057525815405, 1.4351743704267097, 2.284414498623212]
+2025-09-15 10:39:31,774 - plastyfire.evaluator - INFO - Evaluating individual: [154.81902038551675, 254.92798512056754, 4.832526649041441, 1.3036759021032305, 3.769772794625333, 4.544271195736335, 9.993646320990287, 2.9879960648843547, 7.42279868873792, 4.0620322362452415]
+2025-09-15 10:39:31,775 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,776 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_4992265a3801.pkl, submitting batch job
+2025-09-15 10:39:31,777 - plastyfire.evaluator - INFO - Evaluating individual: [166.94270995209826, 264.29592190160804, 4.675831810569052, 4.848172653357219, 2.6504239666483653, 2.1821714304789674, 8.69463156899224, 3.771167022189827, 1.148570577132258, 4.2626081438579195]
+2025-09-15 10:39:31,779 - plastyfire.evaluator - INFO - Evaluating individual: [95.45639505020158, 246.3956978028626, 3.637209223138851, 4.128294224523127, 3.5255193313815343, 2.3208868977608392, 5.0323246114464615, 4.150551769521769, 9.20107797781019, 4.729760198066858]
+2025-09-15 10:39:31,779 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c3edb063bed9.pkl, submitting batch job
+2025-09-15 10:39:31,780 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_2645927ea09d.pkl, submitting batch job
+2025-09-15 10:39:31,780 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_2c570fa37931.pkl, submitting batch job
+2025-09-15 10:39:31,780 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_cbc8aacb7d18.pkl, submitting batch job
+2025-09-15 10:39:31,783 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,783 - plastyfire.evaluator - INFO - Evaluating individual: [132.56511103147338, 299.0040864680774, 3.568098806942171, 1.4669977784796755, 1.9162338878726604, 2.758665316281967, 7.196183898623993, 1.4536491222297987, 1.7564352782687926, 1.246736043248946]
+2025-09-15 10:39:31,783 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,784 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_ff11debb21c9.pkl, submitting batch job
+2025-09-15 10:39:31,786 - plastyfire.evaluator - INFO - Evaluating individual: [102.84516939851532, 276.4059067641531, 2.6518313381284084, 1.6858552909994935, 4.811177158712713, 2.237830578028563, 4.746934924736196, 2.408787078917969, 8.353567565727838, 3.272005225202834]
+2025-09-15 10:39:31,787 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b2548859bbb0.pkl, submitting batch job
+2025-09-15 10:39:31,787 - plastyfire.evaluator - INFO - Evaluating individual: [154.95825278036557, 229.7509332112528, 3.75877127735432, 4.489976264983962, 1.4098408050715068, 3.2851982186194935, 2.528549064438942, 4.500683763521046, 6.172896710350686, 3.4254739121640565]
+2025-09-15 10:39:31,788 - plastyfire.evaluator - INFO - Evaluating individual: [192.07430371086878, 175.09136259914138, 1.5870691229285452, 3.5832001770010344, 4.116500031357665, 3.277393794662517, 9.750331715100764, 1.3152698324195433, 2.9036788845526758, 1.1679627746499004]
+2025-09-15 10:39:31,789 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_838a79798937.pkl, submitting batch job
+2025-09-15 10:39:31,791 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,792 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,792 - plastyfire.evaluator - INFO - Evaluating individual: [117.84680676896416, 221.63478599196796, 3.6250713656276714, 2.9318925094275583, 3.803777887900117, 4.5076842814911275, 2.623829116614262, 4.938754181939466, 2.7107485054952134, 4.695546438294866]
+2025-09-15 10:39:31,793 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_414c77f55dba.pkl, submitting batch job
+2025-09-15 10:39:31,793 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_8c4bf6b49998.pkl, submitting batch job
+2025-09-15 10:39:31,792 - plastyfire.evaluator - INFO - Evaluating individual: [83.10400282521508, 151.9233564305868, 1.4621007348036872, 2.7714114324626187, 1.0892289922234486, 2.5947656138769686, 8.085021227767445, 4.563726948086949, 6.596341050694985, 4.462809834211129]
+2025-09-15 10:39:31,793 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,793 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,794 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_40921df2b4b9.pkl, submitting batch job
+2025-09-15 10:39:31,794 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,796 - plastyfire.evaluator - INFO - Evaluating individual: [73.7315690068349, 154.45105899615692, 4.419078848341885, 1.8940603944928327, 4.279856639032612, 1.0498834596062645, 9.161368518295001, 4.634396086570321, 5.220983408096318, 2.537275991604097]
+2025-09-15 10:39:31,797 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_923c8af75896.pkl, submitting batch job
+2025-09-15 10:39:31,797 - plastyfire.evaluator - INFO - Evaluating individual: [93.4001691761407, 238.94929033385927, 4.837394372417668, 1.7662661633223604, 4.3922750219624085, 4.0281460350582545, 2.4763000971124285, 4.026642824489574, 3.066244825342213, 1.4737107965528136]
+2025-09-15 10:39:31,799 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,800 - plastyfire.evaluator - INFO - Evaluating individual: [54.367728523725276, 160.8410328082724, 3.673594546941072, 4.274983063058137, 1.804060907136658, 4.31629907384875, 7.891169331025188, 4.648455350677507, 3.674739418004306, 2.2451206776355157]
+2025-09-15 10:39:31,801 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_469f285fb1e2.pkl, submitting batch job
+2025-09-15 10:39:31,801 - plastyfire.evaluator - INFO - Evaluating individual: [99.79108301326474, 209.86277838932835, 2.2918771118309187, 3.9312599444488026, 4.035589662632212, 1.369818138755245, 8.887011212724515, 4.038310526006063, 7.597057134667728, 4.793760861322436]
+2025-09-15 10:39:31,802 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_d31a3fa66765.pkl, submitting batch job
+2025-09-15 10:39:31,803 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_b308aa4c0b86.pkl, submitting batch job
+2025-09-15 10:39:31,805 - plastyfire.evaluator - INFO - Evaluating individual: [161.36416826003435, 290.18331035045367, 3.3728983167536666, 1.881455844630679, 1.7291738264207588, 2.2682960694717433, 1.5976409166007288, 1.5364195338003324, 8.266089562737001, 1.42309661597842]
+2025-09-15 10:39:31,805 - plastyfire.evaluator - INFO - Evaluating individual: [104.43100254365811, 219.75756295703576, 2.2653557484498235, 4.698368698855669, 2.359880089516867, 2.888582689692612, 3.027878721514511, 3.4210223534530817, 9.013511700629198, 4.776390214763674]
+2025-09-15 10:39:31,806 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_c300b002ae82.pkl, submitting batch job
+2025-09-15 10:39:31,806 - plastyfire.evaluator - INFO - No existing PKL file found for mrk97_01: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180834-205125/2Hz_5ms/simulation_f61d15d3cb16.pkl, submitting batch job
+2025-09-15 10:39:31,809 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,809 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,810 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,811 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,815 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,817 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,817 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,817 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,818 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,826 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,834 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,838 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,843 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,847 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,850 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,855 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,857 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,857 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,859 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,862 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,872 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,898 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,900 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,930 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,935 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,937 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,938 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,954 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,957 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:31,988 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,000 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,012 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,021 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,031 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,035 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,041 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,079 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,081 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,082 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,082 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,093 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,103 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,117 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,138 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,157 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,159 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,188 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,198 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,198 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,251 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,268 - plastyfire.pyslurm - INFO - Current active jobs: 2/900
+2025-09-15 10:39:32,536 - plastyfire.pyslurm - INFO - Current active jobs: 2/900

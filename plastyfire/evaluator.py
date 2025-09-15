@@ -7,6 +7,7 @@ import os
 import sys
 import time
 import pickle
+import glob
 import logging
 import traceback
 import hashlib
@@ -86,6 +87,8 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
     initial_rho_str = '_'.join(map(str, initial_rho))
     final_rho_str = '_'.join(map(str, final_rho))
     
+    os.remove(pkl_file)
+
     pre_gid, post_gid = workdir.split('/')[-2].split('-')
     sim_config_path = os.path.join(workdir, "simulation_config.json")    
 
@@ -300,9 +303,8 @@ class Evaluator(Evaluator):
         # Template variables
         template_vars = {
             "name": f"param_{param_hash}_{sim_dict['protocol_id']}",
-            "cpu_time": "00:30:00",
+            "cpu_time": "01:30:00",
             "log": f"{param_hash}_{sim_dict['protocol_id']}",
-            "qos": "#SBATCH --qos=normal",
             "env": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh",
             "run": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py",
             "param_args": param_args,
@@ -350,21 +352,6 @@ class Evaluator(Evaluator):
             
         logger.info(f"Submitted job {job_id}")
         return job_id
-
-    def wait_for_job_completion(self, workdir, param_hash, timeout=6600):
-        """Wait for job completion by checking for specific PKL file creation"""
-        start_time = time.time()
-        
-        while time.time() - start_time < timeout:
-            # Check for specific PKL file completion
-            if self.check_pkl_completion(workdir, param_hash):
-                logger.info(f"Job completed successfully - expected PKL file found")
-                return True
-            elapsed = time.time() - start_time            
-            time.sleep(5)  # Check every 5 seconds instead of 10
-        
-        logger.error(f"Job timed out after {timeout} seconds - expected PKL file not found")
-        return False
     
     def check_pkl_completion(self, workdir, param_hash):
         """Check if simulation completed by looking for the specific PKL file"""
@@ -382,9 +369,9 @@ class Evaluator(Evaluator):
                         # Check file size and stability
                         file_size = os.path.getsize(pkl_file)
                         if file_size > 0:
-                            # File exists and has content
-                            # Reduced logging: removed verbose debug
-                            # logger.debug(f"Found expected PKL file: {pkl_file} (size: {file_size} bytes)")
+                            batch_file = os.path.join(workdir, f"simulation_{param_hash}.batch")
+                            if os.path.exists(batch_file):
+                                os.remove(batch_file)
                             return True
                     except (OSError, IOError):
                         # File might be being written, continue checking
@@ -393,8 +380,6 @@ class Evaluator(Evaluator):
             return False
             
         except Exception as e:
-            # Reduced logging: only log serious errors
-            # logger.debug(f"Error checking PKL completion in {workdir}: {e}")
             return False
     
     def _log_job_failure_details(self, job_id, job_info):
@@ -532,7 +517,7 @@ class Evaluator(Evaluator):
                 logger.info(f"Waiting for {len(batch_jobs)} batch jobs to complete...")
                 for job_id, batch_path, sim_dict, param_hash in batch_jobs:
                     
-                    if self.wait_for_job_completion(sim_dict["workdir"], param_hash):
+                    if self.check_pkl_completion(sim_dict["workdir"], param_hash):
                         logger.info(f"Job {job_id} completed successfully")
                         successful_jobs.append((job_id, batch_path, sim_dict))
                     else:
@@ -563,6 +548,7 @@ class Evaluator(Evaluator):
                 # Clean up batch script (now with unique naming)
                 if os.path.exists(batch_path):
                     os.remove(batch_path)
+                [os.remove(f) for f in glob.glob(os.path.join(os.path.dirname(batch_path), "*.log"))]
             
             # Check if we have enough results to proceed
             if len(results) < len(self.objectives):
