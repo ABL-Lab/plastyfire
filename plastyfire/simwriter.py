@@ -244,10 +244,18 @@ class OptSimWriter(OptConfig):
         workdir = os.path.dirname(f_name)
         tmp = os.path.split(workdir)
         name = "%s_%s" % (tmp[1], os.path.split(tmp[0])[1])
-        args = "--fastforward=%.1f" % self.fastforward if self.fastforward is not None else ""
+        # Create param_args that will be used by the SLURM system
+        param_args = "--fastforward=%.1f" % self.fastforward if self.fastforward is not None else ""
+        
+        # Create unique identifiers to avoid conflicts with evaluator system
+        # Use hash of workdir path to ensure uniqueness
+        unique_id = abs(hash(workdir)) % 100000  # 5-digit unique ID
         with open(f_name, "w+", encoding="latin1") as f:
             f.write(templ.format(name=name, cpu_time=cpu_time, qos="#SBATCH --chdir=%s" % workdir, log=name,
-                                 env=self.env, run=self.run, args=args))
+                                 env=self.env, run=self.run, param_args=param_args, workdir=workdir,
+                                 fastforward=0.0, param_hash_arg="", 
+                                 individual_id_arg=f" --individual_id={unique_id}",
+                                 generation_arg=" --generation=0"))
 
     def write_sim_files(self, pairs):
         """Writes pair, frequency, and dt specific `simulation_config.json` used by `bluecellulab`
@@ -266,6 +274,7 @@ class OptSimWriter(OptConfig):
         before_duration = n_spikes_before * self.C01_T
         pairing_duration = self.nreps * self.T
         t_stop = before_duration + pairing_duration + n_spikes_after * self.C02_T
+        prefire_t_stop = self.offset + pairing_duration + 1000.0
         # CPU time heuristics
         h, m = np.divmod(OPT_CPU_TIME * t_stop / 1000., 3600)
         m, s = np.divmod(m, 60)
@@ -304,12 +313,27 @@ class OptSimWriter(OptConfig):
                                               "delay": post_spike, "duration": pairing_duration, "amp_start": amplitude,
                                               "width": self.width, "frequency": 1000. / self.T}
                               for i, post_spike in enumerate(post_spikes)}
+                    
+                    prefire_post_spikes = np.array([self.offset + i * isi for i in range(self.nspikes)])
+                    prefire_inputs = {"pulse%i" % i: {"input_type": "current_clamp", "module": "pulse",
+                                              "node_set": self.target,  # "postcell" (to be fixed in `bluecellulab`)
+                                              "delay": post_spike, "duration": pairing_duration, "amp_start": amplitude,
+                                              "width": self.width, "frequency": 1000. / self.T}
+                              for i, post_spike in enumerate(prefire_post_spikes)}
+
                     # Generate (full) presynaptic spike train used as spike replay stimulus
                     pre_spikes = [self.offset + before_duration + i * isi - dt + spike_delay[i] + j * self.T
                                   for j in range(self.nreps) for i in range(self.nspikes)]
                     pre_spikes = np.array(before_pre_spikes + pre_spikes + after_pre_spikes)
                     h5f_name = os.path.join(workdir, "prespikes.h5")
                     save_spikes(h5f_name, self.node_pop, pre_spikes, pre_gid * np.ones(len(pre_spikes), dtype=int))
+                    
+                    prefire_pre_spikes = [self.offset + i * isi - dt + spike_delay[i] + j * self.T
+                                  for j in range(self.nreps) for i in range(self.nspikes)]
+                    prefire_pre_spikes = np.array(prefire_pre_spikes)
+                    h5f_prefire_name = os.path.join(workdir, "prefire_prespikes.h5")
+                    save_spikes(h5f_prefire_name, self.node_pop, prefire_pre_spikes, pre_gid * np.ones(len(prefire_pre_spikes), dtype=int))
+                    
                     # Not adding spike replay to the `inputs` because one has to do it manually in `bluecellulab`
                     # (could be kept for `neurodamus`, but that breaks the current version of `bluecellulab`)
                     # inputs["prespikes"] = {"input_type": "spikes", "module": "synapse_replay", "node_set": "postcell",
@@ -327,6 +351,21 @@ class OptSimWriter(OptConfig):
                                        "modoverride": "GluSynapse", "weight": 1.0}]}
                     with open(os.path.join(workdir, "simulation_config.json"), "w", encoding="utf-8") as f:
                         json.dump(sim_config, f, indent=4)
+
+                    prefire_sim_config = {"run": {"dt": 0.025, "tstop": prefire_t_stop, "random_seed": np.random.randint(1, 999999)},
+                                  "network": self.circuit_config,
+                                  "node_sets_file": jsonf_name,
+                                  "node_set": "postcell",
+                                  "output": {"output_dir": os.path.join(workdir, "out")},
+                                  "inputs": prefire_inputs,
+                                  "connection_overrides": [
+                                      {"name": "plasticity", "source": self.target, "target": self.target,
+                                       # "source": "precell", "target": "postcell" (to be fixed in `bluecellulab`)
+                                       "modoverride": "GluSynapse", "weight": 1.0}]}
+                    with open(os.path.join(workdir, "prefire_simulation_config.json"), "w", encoding="utf-8") as f:
+                        json.dump(prefire_sim_config, f, indent=4)
+
+                
                     # Write launch script (to be able to run it separately with `pairrunner.py`)
                     f_name = os.path.join(workdir, "simulation.batch")
                     self.write_batch_sript(f_name, templ, cpu_time)
@@ -382,7 +421,7 @@ class SimWriter(Config):
         c = Circuit(self.circuit_config)
         df = c.nodes[self.node_pop].get(self.target, "synapse_class")
         gids = df.loc[df == "EXC"].index.to_numpy()  # just to make sure
-        with open(os.path.join("templates", "simulation.batch.tmpl"), "r") as f:
+        with open(os.path.join("templates", "single_cell.batch.tmpl"), "r") as f:
             templ = f.read()
         f_names = []
         for gid in tqdm(gids, desc="Writing batch scripts for every EXC gid", miniters=len(gids)/100):

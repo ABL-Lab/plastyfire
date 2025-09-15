@@ -24,7 +24,8 @@ SPIKE_THRESHOLD = -30  # mV
 EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
 logger = logging.getLogger(__name__)  # configure logger
-DEBUG = False
+# DEBUG flag will be set by modelfitter.py when --debug is used
+DEBUG = False  # Default to False, will be overridden by modelfitter
 SYNPROPS = ["Cpre", "Cpost", "loc", "Use0_TM", "Dep_TM", "Fac_TM", "Nrrp_TM", "gmax0_AMPA", "gmax_NMDA",
             "volume_CR", "synapseID", "theta_d_GB", "theta_p_GB"]
 MOD_PROPS = ["gamma_d_GB", "gamma_p_GB"]  # 'tau_exp_GB'
@@ -128,7 +129,8 @@ def _set_global_params(allparams):
     for param_name, param_val in allparams.items():
         if re.match(".*_GluSynapse$", param_name):
             setattr(bluecellulab.neuron.h, param_name, param_val)
-            logger.debug("\t%s = %f", param_name, getattr(bluecellulab.neuron.h, param_name))
+            # Reduced logging: removed verbose parameter debug
+        # logger.debug("\t%s = %f", param_name, getattr(bluecellulab.neuron.h, param_name))
 
 
 def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
@@ -190,7 +192,8 @@ def _c_pre_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, pos
     # setup synapses and run simulation
     df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
     for syn_id, synapse in cell.synapses.items():
-        logger.debug("Configuring synapse %d", syn_id[1])
+        # Reduced logging: removed verbose synapse debug
+        # logger.debug("Configuring synapse %d", syn_id[1])
         if syn_extra_params is not None:  # configure local parameters
             _set_local_params(synapse, fit_params,
                               syn_extra_params[df.loc[df["local_syn_idx"] == syn_id[1]].index[0]])
@@ -253,7 +256,8 @@ def _c_post_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, po
     # setup synapses and run simulation
     df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
     for syn_id, synapse in cell.synapses.items():
-        logger.debug("Configuring synapse %d", syn_id[1])
+        # Reduced logging: removed verbose synapse debug
+        # logger.debug("Configuring synapse %d", syn_id[1])
         if syn_extra_params is not None:  # configure local parameters
             _set_local_params(synapse, fit_params,
                               syn_extra_params[df.loc[df["local_syn_idx"] == syn_id[1]].index[0]])
@@ -311,17 +315,142 @@ def c_post_finder(sim_config, fit_params, syn_extra_params, pre_gid, post_gid, s
         return results["c_post"] if len(results["t_spikes"]) == 1 else None
     return results["c_post"]
 
+def _runconnectedpair_prefire_process(results, workdir, fit_params, syn_extra_params, pre_gid, post_gid, t_end, c_pre, c_post,
+                              syn_rec_lst, fastforward, node_pop, edge_pop, fixhp, log_queue=None):
+    """
+    Multiprocessing subprocess for `runconnectedpair()`
+    """
+    import time
+    import logging
+    
+    # Set up proper logging for child process
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),  # Console output
+            logging.FileHandler(f'{workdir}/child_process.log')  # File output
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    
+    sim_start_time = time.time()
+    
+    if log_queue:
+        log_queue.put(f"Child process started, logging to {workdir}/child_process.log")
+    
+    try:
+        sim_config = os.path.join(workdir, "prefire_simulation_config.json")
+        logger.info(f"Loading simulation from {sim_config}")
+        sim = bluecellulab.CircuitSimulation(sim_config)
+        
+        if log_queue:
+            log_queue.put(f"Loaded simulation from {sim_config}")
+        
+        # Get presynaptic spike times from file (heavily relies on naming conventions
+        # and the fact that spikes are delivered from a single presynaptic cell)
+        pre_spikes = SpikeReader(os.path.join(workdir, "prefire_prespikes.h5"))[node_pop].get_dict()["timestamps"]
+        
+        # Instantiate gid with stimuli from sim. config and presynaptic spike times read from file
+        sim.instantiate_gids([(node_pop, post_gid)], add_synapses=True, add_minis=False, add_pulse_stimuli=True,
+                             intersect_pre_gids=[(node_pop, pre_gid)],
+                             pre_spike_trains={(node_pop, pre_gid): pre_spikes})
+        cell = sim.cells[(node_pop, post_gid)]
+        if fixhp:  # hyperpolarization workaround
+            for sec in cell.somatic + cell.axonal:
+                sec.uninsert("SK_E2")
+        if fit_params is not None:  # setup global parameters
+            _set_global_params(fit_params)
+        syn_rec_lst = SYNREC if syn_rec_lst is None else syn_rec_lst
+        syn_rec, syn_idx = {key: [] for key in SYNREC}, []
+        for syn_id, synapse in cell.synapses.items():
+            syn_idx.append(syn_id[1])
+            if len(syn_rec_lst) != 0:
+                for key, lst in syn_rec.items():  # set up recordings
+                    recorder = bluecellulab.neuron.h.Vector()
+                    recorder.record(getattr(synapse.hsynapse, "_ref_%s" % key))
+                    lst.append(recorder)
+        df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
+        syn_props = {key: [] for key in SYNPROPS}
+        for syn_id, synapse in cell.synapses.items():
+            # Reduced logging: removed verbose synapse debug
+            # logger.debug("Configuring synapse %d", syn_id[1])
+            if syn_extra_params is not None:  # configure local parameters
+                global_syn_id = df.loc[df["local_syn_idx"] == syn_id[1]].index[0]
+                _set_local_params(synapse, fit_params, syn_extra_params[global_syn_id],
+                                  c_pre[global_syn_id], c_post[global_syn_id])
+            for key, lst in syn_props.items():  # store synapse properties
+                if key == "Cpre":
+                    lst.append(c_pre[global_syn_id])
+                elif key == "Cpost":
+                    lst.append(c_post[global_syn_id])
+                elif key == "loc":
+                    lst.append(syn_extra_params[global_syn_id]["loc"])
+                else:
+                    if key in PARAM_MAP:
+                        lst.append(getattr(synapse.hsynapse, PARAM_MAP[key]))
+                    else:
+                        lst.append(getattr(synapse.hsynapse, key))
+            # for attr in dir(synapse.hsynapse):  # show all params
+            #     if re.match('__.*', attr) is None:
+            #         logger.debug("%s = %s", attr, str(getattr(synapse.hsynapse, attr)))
+        # Run
+        
+        bluecellulab.neuron.h.cvode_active(1)
+        sim.run(t_end, cvode=True)
+        if log_queue:
+            log_queue.put("Simulation completed")
+        logger.debug("Simulation completed")
+        # Collect all properties
+        syn_props.update({key: getattr(bluecellulab.neuron.h, "%s_GluSynapse" % key) for key in MOD_PROPS})
+        # Collect Results
+        t = np.array(sim.get_time())
+        v = np.array(sim.get_voltage_trace((node_pop, post_gid)))
+        results["t"] = t
+        results["v"] = v
+        results["prespikes"] = pre_spikes
+        results["postspikes"] = _get_spikes(t, v)
+        results["synprop"] = syn_props
+        if len(syn_rec_lst) != 0:
+            for key, lst in syn_rec.items():
+                results[key] = np.transpose([np.array(rec) for rec in lst])
+        
+        # Log total simulation walltime
+        sim_duration = time.time() - sim_start_time
+        if log_queue:
+            log_queue.put(f"Simulation walltime: {sim_duration:.2f} seconds")
+        # Reduced logging: only log walltime if needed
+        # logger.debug("Simulation walltime: %.2f seconds", sim_duration)
+    except Exception as e:
+        logger.error(f"Child process failed: {e}")
+        if log_queue:
+            log_queue.put(f"Child process error: {e}")
+        raise
+
 
 def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pre_gid, post_gid, t_end, c_pre, c_post,
-                              syn_rec_lst, fastforward, node_pop, edge_pop, fixhp):
+                              syn_rec_lst, fastforward, node_pop, edge_pop, fixhp, log_queue=None):
     """
     Multiprocessing subprocess for `runconnectedpair()`
     Injects periodic current pulses (read from simulation_config.json) that makes the postsynaptic cell fire APs,
     while delivering spikes from the (non-simulated) presynaptic cell (read from file
     written by `plastyfire/simwriter` as well) after setting up all custom synapse parameters
     """
+    import time
+    sim_start_time = time.time()
+    # Configure logging for child process
+    import logging
+    child_logger = logging.getLogger(__name__)
+    if not child_logger.handlers:
+        # Copy logging configuration from parent
+        parent_logger = logging.getLogger()
+        for handler in parent_logger.handlers:
+            child_logger.addHandler(handler)
+        child_logger.setLevel(parent_logger.level)
     sim_config = os.path.join(workdir, "simulation_config.json")
     sim = bluecellulab.CircuitSimulation(sim_config)
+    if log_queue:
+        log_queue.put(f"Loaded simulation from {sim_config}")
     logger.debug("Loaded simulation")
     # Get presynaptic spike times from file (heavily relies on naming conventions
     # and the fact that spikes are delivered from a single presynaptic cell)
@@ -348,7 +477,8 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
     df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
     syn_props = {key: [] for key in SYNPROPS}
     for syn_id, synapse in cell.synapses.items():
-        logger.debug("Configuring synapse %d", syn_id[1])
+        # Reduced logging: removed verbose synapse debug
+        # logger.debug("Configuring synapse %d", syn_id[1])
         if syn_extra_params is not None:  # configure local parameters
             global_syn_id = df.loc[df["local_syn_idx"] == syn_id[1]].index[0]
             _set_local_params(synapse, fit_params, syn_extra_params[global_syn_id],
@@ -369,15 +499,22 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
         #     if re.match('__.*', attr) is None:
         #         logger.debug("%s = %s", attr, str(getattr(synapse.hsynapse, attr)))
     # Run
-    t_end = 30000 if DEBUG else t_end
-    if fastforward is not None:
+    t_end = 3 if DEBUG else t_end
+    if (fastforward is not None):
         # Run until fastforward point
-        logger.debug("Fastforward enabled, simulating %.1f seconds...", fastforward / 1000.)
+        if log_queue:
+            log_queue.put(f"Fastforward enabled, simulating {fastforward/1000.:.1f} seconds...")
+        # Reduced logging: removed verbose simulation debug
+    # logger.debug("Fastforward enabled, simulating %.1f seconds...", fastforward / 1000.)
         sim.run(fastforward, cvode=True)
         # Fastforward synapses
-        logger.debug("Updating synapses...")
+        if log_queue:
+            log_queue.put("Updating synapses...")
+        # Reduced logging: removed verbose synapse debug
+        # logger.debug("Updating synapses...")
         for syn_id, synapse in cell.synapses.items():
-            logger.debug("Configuring synapse %d", syn_id[1])
+            # Reduced logging: removed verbose synapse debug
+        # logger.debug("Configuring synapse %d", syn_id[1])
             if synapse.hsynapse.rho_GB >= 0.5:
                 synapse.hsynapse.rho_GB = 1.
                 synapse.hsynapse.Use = synapse.hsynapse.Use_p
@@ -387,12 +524,20 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
                 synapse.hsynapse.Use = synapse.hsynapse.Use_d
                 synapse.hsynapse.gmax_AMPA = synapse.hsynapse.gmax_d_AMPA
         # Complete run
-        logger.debug("Simulating remaining %.1f seconds...", (t_end - fastforward) / 1000.)
+        if log_queue:
+            log_queue.put(f"Simulating remaining {(t_end - fastforward)/1000.:.1f} seconds...")
+        # Reduced logging: removed verbose simulation debug
+        # logger.debug("Simulating remaining %.1f seconds...", (t_end - fastforward) / 1000.)
         bluecellulab.neuron.h.cvode_active(1)
         bluecellulab.neuron.h.continuerun(t_end)
     else:
-        logger.debug("Simulating %.1f seconds...", t_end / 1000.)
+        if log_queue:
+            log_queue.put(f"Simulating {t_end/1000.:.1f} seconds...")
+        # Reduced logging: removed verbose simulation debug
+        # logger.debug("Simulating %.1f seconds...", t_end / 1000.)
         sim.run(t_end, cvode=True)
+    if log_queue:
+        log_queue.put("Simulation completed")
     logger.debug("Simulation completed")
     # Collect all properties
     syn_props.update({key: getattr(bluecellulab.neuron.h, "%s_GluSynapse" % key) for key in MOD_PROPS})
@@ -407,6 +552,13 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
     if len(syn_rec_lst) != 0:
         for key, lst in syn_rec.items():
             results[key] = np.transpose([np.array(rec) for rec in lst])
+    
+    # Log total simulation walltime
+    sim_duration = time.time() - sim_start_time
+    if log_queue:
+        log_queue.put(f"Simulation walltime: {sim_duration:.2f} seconds")
+    # Reduced logging: only log walltime if needed
+    # logger.debug("Simulation walltime: %.2f seconds", sim_duration)
 
 
 def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=None,
@@ -431,13 +583,26 @@ def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=Non
     c_post = c_post_finder(sim_config, fit_params, syn_extra_params, pre_gid, post_gid, stimulus,
                            node_pop=node_pop, edge_pop=edge_pop, fixhp=fixhp)
     # Run main simulation
-    logger.info("Simulating %s...", workdir)
+    # Reduced logging: removed verbose simulation info
+    # logger.info("Simulating %s...", workdir)
     manager = multiprocessing.Manager()
     results = manager.dict()
-    child_proc = multiprocessing.Process(target=_runconnectedpair_process,
+    log_queue = manager.Queue()  # Add logging queue
+    child_proc = multiprocessing.Process(target=_runconnectedpair_prefire_process,
                                          args=[results, workdir, fit_params, syn_extra_params, pre_gid, post_gid, t_end,
-                                               c_pre, c_post, syn_rec_lst, fastforward, node_pop, edge_pop, fixhp])
+                                               c_pre, c_post, syn_rec_lst, fastforward, node_pop, edge_pop, fixhp, log_queue])
     child_proc.start()
+    
+    # Process log messages from child
+    while child_proc.is_alive():
+        try:
+            while True:
+                log_msg = log_queue.get_nowait()
+                # Reduced logging: removed child process verbose logging
+                # logger.info(f"[CHILD] {log_msg}")
+        except:
+            pass
+    
     child_proc.join()
     return dict(results)
 

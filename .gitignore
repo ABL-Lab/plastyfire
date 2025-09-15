@@ -15,3 +15,5 @@ plastyfire/x86_64/
 
 .cursor/
 /refitting_results/
+
+*.pkl

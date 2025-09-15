@@ -13,7 +13,8 @@ MIN2MS = 60 * 1000.
 def get_epsp_vector(t, v, spikes, window):
     """Extract EPSPs at time `spikes` from voltage trace `v`"""
     # Verify presence of only one EPSP in window
-    assert np.max(np.diff(spikes)) > window
+    if len(spikes) < 2 or np.max(np.diff(spikes)) <= window:
+        raise ValueError(f"Insufficient spike separation: max_diff={np.max(np.diff(spikes)) if len(spikes) > 1 else 0}, window={window}")
     # Get EPSPs
     n = len(spikes)
     epsps = np.zeros(n)

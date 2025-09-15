@@ -8,6 +8,7 @@ import pickle
 import logging
 import argparse
 import multiprocessing
+import time
 import numpy as np
 import pandas as pd
 from deap.tools import ParetoFront
@@ -42,15 +43,58 @@ if __name__ == '__main__':
     parser.add_argument("-e", "--eta", type=float, default=20., help="Eta parameter")
     parser.add_argument("-m", "--mutpb", type=float, default=.7, help="Mutation probability")
     parser.add_argument("-c", "--cxpb", type=float, default=.3, help="Crossover probability")
-    parser.add_argument("--ipp_id", type=int, help="IPython Parallel ID")
+
     parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose messages")
     parser.add_argument("--debug", default=False, action="store_true", help="Enable debug mode")
+    parser.add_argument("--log-file", type=str, help="Custom log filename (without extension)")
+    parser.add_argument("--max-jobs", type=int, default=900, help="Maximum concurrent SLURM jobs")
     args = parser.parse_args()
     # Configure logger
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    # Create logs directory if it doesn't exist
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+    
+    # Configure logging to both file and console
+    log_level = logging.DEBUG if args.debug else logging.INFO
+    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    
+    # Create formatters
+    formatter = logging.Formatter(log_format)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    
+    # Clear any existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+    
+    # File handler with custom name or timestamp
+    if args.log_file:
+        log_filename = f"logs/{args.log_file}.log"
+    else:
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        log_filename = f"logs/optimization_{timestamp}.log"
+    
+    file_handler = logging.FileHandler(log_filename)
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+    
+    logger.info(f"Logging to file: {log_filename}")
+    logger.info(f"Log level: {'DEBUG' if args.debug else 'INFO'}")
     # Enable debugging mode
     if args.debug:
         eval.DEBUG = True
+        # Also enable debug mode in simulator
+        import plastyfire.simulator as sim
+        sim.DEBUG = True
         args.pop_size = 4
         args.gen = 3
     # Set support directories
@@ -62,14 +106,39 @@ if __name__ == '__main__':
     invitro_db = invitro_db.loc[invitro_db["protocol_id"].isin(PROTOCOL_IDX)]
     # Create `bluepyopt` evaluator
     np.random.seed(args.seed)
-    ev = eval.Evaluator(FIT_PARAMS, invitro_db, np.random.randint(9999999), args.sample_size, args.ipp_id)
+    work_dir = os.path.abspath(os.getcwd())  # Get absolute current working directory
+    ev = eval.Evaluator(FIT_PARAMS, invitro_db, args.seed, args.sample_size, None, work_dir, args.max_jobs)
     # Set map function
     pool = multiprocessing.Pool(args.pop_size)
     # Create `bluepyopt` optimization
     logger.info("Optimization parameters\nEta = %f Mut = %f Cx = %f" % (args.eta, args.mutpb, args.cxpb))
-    np.random.seed(args.seed + 1)
     opt = IBEADEAPOptimisation(ev, offspring_size=args.pop_size, eta=args.eta, mutpb=args.mutpb, cxpb=args.cxpb,
-                               map_function=pool.map, hof=ParetoFront(), seed=np.random.randint(9999999))
+                               map_function=pool.map, hof=ParetoFront(), seed=args.seed + 1)
+    
+    # # Custom map function to track generations with timing
+    # generation_counter = [0]  
+    # generation_times = []  
+    
+    # def generation_aware_map(func, population):
+    #     generation_counter[0] += 1
+    #     generation_start_time = time.time()
+        
+    #     logger.info(f"Starting generation {generation_counter[0]} processing...")
+    #     ev.set_generation(generation_counter[0])
+        
+    #     results = pool.map(func, population)
+        
+    #     generation_end_time = time.time()
+    #     generation_duration = generation_end_time - generation_start_time
+    #     generation_times.append(generation_duration)
+        
+    #     logger.info(f"Generation {generation_counter[0]} completed in {time.strftime('%H:%M:%S', time.gmtime(generation_duration))}")
+    #     logger.info(f"Average time per individual: {generation_duration/len(population):.2f} seconds")
+        
+    #     return results
+    
+    # opt.map_function = generation_aware_map
+    
     # Run optimization
     cpf_name = "checkpoint.pkl"
     continue_cp = os.path.isfile(cpf_name)
@@ -80,6 +149,11 @@ if __name__ == '__main__':
     best = hof[np.argmin([np.linalg.norm(np.array(ind.fitness.values)) for ind in hof])]
     with open("bestsol.pkl", "wb") as f:
         pickle.dump(ev.get_param_dict(best), f, -1)
+    
     logger.info("Optimization concluded")
+    
+    # Properly close the multiprocessing pool
+    pool.close()
+    pool.join()
 
 

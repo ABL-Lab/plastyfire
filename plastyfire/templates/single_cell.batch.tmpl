@@ -1,0 +1,15 @@
+#!/bin/sh
+#SBATCH --job-name={name}
+#SBATCH --account=ctb-emuller
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks=1
+#SBATCH --time={cpu_time}
+#SBATCH --mem=2g
+#SBATCH --output={log}.log
+{qos}
+
+#source {env}
+
+python {run} {args}
+
+

@@ -18,12 +18,9 @@ from bluepyopt.objectives import Objective
 from bluepyopt.parameters import Parameter
 from itertools import product
 import subprocess
-from plastyfire.ephysutils import get_epsp_vector
-    
-
 
 from plastyfire.config import OptConfig
-from plastyfire.pyslurm import submitjob, canceljob, wait_for_job_slots
+from plastyfire.pyslurm import submitjob, canceljob
 
 MIN2MS = 60 * 1000.
 FITTED_TAU = 278.3177658387  # previously optimized time constant of Ca*
@@ -32,30 +29,6 @@ WEIGHT_REDUCE = np.array([1 / 8] * 2 + [1 / 4] * 3)  # weights of each protocol 
 CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
 logger = logging.getLogger(__name__)
 DEBUG = False
-
-def compute_epsp_prefire(pkl_file, window=100):
-    """Safely compute EPSP values with bounds checking"""
-    with open(pkl_file, 'rb') as f:
-        data = pickle.load(f)
-    
-    logger.info(f"Data keys: {data.keys()}")
-    t, v, spikes = data['t'], data['v'], data['pre_spikes']
-    
-    # Extract rho values
-    if len(data['rho_GB']) > 100:
-        data['rho_GB'] = np.transpose(data['rho_GB'])
-    
-    initial_rho = [0 if k[0] < 0.5 else 1 for k in data['rho_GB']]
-    final_rho = [0 if k[-1] < 0.5 else 1 for k in data['rho_GB']]
-    
-
-    valid_spikes = spikes[spikes < (t[-1] - window)][:60]
-    
-    epsp_values = get_epsp_vector(t, v, valid_spikes, window)  
-    avg_epsp = np.mean(epsp_values)
-
-    return avg_epsp
-
 
 def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_details=True):
     """Reads results from batch job output files and computes EPSP ratio"""
@@ -81,62 +54,63 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
         raw_results = pickle.load(f)
     
     # get initial rho and final rho
-    initial_rho = [0 if k[0] < 0.5 else 1 for k in raw_results['rho_GB'].T]
-    final_rho = [0 if k[-1] < 0.5 else 1 for k in raw_results['rho_GB'].T]
-    initial_rho_str = '_'.join(map(str, initial_rho))
-    final_rho_str = '_'.join(map(str, final_rho))
+    initial_rho = [0 if k[0] < 0.5 else 1 for k in raw_results['rho_GB']]
+    final_rho = [0 if k[-1] < 0.5 else 1 for k in raw_results['rho_GB']]
     
-    pre_gid, post_gid = workdir.split('/')[-2].split('-')
-    sim_config_path = os.path.join(workdir, "simulation_config.json")    
-
-    ephys_before_filename = f"ephys_data_{pre_gid}_{post_gid}_{initial_rho_str}.pkl"
-    ephys_before_path = os.path.join(os.path.dirname(sim_config_path), '..', '..', '..', '..', 'ephys_data', ephys_before_filename)
-    
-    ephys_after_filename = f"ephys_data_{pre_gid}_{post_gid}_{final_rho_str}.pkl"
-    ephys_after_path = os.path.join(os.path.dirname(sim_config_path), '..', '..', '..', '..', 'ephys_data', ephys_after_filename)
-    
-    for rho_config, file_path in [(initial_rho_str, ephys_before_path), (final_rho_str, ephys_after_path)]:
-        if not os.path.exists(file_path):
-            logger.info(f"Ephys file not found, generating: {file_path}")
-            try:
-                # Run compute_test_pulse_epsp_ratio.py
-                cmd = [
-                    sys.executable,
-                    "compute_test_pulse_epsp_ratio.py",
-                    sim_config_path,
-                    pre_gid,
-                    post_gid,
-                    rho_config.replace('_', ',')
-                ]
-                logger.info(f"Running command: {cmd}")
-                # Change to the directory containing the script
-                script_dir = os.path.dirname(__file__)
-                result = subprocess.run(cmd, cwd=script_dir, capture_output=True, text=True, timeout=1800)  # Reduced timeout to 5 minutes
+    # Fetch EPSP ratio from ephys data based on rho values
+    try:
+        from plastyfire.ephysutils import get_epsp_vector
+        
+        # Convert rho lists to strings for filename matching
+        initial_rho_str = '_'.join(map(str, initial_rho))
+        final_rho_str = '_'.join(map(str, final_rho))
+        
+        # Construct ephys data file paths
+        ephys_dir = os.path.join(os.path.dirname(workdir), "ephys_data")
+        ephys_before_pattern = f"ephys_data_{initial_rho_str}.pkl"
+        ephys_after_pattern = f"ephys_data_{final_rho_str}.pkl"
+        
+        ephys_before_path = os.path.join(ephys_dir, ephys_before_pattern)
+        ephys_after_path = os.path.join(ephys_dir, ephys_after_pattern)
+        
+        # Check if ephys files exist, if not run slurm scripts
+        if not os.path.exists(ephys_before_path) or not os.path.exists(ephys_after_path):
+            logger.warning(f"Ephys files not found, running slurm scripts for rho configs")
+            # Run slurm job to generate missing ephys data
+            slurm_cmd = f"sbatch generate_ephys_data.sh {initial_rho_str} {final_rho_str}"
+            subprocess.run(slurm_cmd, shell=True, cwd=workdir)
+            
+        # If files exist, compute expected EPSP ratio
+        if os.path.exists(ephys_before_path) and os.path.exists(ephys_after_path):
+            with open(ephys_before_path, 'rb') as f:
+                ephys_before = pickle.load(f)
+            with open(ephys_after_path, 'rb') as f:
+                ephys_after = pickle.load(f)
                 
-                if result.returncode != 0:
-                    logger.error(f"Failed to generate ephys file: {result.stderr}")
-                    # Return early if ephys file generation fails
-                    logger.error(f"Ephys file generation failed, returning None for protocol {sim_dict['protocol_id']}")
-                    return None, None
-                else:
-                    logger.info(f"Successfully completed subprocess")
-                    
-            except subprocess.TimeoutExpired:
-                logger.error(f"Timeout generating ephys file: {file_path}")
-                return None, None
-            except Exception as e:
-                logger.error(f"Error generating ephys file: {e}")
-                return None, None
- 
-    # If files exist, compute expected EPSP ratio
-    if os.path.exists(ephys_before_path) and os.path.exists(ephys_after_path):
-        epsp_before = compute_epsp_prefire(ephys_before_path)
-        epsp_after = compute_epsp_prefire(ephys_after_path)
-        epsp_ratio = epsp_after / epsp_before
-    else:
-        logger.error(f"Ephys files not found: {ephys_before_path} or {ephys_after_path}")
-        return None, None
+            # Compute EPSP values from ephys data
+            t_before, v_before = ephys_before['t'], ephys_before['v']
+            t_after, v_after = ephys_after['t'], ephys_after['v']
+            spikes_before = ephys_before.get('pre_spikes', ephys_before.get('prespikes', []))
+            spikes_after = ephys_after.get('pre_spikes', ephys_after.get('prespikes', []))
+            
+            if len(spikes_before) > 0 and len(spikes_after) > 0:
+                epsp_before = np.mean(get_epsp_vector(t_before, v_before, spikes_before[:60], 100))
+                epsp_after = np.mean(get_epsp_vector(t_after, v_after, spikes_after[:60], 100))
+                expected_epsp_ratio = epsp_after / epsp_before if epsp_before > 0 else 0
+                logger.info(f"Expected EPSP ratio from ephys data: {expected_epsp_ratio}")
+        
+        
+    except Exception as e:
+        logger.warning(f"Could not fetch EPSP ratio from ephys data: {e}")
 
+    exp_handler = Experiment(raw_results, c01duration=sim_dict["c01duration"],
+                            c02duration=sim_dict["c02duration"], period=sim_dict["period"])
+    
+    # Reduced logging: removed verbose debug
+    logger.info(f"Computing EPSP ratio with nepsp={sim_dict['nepsp']}")
+    epsp_ratio = exp_handler.compute_epsp_ratio(sim_dict["nepsp"])
+    
+    # Save data as pandas DataFrame (surgical addition - no return modification)
     data = {
         'pkl_file': [pkl_file],
         'protocol_id': [sim_dict['protocol_id']],
@@ -145,12 +119,15 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
     }
     df = pd.DataFrame(data)
     
+    # Append to a single global results file (thread-safe approach)
+    # Use absolute path to ensure consistent location
     results_file = os.path.join(os.path.dirname(__file__), "simulation_epsp_df.csv")
     if os.path.exists(results_file):
         df.to_csv(results_file, mode='a', header=False, index=False)
     else:
         df.to_csv(results_file, mode='w', header=True, index=False)
     
+    # Reduced logging: only log essential info
     logger.info(f"Successfully computed EPSP ratio: {epsp_ratio} for protocol {sim_dict['protocol_id']}")
     return sim_dict["protocol_id"], epsp_ratio
 
@@ -208,7 +185,7 @@ def compute_epsp_ratio_batch(param_values, sim_dict, workdir, log_details=True):
 
 class Evaluator(Evaluator):
     """Graupner & Brunel plasticity model evaluator"""
-    def __init__(self, fit_params, invitro_db, seed, sample_size, ipp_id, work_dir=None, max_jobs=900):
+    def __init__(self, fit_params, invitro_db, seed, sample_size, ipp_id, work_dir=None):
         super(Evaluator, self).__init__()
         self.params = [Parameter(param_name, bounds=(min_bound, max_bound))
                        for param_name, min_bound, max_bound in fit_params]
@@ -220,8 +197,6 @@ class Evaluator(Evaluator):
         self.sim = NrnSimulator()
         self.current_generation = 0  # Track current generation
         self.work_dir = work_dir or os.getcwd()  # Working directory for batch scripts
-        self._processed_files = set()  # Track processed files to prevent infinite loops
-        self.max_jobs = max_jobs  # Maximum concurrent SLURM jobs
         # Find all simulations
         self.all_sims, self.objectives = [], []
         for elem in self.invitro_db.itertuples():
@@ -300,7 +275,7 @@ class Evaluator(Evaluator):
         # Template variables
         template_vars = {
             "name": f"param_{param_hash}_{sim_dict['protocol_id']}",
-            "cpu_time": "00:30:00",
+            "cpu_time": "01:30:00",
             "log": f"{param_hash}_{sim_dict['protocol_id']}",
             "qos": "#SBATCH --qos=normal",
             "env": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh",
@@ -326,9 +301,10 @@ class Evaluator(Evaluator):
         return batch_path
 
     def submit_batch_job(self, batch_path):
-        """Submit batch job and return job ID with job limit enforcement"""
-        # Wait for available job slots before submitting
-        wait_for_job_slots(max_jobs=self.max_jobs)
+        """Submit batch job and return job ID"""
+        # Reduced logging: removed verbose debug
+        # logger.debug(f"Submitting batch job: {batch_path}")
+        # logger.debug(f"Current working directory: {os.getcwd()}")
         
         # Check if batch script exists
         if not os.path.exists(batch_path):
@@ -348,6 +324,7 @@ class Evaluator(Evaluator):
             logger.error(f"Could not parse job ID from output: {output}")
             raise ValueError(f"Could not parse job ID from output: {output}")
             
+        # Reduced logging: only log job ID
         logger.info(f"Submitted job {job_id}")
         return job_id
 
@@ -453,27 +430,20 @@ class Evaluator(Evaluator):
         try:
             # Reduced logging: only log essential evaluations
             logger.info("Evaluating individual: %s", param_values)
-            
-            # Add a simple check to prevent infinite loops
-            if hasattr(self, '_evaluation_count'):
-                self._evaluation_count += 1
-                if self._evaluation_count > 1000:  # Prevent infinite loops
-                    logger.error("Too many evaluations detected, possible infinite loop. Exiting.")
-                    return [1000.0] * len(self.objectives)
-            else:
-                self._evaluation_count = 1
-                
+            # Check cache for a match
             cachekey = hashlib.md5(str(param_values).encode()).hexdigest()
             pklf_name = os.path.join(".cache", "%s.pkl" % cachekey)
             if os.path.isfile(pklf_name):
                 with open(pklf_name, "rb") as f:
-                    cache_data = pickle.load(f)  
+                    cache_data = pickle.load(f)  # load cached data
                 np.testing.assert_array_equal(param_values, cache_data["individual"])  # verify no collision (OMG)
                 logger.info(f"Returning cached results for individual {cachekey[:12]}")
                 
+                # Create DataFrame for cached results
                 param_hash = cachekey[:12]
                 if "resdb" in cache_data:
                     res_db = cache_data["resdb"]
+                    # Create DataFrame with cached data
                     cached_data = []
                     for _, row in res_db.iterrows():
                         cached_data.append({
@@ -485,52 +455,56 @@ class Evaluator(Evaluator):
                     
                     if cached_data:
                         cached_df = pd.DataFrame(cached_data)
+                        # Use absolute path to ensure consistent location
                         results_file = os.path.join(os.path.dirname(__file__), "simulation_epsp_df.csv")
                         if os.path.exists(results_file):
                             cached_df.to_csv(results_file, mode='a', header=False, index=False)
                         else:
                             cached_df.to_csv(results_file, mode='w', header=True, index=False)
                 
-                return cache_data["error"]  
+                return cache_data["error"]  # Return cache match
             
+            # Create and submit batch jobs for each simulation
             param_dict = self.get_param_dict(param_values)
             param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]  # Use first 12 chars
             batch_jobs = []
             existing_results = []
             
             for i, sim_dict in enumerate(self.all_sims):
+                # Check if PKL file already exists for this param_hash
                 pkl_file = os.path.join(sim_dict["workdir"], f"simulation_{param_hash}.pkl")
-                
-                file_key = f"{pkl_file}_{param_hash}"
-                if file_key in self._processed_files:
-                    logger.warning(f"Already processed file {pkl_file} in this evaluation, skipping to prevent infinite loop")
-                    continue
-                
                 if os.path.exists(pkl_file):
                     logger.info(f"Found existing PKL file for {sim_dict['protocol_id']}: {pkl_file}")
-                    self._processed_files.add(file_key)  # Mark as processed
                     try:
-                        result = compute_epsp_ratio_prefire_batch(param_values, sim_dict, sim_dict["workdir"], log_details=False)
-                        if result is not None and result[1] is not None:  # Check for valid result
-                            existing_results.append(result)
-                            continue
-                        else:
-                            logger.warning(f"Invalid result from existing PKL file {pkl_file}, will submit new batch job")
+                        # Directly collect results from existing file (no log processing needed)
+                        result = compute_epsp_ratio_batch(param_values, sim_dict, sim_dict["workdir"], log_details=False)
+                        existing_results.append(result)
+                        # Reduced logging: only log when needed
+                        # logger.info(f"Successfully loaded existing results for {sim_dict['protocol_id']}: {result}")
+                        continue  # Skip batch job submission
                     except Exception as e:
                         logger.info(f"Failed to load existing PKL file {pkl_file}: {e}")
+                        # Reduced logging: only log when needed
+                        #logger.info(f"Will submit new batch job for {sim_dict['protocol_id']}")
+                        # Fall through to submit new batch job
                 else:
                     logger.info(f"No existing PKL file found for {sim_dict['protocol_id']}: {pkl_file}, submitting batch job")
                 
+                #logger.info(f"Couldn't find PKL file for {sim_dict['protocol_id']}, {pkl_file}, submitting batch job")
+                # Create and submit batch job for missing results
                 batch_path = self.create_batch_script(param_values, sim_dict)
                 job_id = self.submit_batch_job(batch_path)
                 batch_jobs.append((job_id, batch_path, sim_dict, param_hash))
             
+            # Wait for all jobs to complete (only if there are jobs to wait for)
             failed_jobs = []
             successful_jobs = []
             
             if batch_jobs:
                 logger.info(f"Waiting for {len(batch_jobs)} batch jobs to complete...")
                 for job_id, batch_path, sim_dict, param_hash in batch_jobs:
+                    # Reduced logging: only log job completion
+                    # logger.info(f"Monitoring job {job_id} for simulation {sim_dict['protocol_id']} ({sim_dict['pregid']}-{sim_dict['postgid']})")
                     
                     if self.wait_for_job_completion(sim_dict["workdir"], param_hash):
                         logger.info(f"Job {job_id} completed successfully")
@@ -543,7 +517,27 @@ class Evaluator(Evaluator):
             
             # Log summary of job results
             logger.info(f"Job completion summary: {len(existing_results)} from existing files, {len(successful_jobs)} new successful jobs, {len(failed_jobs)} failed jobs")
-                        
+            
+            # if failed_jobs:
+            #     logger.error("Failed jobs details:")
+            #     for job_id, batch_path, sim_dict in failed_jobs:
+            #         logger.error(f"  - Job {job_id}: {sim_dict['protocol_id']}")
+            #         logger.error(f"    Batch script: {batch_path}")
+            #         logger.error(f"    Simulation path: {sim_dict['simpath']}")
+                
+            #     # Instead of crashing, log the failure and return a high error value
+            #     logger.error("Some batch jobs failed - returning high error values for failed simulations")
+                
+            #     # Return high error values for failed evaluations
+            #     # This allows the optimization to continue with this individual marked as poor
+            #     high_error = [1000.0] * len(self.objectives)  # High error value
+            #     logger.warning(f"Returning high error values: {high_error}")
+            #     return high_error
+            
+            # Continue with result collection - combine existing and new results
+            # Reduced logging: only log essential steps
+            # logger.info("Collecting and combining all results...")
+            
             # Start with existing results
             results = existing_results.copy()
             failed_processing = []
@@ -552,7 +546,7 @@ class Evaluator(Evaluator):
             for job_id, batch_path, sim_dict in successful_jobs:
                 try:
                     # Read results from job output files
-                    result = compute_epsp_ratio_prefire_batch(param_dict, sim_dict, os.path.dirname(sim_dict["simpath"]))
+                    result = compute_epsp_ratio_batch(param_dict, sim_dict, os.path.dirname(sim_dict["simpath"]))
                     results.append(result)
                     # Reduced logging: removed verbose debug
                     # logger.debug(f"Successfully processed results for {sim_dict['protocol_id']}: {result}")
