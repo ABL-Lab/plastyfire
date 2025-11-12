@@ -1,0 +1,14 @@
+#!/bin/sh
+#SBATCH --job-name={name}
+#SBATCH --account=ctb-emuller
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks=1
+#SBATCH --time={cpu_time}
+#SBATCH --mem=2g
+#SBATCH --output={workdir}/sim_{log}.log
+#SBATCH --chdir={workdir}
+
+#source {env}
+
+# Handle both old simwriter.py format and new evaluator format
+python {run} {param_args} --fastforward={fastforward}{param_hash_arg}{individual_id_arg}{generation_arg}

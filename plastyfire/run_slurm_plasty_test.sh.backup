@@ -1,0 +1,1 @@
+python modelfitter.py --gen=4 --pop_size=4 --sample_size=4 --seed=19091998 -v

@@ -3,90 +3,125 @@ Main run script for parameter optimization that parses command line arguments, r
 authors: Giuseppe Chindemi (12.2020) + minor modifications by András Ecker (06.2024)
 """
 
+import argparse
+import logging
+import multiprocessing
 import os
 import pickle
-import logging
-import argparse
-import multiprocessing
 import time
+
 import numpy as np
 import pandas as pd
-from deap.tools import ParetoFront
 from bluepyopt.deapext.optimisations import IBEADEAPOptimisation
+from deap.tools import ParetoFront
 
 import plastyfire.evaluator as eval
 
 logger = logging.getLogger("modelfitter")
 CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
-PROTOCOL_IDX = ["mrk97_01", "mrk97_02", "mrk97_07", "mrk97_08", "sjh06_02"]  # protocols to use for optimization
+# PROTOCOL_IDX = ["mrk97_01", "mrk97_02", "mrk97_07", "mrk97_08", "sjh06_02"]  # protocols to use for optimization
+PROTOCOL_IDX = ["mrk97_08"]  # protocols to use for optimization
 # model parameters to be optimized (and their boundaries)
 FIT_PARAMS = [  # ("tau_effca_GB_GluSynapse", 150., 350.),
-              ("gamma_d_GB_GluSynapse", 50., 200.),
-              ("gamma_p_GB_GluSynapse", 150., 300.),
-              ("a00", 1., 5.),
-              ("a01", 1., 5.),
-              ("a10", 1., 5.),
-              ("a11", 1., 5.),
-              ("a20", 1., 10.),
-              ("a21", 1., 5.),
-              ("a30", 1., 10.),
-              ("a31", 1., 5.)]
+    ("gamma_d_GB_GluSynapse", 50.0, 200.0),
+    ("gamma_p_GB_GluSynapse", 150.0, 300.0),
+    ("a00", 1.0, 5.0),
+    ("a01", 1.0, 5.0),
+    ("a10", 1.0, 5.0),
+    ("a11", 1.0, 5.0),
+    ("a20", 1.0, 10.0),
+    ("a21", 1.0, 5.0),
+    ("a30", 1.0, 10.0),
+    ("a31", 1.0, 5.0),
+]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse command line
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sample_size", type=int, default=100, help="Number of in silico connections per protocol")
+    parser.add_argument(
+        "--sample_size",
+        type=int,
+        default=100,
+        help="Number of in silico connections per protocol",
+    )
     parser.add_argument("--seed", type=int, default=1234, help="RNG master seed")
-    parser.add_argument("-s", "--pop_size", type=int, default=128, help="Population size")
-    parser.add_argument("-g", "--gen", type=int, default=30, help="Number of generations")
-    parser.add_argument("-e", "--eta", type=float, default=20., help="Eta parameter")
-    parser.add_argument("-m", "--mutpb", type=float, default=.7, help="Mutation probability")
-    parser.add_argument("-c", "--cxpb", type=float, default=.3, help="Crossover probability")
+    parser.add_argument(
+        "-s", "--pop_size", type=int, default=128, help="Population size"
+    )
+    parser.add_argument(
+        "-g", "--gen", type=int, default=30, help="Number of generations"
+    )
+    parser.add_argument("-e", "--eta", type=float, default=20.0, help="Eta parameter")
+    parser.add_argument(
+        "-m", "--mutpb", type=float, default=0.7, help="Mutation probability"
+    )
+    parser.add_argument(
+        "-c", "--cxpb", type=float, default=0.3, help="Crossover probability"
+    )
 
-    parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose messages")
-    parser.add_argument("--debug", default=False, action="store_true", help="Enable debug mode")
-    parser.add_argument("--log-file", type=str, help="Custom log filename (without extension)")
-    parser.add_argument("--max-jobs", type=int, default=900, help="Maximum concurrent SLURM jobs")
+    parser.add_argument(
+        "-v", "--verbose", default=False, action="store_true", help="Verbose messages"
+    )
+    parser.add_argument(
+        "--debug", default=False, action="store_true", help="Enable debug mode"
+    )
+    parser.add_argument(
+        "--log-file", type=str, help="Custom log filename (without extension)"
+    )
+    parser.add_argument(
+        "--max-jobs", type=int, default=900, help="Maximum concurrent SLURM jobs"
+    )
+    parser.add_argument(
+        "--use-multiprocessing",
+        action="store_true",
+        default=True,
+        help="Use multiprocessing instead of SLURM",
+    )
+    parser.add_argument(
+        "--use-slurm",
+        action="store_true",
+        help="Use SLURM batch jobs instead of multiprocessing",
+    )
     args = parser.parse_args()
     # Configure logger
     # Create logs directory if it doesn't exist
     if not os.path.exists("logs"):
         os.makedirs("logs")
-    
+
     # Configure logging to both file and console
     log_level = logging.DEBUG if args.debug else logging.INFO
-    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
     # Create formatters
     formatter = logging.Formatter(log_format)
-    
+
     # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
-    
+
     # Clear any existing handlers
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
-    
+
     # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
     root_logger.addHandler(console_handler)
-    
+
     # File handler with custom name or timestamp
     if args.log_file:
         log_filename = f"logs/{args.log_file}.log"
     else:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         log_filename = f"logs/optimization_{timestamp}.log"
-    
+
     file_handler = logging.FileHandler(log_filename)
     file_handler.setLevel(log_level)
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
-    
+
     logger.info(f"Logging to file: {log_filename}")
     logger.info(f"Log level: {'DEBUG' if args.debug else 'INFO'}")
     # Enable debugging mode
@@ -94,6 +129,7 @@ if __name__ == '__main__':
         eval.DEBUG = True
         # Also enable debug mode in simulator
         import plastyfire.simulator as sim
+
         sim.DEBUG = True
         args.pop_size = 4
         args.gen = 3
@@ -107,53 +143,76 @@ if __name__ == '__main__':
     # Create `bluepyopt` evaluator
     np.random.seed(args.seed)
     work_dir = os.path.abspath(os.getcwd())  # Get absolute current working directory
-    ev = eval.Evaluator(FIT_PARAMS, invitro_db, args.seed, args.sample_size, None, work_dir, args.max_jobs)
+    # Determine execution method
+    use_mp = args.use_multiprocessing and not args.use_slurm
+    ev = eval.Evaluator(
+        FIT_PARAMS,
+        invitro_db,
+        args.seed,
+        args.sample_size,
+        None,
+        work_dir,
+        args.max_jobs,
+        use_multiprocessing=use_mp,
+    )
     # Set map function
     pool = multiprocessing.Pool(args.pop_size)
     # Create `bluepyopt` optimization
-    logger.info("Optimization parameters\nEta = %f Mut = %f Cx = %f" % (args.eta, args.mutpb, args.cxpb))
-    opt = IBEADEAPOptimisation(ev, offspring_size=args.pop_size, eta=args.eta, mutpb=args.mutpb, cxpb=args.cxpb,
-                               map_function=pool.map, hof=ParetoFront(), seed=args.seed + 1)
-    
+    logger.info(
+        "Optimization parameters\nEta = %f Mut = %f Cx = %f"
+        % (args.eta, args.mutpb, args.cxpb)
+    )
+    opt = IBEADEAPOptimisation(
+        ev,
+        offspring_size=args.pop_size,
+        eta=args.eta,
+        mutpb=args.mutpb,
+        cxpb=args.cxpb,
+        map_function=pool.map,
+        hof=ParetoFront(),
+        seed=args.seed + 1,
+    )
+
     # # Custom map function to track generations with timing
-    # generation_counter = [0]  
-    # generation_times = []  
-    
+    # generation_counter = [0]
+    # generation_times = []
+
     # def generation_aware_map(func, population):
     #     generation_counter[0] += 1
     #     generation_start_time = time.time()
-        
+
     #     logger.info(f"Starting generation {generation_counter[0]} processing...")
     #     ev.set_generation(generation_counter[0])
-        
+
     #     results = pool.map(func, population)
-        
+
     #     generation_end_time = time.time()
     #     generation_duration = generation_end_time - generation_start_time
     #     generation_times.append(generation_duration)
-        
+
     #     logger.info(f"Generation {generation_counter[0]} completed in {time.strftime('%H:%M:%S', time.gmtime(generation_duration))}")
     #     logger.info(f"Average time per individual: {generation_duration/len(population):.2f} seconds")
-        
+
     #     return results
-    
+
     # opt.map_function = generation_aware_map
-    
+
     # Run optimization
     cpf_name = "checkpoint.pkl"
     continue_cp = os.path.isfile(cpf_name)
-    logger.info("Resuming optimization" if continue_cp else "Starting a new optimization")
-    pop, hof, log, history = opt.run(max_ngen=args.gen, continue_cp=continue_cp,
-                                     cp_filename=cpf_name, cp_frequency=1)
+    logger.info(
+        "Resuming optimization" if continue_cp else "Starting a new optimization"
+    )
+    pop, hof, log, history = opt.run(
+        max_ngen=args.gen, continue_cp=continue_cp, cp_filename=cpf_name, cp_frequency=1
+    )
     # Gather and store best solution
     best = hof[np.argmin([np.linalg.norm(np.array(ind.fitness.values)) for ind in hof])]
     with open("bestsol.pkl", "wb") as f:
         pickle.dump(ev.get_param_dict(best), f, -1)
-    
+
     logger.info("Optimization concluded")
-    
+
     # Properly close the multiprocessing pool
     pool.close()
     pool.join()
-
-

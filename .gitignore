@@ -17,3 +17,4 @@ plastyfire/x86_64/
 /refitting_results/
 
 *.pkl
+*.log
