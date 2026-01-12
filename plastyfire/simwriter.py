@@ -339,7 +339,7 @@ class OptSimWriter(OptConfig):
                     # inputs["prespikes"] = {"input_type": "spikes", "module": "synapse_replay", "node_set": "postcell",
                     #                        "delay": 0., "duration": t_stop, "spike_file": h5f_name}
                     # Write simulation config
-                    sim_config = {"run": {"dt": 0.025, "tstop": t_stop, "random_seed": np.random.randint(1, 999999)},
+                    sim_config = {"run": {"dt": 0.025, "tstop": t_stop, "random_seed": self.seed},
                                   "network": self.circuit_config,
                                   "node_sets_file": jsonf_name,
                                   "node_set": "postcell",
@@ -352,7 +352,7 @@ class OptSimWriter(OptConfig):
                     with open(os.path.join(workdir, "simulation_config.json"), "w", encoding="utf-8") as f:
                         json.dump(sim_config, f, indent=4)
 
-                    prefire_sim_config = {"run": {"dt": 0.025, "tstop": prefire_t_stop, "random_seed": np.random.randint(1, 999999)},
+                    prefire_sim_config = {"run": {"dt": 0.025, "tstop": prefire_t_stop, "random_seed": self.seed},
                                   "network": self.circuit_config,
                                   "node_sets_file": jsonf_name,
                                   "node_set": "postcell",
@@ -403,7 +403,7 @@ class SimWriter(Config):
         """Writes simple `simulation_config.json` used by `bluecellulab` and batch scripts for single cell sims"""
         # create and write simple simulation config
         pathlib.Path(self.sims_dir).mkdir(exist_ok=True)
-        sim_config = {"run": {"dt": 0.025, "tstop": 3000.0, "random_seed": 12345},
+        sim_config = {"run": {"dt": 0.025, "tstop": 3000.0, "random_seed": self.seed},
                       "network": self.circuit_config,
                       "node_sets_file": self.node_set,
                       "node_set": self.target,

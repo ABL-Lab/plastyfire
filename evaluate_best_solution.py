@@ -14,6 +14,7 @@ import multiprocessing as mp
 import os
 import pickle
 import subprocess
+import shutil
 import sys
 import time
 
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 # Constants
 CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
 CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
-EVAL_PROTOCOLS = ["mrk97_03", "mrk97_07", "mrk97_08"]  # Evaluation protocols
+EVAL_PROTOCOLS = ["mrk97_08"]  # Evaluation protocols
 # Note: tau_effca_GB_GluSynapse is hardcoded in pairrunner.py, not fitted
 
 # Best solution file path
@@ -63,7 +64,7 @@ MIN2MS = 60 * 1000.0
 
 # Custom parameter sets for comparison
 CUSTOM_PARAM_SETS = {
-    "custom_v1": {
+    "Chindemi_params": {
         "gamma_d_GB_GluSynapse": 101.5,
         "gamma_p_GB_GluSynapse": 216.2,
         "a00": 1.002,
@@ -75,8 +76,30 @@ CUSTOM_PARAM_SETS = {
         "a30": 5.236,
         "a31": 1.782,
     },
-    # Add more custom parameter sets here if needed
-    # "custom_v2": {...},
+    "Deep_learning_params": {
+        "gamma_d_GB_GluSynapse": 163.46167854068054,
+        "gamma_p_GB_GluSynapse": 221.93928040026307,
+        "a00": 0.3296322326165755,
+        "a01": 1.9167068577889812,
+        "a10": 2.5252431110314606,
+        "a11": 0.317159582514317,
+        "a20": 7.2678533585713385,
+        "a21": 4.264799660065239,
+        "a30": 5.480241019952461,
+        "a31": 0.3079526712830378,
+    },
+    "mrk97_07_mrk97_08": {
+        "gamma_d_GB_GluSynapse": 199.887594498312,
+        "gamma_p_GB_GluSynapse": 194.23843405523158,
+        "a00": 1.0005007769557286,
+        "a01": 2.706871658650942,
+        "a10": 2.5132952169332246,
+        "a11": 3.9826946063778337,
+        "a20": 9.594554277367934,
+        "a21": 3.0337323982995814,
+        "a30": 1.6205328327559538,
+        "a31": 2.692343865436747,
+    },
 }
 
 
@@ -114,11 +137,13 @@ def load_best_solution():
 
 def run_prefire_simulation(args):
     """Worker function to run a single prefire simulation using subprocess to avoid daemon issues"""
-    sim_dict, fit_params, param_hash = args
+    sim_dict, fit_params, param_hash, results_dir, no_cache, recipe_path = args
 
     try:
         workdir = sim_dict["workdir"]
-        output_file = os.path.join(workdir, f"simulation_{param_hash}.pkl")
+        # Get pre_gid and post_gid from workdir path
+        pre_gid, post_gid = workdir.split("/")[-2].split("-")
+        output_file = os.path.join(results_dir, f"simulation_{param_hash}_{sim_dict['protocol_id']}_{pre_gid}_{post_gid}.pkl")
 
         # Check if already completed
         if os.path.exists(output_file):
@@ -131,10 +156,17 @@ def run_prefire_simulation(args):
             f"Running prefire simulation for {sim_dict['protocol_id']} in {workdir}"
         )
 
-        # Build parameter arguments (tau_effca_GB_GluSynapse is hardcoded in pairrunner.py)
+        # Build parameter arguments (tau_effca_GB_GluSynapse is hardcoded in pairrunner.py, not fitted)
         param_args = [f"--{name}={value}" for name, value in fit_params.items()]
         param_args.append(f"--fastforward={sim_dict['fastforward']}")
         param_args.append(f"--param_hash={param_hash}")
+        if recipe_path:
+            param_args.append(f"--recipe-path={recipe_path}")
+        
+        workdir_output_file = os.path.join(workdir, f"simulation_{param_hash}_{sim_dict['protocol_id']}_{pre_gid}_{post_gid}.pkl")
+        
+        # Pass explicit output filename
+        param_args.append(f"--output-filename={os.path.basename(workdir_output_file)}")
 
         # Run pairrunner.py in subprocess
         script_path = os.path.join(
@@ -142,12 +174,19 @@ def run_prefire_simulation(args):
         )
         cmd = [sys.executable, script_path] + param_args
 
+        # If no_cache is True, ensure we're running fresh by removing potential existing file in workdir
+        if no_cache and os.path.exists(workdir_output_file):
+            try:
+                os.remove(workdir_output_file)
+            except OSError:
+                pass
+
         result = subprocess.run(
             cmd,
             cwd=workdir,
             capture_output=True,
             text=True,
-            timeout=1800,  # 30 minute timeout per simulation
+            timeout=7200,  # 30 minute timeout per simulation
         )
 
         if result.returncode != 0:
@@ -156,12 +195,15 @@ def run_prefire_simulation(args):
             )
             return None
 
-        # Verify output file was created
-        if not os.path.exists(output_file):
+        # Verify output file was created in workdir
+        if not os.path.exists(workdir_output_file):
             logger.error(
-                f"Output file not created for {sim_dict['protocol_id']}: {output_file}"
+                f"Output file not created for {sim_dict['protocol_id']}: {workdir_output_file}"
             )
             return None
+
+        # Move file to results_dir
+        shutil.move(workdir_output_file, output_file)
 
         logger.info(
             f"Simulation completed for {sim_dict['protocol_id']}: {output_file}"
@@ -178,7 +220,7 @@ def run_prefire_simulation(args):
 
 def generate_ephys_data_worker(args):
     """Worker function to generate a single ephys file"""
-    sim_config_path, pre_gid, post_gid, rho_str, ephys_file = args
+    sim_config_path, pre_gid, post_gid, rho_str, ephys_file, no_cache, recipe_path, synapse_ids_str, fit_params = args
 
     if os.path.exists(ephys_file):
         logger.info(f"Ephys file already exists: {ephys_file}")
@@ -203,7 +245,23 @@ def generate_ephys_data_worker(args):
             "S1nonbarrel_neurons",
             "--trial",
             "0",
+            "--output-dir",
+            os.path.dirname(ephys_file),
         ]
+
+        if recipe_path:
+            cmd.extend(["--recipe-path", recipe_path])
+
+        if synapse_ids_str:
+            cmd.extend(["--synapse-ids", synapse_ids_str])
+
+        # Add fit params
+        if fit_params:
+            for name, value in fit_params.items():
+                cmd.append(f"--{name}={value}")
+
+        if no_cache:
+            cmd.append("--no-cache")
 
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
 
@@ -224,10 +282,15 @@ def generate_ephys_data_worker(args):
         return None
 
 
-def generate_ephys_data(sim_dict, param_hash, fit_params):
+def generate_ephys_data(sim_dict, param_hash, fit_params, results_dir, no_cache, recipe_path):
     """Generate ephys data for initial and final rho states - returns job info for parallel processing"""
     workdir = sim_dict["workdir"]
-    pkl_file = os.path.join(workdir, f"simulation_{param_hash}.pkl")
+    # Get pre_gid and post_gid from workdir path
+    # Path structure: .../simulations/191917-186517/10Hz_-10ms
+    # So GIDs are in the second-to-last component
+    pre_gid, post_gid = workdir.split("/")[-2].split("-")
+
+    pkl_file = os.path.join(results_dir, f"simulation_{param_hash}_{sim_dict['protocol_id']}_{pre_gid}_{post_gid}.pkl")
 
     if not os.path.exists(pkl_file):
         logger.error(f"Simulation pickle file not found: {pkl_file}")
@@ -242,16 +305,18 @@ def generate_ephys_data(sim_dict, param_hash, fit_params):
     if len(rho_data) > 100:
         rho_data = np.transpose(rho_data)
 
+    # Extract synapse IDs if available
+    synapse_ids_str = None
+    if "synprop" in raw_results and "synapseID" in raw_results["synprop"]:
+        synapse_ids = raw_results["synprop"]["synapseID"]
+        synapse_ids_str = ",".join(map(str, synapse_ids))
+        logger.info(f"Extracted {len(synapse_ids)} synapse IDs for {pre_gid}->{post_gid}")
+
     initial_rho = [0 if k[0] < 0.5 else 1 for k in rho_data]
     final_rho = [0 if k[-1] < 0.5 else 1 for k in rho_data]
 
-    # Get pre_gid and post_gid from workdir path
-    # Path structure: .../simulations/191917-186517/10Hz_-10ms
-    # So GIDs are in the second-to-last component
-    pre_gid, post_gid = workdir.split("/")[-2].split("-")
-
     # Generate ephys data directory
-    ephys_dir = os.path.join(os.path.dirname(workdir), "..", "..", "..", "ephys_data")
+    ephys_dir = results_dir
     os.makedirs(ephys_dir, exist_ok=True)
 
     # Prepare jobs for both initial and final states
@@ -264,12 +329,12 @@ def generate_ephys_data(sim_dict, param_hash, fit_params):
             ephys_dir,
             f"ephys_data_{pre_gid}_{post_gid}_{rho_str.replace(',', '_')}.pkl",
         )
-        jobs.append((sim_config_path, pre_gid, post_gid, rho_str, ephys_file))
+        jobs.append((sim_config_path, pre_gid, post_gid, rho_str, ephys_file, no_cache, recipe_path, synapse_ids_str, fit_params))
 
     return jobs
 
 
-def compute_epsp_ratios(sim_dict, param_hash):
+def compute_epsp_ratios(sim_dict, param_hash, results_dir):
     """Compute EPSP ratios from ephys data"""
     workdir = sim_dict["workdir"]
     # Path structure: .../simulations/191917-186517/10Hz_-10ms
@@ -277,7 +342,7 @@ def compute_epsp_ratios(sim_dict, param_hash):
     pre_gid, post_gid = workdir.split("/")[-2].split("-")
 
     # Load simulation results to get rho states
-    pkl_file = os.path.join(workdir, f"simulation_{param_hash}.pkl")
+    pkl_file = os.path.join(results_dir, f"simulation_{param_hash}_{sim_dict['protocol_id']}_{pre_gid}_{post_gid}.pkl")
     with open(pkl_file, "rb") as f:
         raw_results = pickle.load(f)
 
@@ -289,7 +354,7 @@ def compute_epsp_ratios(sim_dict, param_hash):
     final_rho = [0 if k[-1] < 0.5 else 1 for k in rho_data]
 
     # Build ephys file paths
-    ephys_dir = os.path.join(os.path.dirname(workdir), "..", "..", "..", "ephys_data")
+    ephys_dir = results_dir
     initial_rho_str = "_".join(map(str, initial_rho))
     final_rho_str = "_".join(map(str, final_rho))
 
@@ -379,6 +444,17 @@ def main():
         "--compare-all",
         action="store_true",
         help="Evaluate all parameter sets (best + all custom sets) and compare results",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Ignore existing files and force re-computation",
+    )
+    parser.add_argument(
+        "--recipe-path",
+        type=str,
+        default=None,
+        help="Path to custom recipe.csv file",
     )
     args = parser.parse_args()
 
@@ -490,12 +566,17 @@ def main():
         param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]
         logger.info(f"Parameter hash: {param_hash}")
 
+        # Define results directory for this parameter set
+        results_base_dir = f"/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/{param_set_name}/sim_results"
+        os.makedirs(results_base_dir, exist_ok=True)
+        logger.info(f"Results directory: {results_base_dir}")
+
         # Step 1: Run prefire simulations in parallel using subprocess
         logger.info("=" * 60)
         logger.info(f"STEP 1: Running prefire simulations ({sim_workers} workers)")
         logger.info("=" * 60)
 
-        sim_args = [(sim_dict, params, param_hash) for sim_dict in all_sims]
+        sim_args = [(sim_dict, params, param_hash, results_base_dir, args.no_cache, args.recipe_path) for sim_dict in all_sims]
 
         logger.info(
             f"Starting {len(sim_args)} prefire simulations with {sim_workers} workers..."
@@ -530,7 +611,7 @@ def main():
             # Collect all ephys jobs from all simulations
             all_ephys_jobs = []
             for sim_dict in all_sims:
-                jobs = generate_ephys_data(sim_dict, param_hash, params)
+                jobs = generate_ephys_data(sim_dict, param_hash, params, results_base_dir, args.no_cache, args.recipe_path)
                 all_ephys_jobs.extend(jobs)
 
             logger.info(
@@ -552,7 +633,7 @@ def main():
         logger.info(f"STEP 3: Computing EPSP ratios ({args.workers} workers)")
         logger.info("=" * 60)
 
-        epsp_args = [(sim_dict, param_hash) for sim_dict in all_sims]
+        epsp_args = [(sim_dict, param_hash, results_base_dir) for sim_dict in all_sims]
 
         logger.info(f"Computing EPSP ratios for {len(epsp_args)} simulations...")
         step3_start = time.time()

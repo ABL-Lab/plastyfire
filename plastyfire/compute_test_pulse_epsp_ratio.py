@@ -67,18 +67,29 @@ def _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop):
                               pd.MultiIndex.from_tuples([(post_gid, syn_id) for syn_id in syn_idx]))
 
 
-def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, trial):
+def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, trial, output_dir=None, no_cache=False, recipe_path=None, synapse_ids_str=None, fit_params=None):
     """Run simulation and save pkl file with ephys data"""
     
     # Create filename using rho config and trial number (replace commas with underscores for valid filename)
     safe_rho_config = rho_config.replace(',', '_')
     filename = f"ephys_data_{pre_gid}_{post_gid}_{safe_rho_config}.pkl"
-    filepath = os.path.join(os.path.dirname(sim_config_path), '..', '..', '..', '..', 'ephys_data', filename)
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, filename)
+    else:
+        filepath = os.path.join(os.path.dirname(sim_config_path), '..', '..', '..', '..', 'ephys_data', filename)
     
     # Check if file already exists
     if os.path.exists(filepath):
-        logger.info(f"File already exists, skipping simulation: {filepath}")
-        return rho_config, 0.0  # Return placeholder value since we're not computing EPSP anyway
+        if no_cache:
+            logger.info(f"File exists but no_cache is True, removing: {filepath}")
+            try:
+                os.remove(filepath)
+            except OSError:
+                pass
+        else:
+            logger.info(f"File already exists, skipping simulation: {filepath}")
+            return rho_config, 0.0  # Return placeholder value since we're not computing EPSP anyway
     
     import bluecellulab
     
@@ -91,9 +102,9 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
     bluecellulab.neuron.h.cao_CR_GluSynapse = 2.0
     bluecellulab.neuron.h.minis_single_vesicle_GluSynapse = 0.0
     bluecellulab.neuron.h.init_depleted_GluSynapse = 0.0
-    bluecellulab.neuron.h.tau_effca_GB_GluSynapse = 278.3177658387
-    bluecellulab.neuron.h.gamma_d_GB_GluSynapse = 101.5387594661
-    bluecellulab.neuron.h.gamma_p_GB_GluSynapse = 216.1841700668
+    # bluecellulab.neuron.h.tau_effca_GB_GluSynapse = 278.3177658387
+    # bluecellulab.neuron.h.gamma_d_GB_GluSynapse = 101.5387594661
+    # bluecellulab.neuron.h.gamma_p_GB_GluSynapse = 216.1841700668
     
     # Set random seed for this trial to ensure different results
     np.random.seed(trial)
@@ -132,9 +143,12 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
                 lst.append(recorder)
                 
     bluepysnap_sim = BluePySnapSimulation(sim_config_path)
-    EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+    
+    # Use custom recipe path if provided, otherwise use default
+    recipe_file = recipe_path if recipe_path else "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+    
     edge_pop = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
-    pgen = ParamsGenerator(bluepysnap_sim.circuit, node_pop, edge_pop, EXTRA_RECIPE_PATH)
+    pgen = ParamsGenerator(bluepysnap_sim.circuit, node_pop, edge_pop, recipe_file)
     syn_extra_params = pgen.generate_params(pre_gid, post_gid)
 
     df = _map_syn_idx(sim_config_path, post_gid, syn_idx, edge_pop)
@@ -144,7 +158,7 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
         # logger.debug("Configuring synapse %d", syn_id[1])
         if syn_extra_params is not None:  # configure local parameters
             global_syn_id = df.loc[df["local_syn_idx"] == syn_id[1]].index[0]
-            _set_local_params(synapse, None, syn_extra_params[global_syn_id])
+            _set_local_params(synapse, fit_params, syn_extra_params[global_syn_id])
         for key, lst in syn_props.items():  # store synapse properties
             if key == "Cpre":
                 lst.append(0)
@@ -160,6 +174,16 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
 
     rho_values = [int(x) for x in rho_config.split(",")]
     logger.info(f"Applying rho configuration: {rho_config}")
+    
+    # Parse synapse IDs if provided
+    target_synapse_ids = None
+    if synapse_ids_str:
+        try:
+            target_synapse_ids = [int(x) for x in synapse_ids_str.split(",")]
+            logger.info(f"Using synapse ID matching with {len(target_synapse_ids)} IDs")
+        except ValueError:
+            logger.error(f"Failed to parse synapse IDs: {synapse_ids_str}")
+    
     syn_idx = 0
     logger.info("rho_GB before")
     initial_rho_values = []
@@ -176,8 +200,30 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
         print(f"printing rho_GB: {synapse.hsynapse.rho_GB}")
         initial_rho_values.append(synapse.hsynapse.rho0_GB)
     logger.info(f"initial_rho_values: {initial_rho_values}")
+    
     for syn_id, synapse in cell.synapses.items():
-        rho_val = rho_values[syn_idx]
+        current_syn_id = syn_id[1]
+        
+        # Determine which rho value to use
+        rho_val = 0 # Default to 0 (depressed) if not found
+        
+        if target_synapse_ids:
+            # Match by ID
+            if current_syn_id in target_synapse_ids:
+                idx = target_synapse_ids.index(current_syn_id)
+                if idx < len(rho_values):
+                    rho_val = rho_values[idx]
+                else:
+                    logger.warning(f"Synapse ID {current_syn_id} found at index {idx} but rho_values has length {len(rho_values)}")
+            else:
+                logger.warning(f"Synapse ID {current_syn_id} not found in target IDs. Defaulting to 0.")
+        else:
+            # Fallback to index-based matching (legacy behavior)
+            if syn_idx < len(rho_values):
+                rho_val = rho_values[syn_idx]
+            else:
+                logger.warning(f"Synapse index {syn_idx} out of range for rho_values (len={len(rho_values)}). Defaulting to 0.")
+        
         if rho_val >= 0.5:
             synapse.hsynapse.rho0_GB = 1.0
             synapse.hsynapse.Use = synapse.hsynapse.Use_p
@@ -244,10 +290,30 @@ def main():
     parser.add_argument('rho_config', help='Rho configuration (comma-separated 0s and 1s)')
     parser.add_argument('--node_pop', default='S1nonbarrel_neurons', help='Node population name')
     parser.add_argument('--trial', type=int, default=0, help='Trial number')
+    parser.add_argument('--output-dir', default=None, help='Output directory for ephys data')
+    parser.add_argument('--no-cache', action='store_true', help='Ignore existing files and force re-computation')
+    parser.add_argument('--recipe-path', default=None, help='Path to custom recipe.csv file')
+    parser.add_argument('--synapse-ids', default=None, help='Comma-separated list of synapse IDs to match rho values')
+    
+    # Add fit params arguments
+    fit_param_names = [
+        "gamma_d_GB_GluSynapse", "gamma_p_GB_GluSynapse",
+        "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"
+    ]
+    for param in fit_param_names:
+        parser.add_argument(f"--{param}", type=float, default=None, help=f"Fit parameter {param}")
     
     args = parser.parse_args()
     
+    # Collect fit params
+    fit_params = {}
+    for param in fit_param_names:
+        val = getattr(args, param)
+        if val is not None:
+            fit_params[param] = val
+    
     logger.info(f"Running simulation with args: {args}")
+    logger.info(f"Fit params: {fit_params}")
     
     result = get_epsp_value(
         args.sim_config_path,
@@ -255,7 +321,12 @@ def main():
         args.post_gid,
         args.rho_config,
         args.node_pop,
-        args.trial
+        args.trial,
+        args.output_dir,
+        args.no_cache,
+        args.recipe_path,
+        args.synapse_ids,
+        fit_params
     )
     
     logger.info(f"Simulation completed with result: {result}")

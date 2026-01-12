@@ -1,0 +1,2 @@
+protocol_id,mean_epsp_ratio,sem_epsp_ratio,frequency_train,dt_train,mean_epsp_ratio_sim,sem_epsp_ratio_sim,std_epsp_ratio_sim,count,error,param_set
+mrk97_08,0.7922,0.0259,10.0,-10,1.1165959444304574,0.04308315581490538,0.4308315581490538,100,12.5249399393999,Chindemi_params

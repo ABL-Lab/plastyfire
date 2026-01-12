@@ -69,7 +69,7 @@ def compute_epsp_prefire(pkl_file, window=100):
     return avg_epsp
 
 
-def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_details=True):
+def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_details=True, recipe_path=None):
     """Reads results from batch job output files and computes EPSP ratio"""
     import os
     import pickle
@@ -93,8 +93,15 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
 
     logger.info(f"Reading results from: {pkl_file}")
 
-    with open(pkl_file, "rb") as f:
-        raw_results = pickle.load(f)
+    try:
+        with open(pkl_file, "rb") as f:
+            raw_results = pickle.load(f)
+    except (pickle.UnpicklingError, EOFError, KeyError, ValueError) as e:
+        logger.warning(
+            f"Corrupted pickle file detected: {pkl_file} - {e}. Deleting and will re-run simulation."
+        )
+        os.remove(pkl_file)
+        return None, None, []
 
     # get initial rho and final rho
     initial_rho = [0 if k[0] < 0.5 else 1 for k in raw_results["rho_GB"].T]
@@ -144,14 +151,37 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
                 }
             )
 
-    # If there are missing files, return them for batch generation
+    # If there are missing files, generate them immediately
     if missing_ephys:
         logger.info(
-            f"Protocol {sim_dict['protocol_id']} needs {len(missing_ephys)} ephys files"
+            f"Protocol {sim_dict['protocol_id']} needs {len(missing_ephys)} ephys files. Generating them now..."
         )
-        return None, None, missing_ephys
+        from plastyfire.compute_test_pulse_epsp_ratio import get_epsp_value
+        
+        # Reconstruct fit_params
+        fit_params = dict(zip(FIT_PARAM_NAMES, param_values))
+        
+        for ephys_info in missing_ephys:
+            logger.info(f"Generating missing ephys file: {ephys_info['file_path']}")
+            try:
+                get_epsp_value(
+                    ephys_info['sim_config_path'],
+                    int(ephys_info['pre_gid']),
+                    int(ephys_info['post_gid']),
+                    ephys_info['rho_config'],
+                    node_pop='S1nonbarrel_neurons', # Default
+                    trial=0, # Default
+                    output_dir=None,
+                    no_cache=False,
+                    recipe_path=recipe_path,
+                    synapse_ids_str=None,
+                    fit_params=fit_params
+                )
+            except Exception as e:
+                logger.error(f"Failed to generate ephys file {ephys_info['file_path']}: {e}")
+                return None, None, [] # Fail this simulation
 
-    # If files exist, compute expected EPSP ratio
+    # If files exist (or were just generated), compute expected EPSP ratio
     if os.path.exists(ephys_before_path) and os.path.exists(ephys_after_path):
         epsp_before = compute_epsp_prefire(ephys_before_path)
         epsp_after = compute_epsp_prefire(ephys_after_path)
@@ -184,7 +214,11 @@ def compute_epsp_ratio_prefire_batch(param_values, sim_dict, workdir, log_detail
 
 def run_simulation_worker(args):
     """Worker function for multiprocessing that runs pairrunner.py directly"""
-    param_values, sim_dict, param_hash = args
+    if len(args) == 4:
+        param_values, sim_dict, param_hash, recipe_path = args
+    else:
+        param_values, sim_dict, param_hash = args
+        recipe_path = None
 
     try:
         # Build parameter arguments string
@@ -218,7 +252,7 @@ def run_simulation_worker(args):
 
         # Process results
         return compute_epsp_ratio_prefire_batch(
-            param_values, sim_dict, sim_dict["workdir"], log_details=False
+            param_values, sim_dict, sim_dict["workdir"], log_details=True, recipe_path=recipe_path
         )
 
     except Exception as e:
@@ -252,8 +286,15 @@ def compute_epsp_ratio_batch(param_values, sim_dict, workdir, log_details=True):
 
     logger.info(f"Reading results from: {pkl_file}")
 
-    with open(pkl_file, "rb") as f:
-        raw_results = pickle.load(f)
+    try:
+        with open(pkl_file, "rb") as f:
+            raw_results = pickle.load(f)
+    except (pickle.UnpicklingError, EOFError, KeyError, ValueError) as e:
+        logger.warning(
+            f"Corrupted pickle file detected: {pkl_file} - {e}. Deleting and will re-run simulation."
+        )
+        os.remove(pkl_file)
+        return None, None
 
     exp_handler = Experiment(
         raw_results,
@@ -304,7 +345,22 @@ class Evaluator(Evaluator):
         max_jobs=900,
         use_multiprocessing=True,
         max_workers=None,
+        fitness_schedule_file=None,
+        recipe_path=None,
     ):
+        """
+        :param fit_params: list of tuples (name, min, max)
+        :param invitro_db: pandas DataFrame with in vitro data
+        :param seed: RNG seed
+        :param sample_size: number of in silico connections per protocol
+        :param ipp_id: IPyParallel client ID (optional)
+        :param work_dir: working directory for batch scripts
+        :param max_jobs: maximum concurrent SLURM jobs
+        :param use_multiprocessing: use multiprocessing instead of SLURM
+        :param max_workers: maximum number of workers for multiprocessing
+        :param fitness_schedule_file: path to fitness schedule YAML file
+        :param recipe_path: path to custom recipe file
+        """
         super(Evaluator, self).__init__()
         self.params = [
             Parameter(param_name, bounds=(min_bound, max_bound))
@@ -318,6 +374,10 @@ class Evaluator(Evaluator):
         self.sim = NrnSimulator()
         self.current_generation = 0  # Track current generation
         self.work_dir = work_dir or os.getcwd()  # Working directory for batch scripts
+        self.glost_dir = os.path.join(
+            self.work_dir, "glost_jobs"
+        )  # Directory for GLOST files
+        os.makedirs(self.glost_dir, exist_ok=True)  # Create glost_jobs directory
         self._processed_files = set()  # Track processed files to prevent infinite loops
         self.max_jobs = max_jobs  # Maximum concurrent SLURM jobs
         self.use_multiprocessing = use_multiprocessing
@@ -325,8 +385,23 @@ class Evaluator(Evaluator):
         self.max_workers -= 4  # save some for other processes
         # Find all simulations
         self.all_sims, self.objectives = [], []
+        # Store all protocol IDs to support dynamic masking
+        self.all_protocol_ids = invitro_db["protocol_id"].unique().tolist()
+        # Load fitness schedule if provided
+        self.fitness_schedule = None
+        if fitness_schedule_file:
+            import yaml
+
+            with open(fitness_schedule_file, "r") as f:
+                self.fitness_schedule = yaml.safe_load(f)
+            logger.info(f"Loaded fitness schedule: {self.fitness_schedule}")
+        
+        self.recipe_path = recipe_path
+        if self.recipe_path:
+            logger.info(f"Using custom recipe file: {self.recipe_path}")
+
         # Set weight reduce based on number of protocols
-        num_protocols = len(invitro_db['protocol_id'].unique())
+        num_protocols = len(invitro_db["protocol_id"].unique())
         if num_protocols <= 2:
             self.weight_reduce = np.array([1 / 8] * num_protocols)
         else:
@@ -402,89 +477,126 @@ class Evaluator(Evaluator):
             )
         self.current_generation = generation
 
+    def get_fitness_mask(self):
+        """Get fitness mask for current generation based on schedule"""
+        if not self.fitness_schedule:
+            # No schedule, return all 1.0 (all protocols active)
+            return np.ones(len(self.objectives))
+
+        # Find which phase we're in
+        for phase in self.fitness_schedule.get("phases", []):
+            gen_start = phase.get("generation_start", 0)
+            gen_end = phase.get("generation_end", float("inf"))
+
+            if gen_start <= self.current_generation < gen_end:
+                # Get mask for this phase
+                mask = phase.get("mask", {})
+                fitness_mask = []
+
+                for obj in self.objectives:
+                    protocol_id = obj.name
+                    weight = mask.get(protocol_id, 0.0)
+                    fitness_mask.append(weight)
+
+                fitness_mask = np.array(fitness_mask)
+                logger.info(
+                    f"Generation {self.current_generation}: Applied fitness mask {fitness_mask} for protocols {[obj.name for obj in self.objectives]}"
+                )
+                return fitness_mask
+
+        # Default: all protocols active
+        return np.ones(len(self.objectives))
+
     def get_param_dict(self, param_values):
         """Build dictionary of parameters for the Graupner & Brunel model
         from an ordered list of values (i.e. an individual)"""
         return dict(zip(self.param_names, param_values))
 
-    def create_batch_script(self, param_values, sim_dict):
-        """Create batch script for individual evaluation in the protocol directory"""
+    def create_glost_task_list(self, param_values, all_sims):
+        """Create GLOST task list for all simulations"""
         param_dict = self.get_param_dict(param_values)
+        param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]
 
-        # Create hash from parameter values
-        param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[
-            :12
-        ]  # Use first 12 chars
-
-        # Build parameter arguments string
         param_args = " ".join(
             [f"--{name}={value}" for name, value in param_dict.items()]
         )
 
-        # Read template
+        task_list_path = os.path.join(self.glost_dir, f"glost_tasks_{param_hash}.txt")
+
+        with open(task_list_path, "w") as f:
+            for sim_dict in all_sims:
+                cmd = f"cd {sim_dict['workdir']} && python /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py {param_args} --fastforward={float(sim_dict['fastforward'])} --param_hash={param_hash}"
+                f.write(cmd + "\n")
+
+        return task_list_path, param_hash
+
+    def submit_glost_job(self, task_list_path, param_hash, num_tasks):
+        """Submit GLOST job and return job ID"""
+        wait_for_job_slots(max_jobs=self.max_jobs)
+
         template_path = os.path.join(
-            os.path.dirname(__file__), "templates", "simulation.batch.tmpl"
+            os.path.dirname(__file__), "templates", "glost.batch.tmpl"
         )
-        # Reduced logging: removed verbose debug
-        # logger.debug(f"Template path: {template_path}")
         if not os.path.exists(template_path):
             raise FileNotFoundError(f"Template not found: {template_path}")
+
         with open(template_path, "r") as f:
             template = f.read()
 
-        # Template variables
+        # Determine resources based on task count
+        # Narval nodes have 128 cores, using 63 to leave some headroom/system overhead or use half-nodes
+        max_tasks_per_node = 63
+        nodes = max(
+            1, min(10, (num_tasks + max_tasks_per_node - 1) // max_tasks_per_node)
+        )
+
+        # Distribute tasks evenly across nodes if possible
+        if num_tasks <= nodes * max_tasks_per_node:
+            ntasks_per_node = (num_tasks + nodes - 1) // nodes
+        else:
+            ntasks_per_node = max_tasks_per_node
+
+        # Calculate memory per node (approx 1.3GB per task based on seff analysis of 0.96GB avg usage)
+        mem_per_node = f"{ntasks_per_node * 1300}M"
+
         template_vars = {
-            "name": f"param_{param_hash}_{sim_dict['protocol_id']}",
-            "cpu_time": "01:30:00",
-            "log": f"{param_hash}_{sim_dict['protocol_id']}",
+            "name": f"glost_{param_hash}",
+            "nodes": nodes,
+            "ntasks_per_node": ntasks_per_node,
+            "mem_per_node": mem_per_node,
+            "cpu_time": "01:50:00",
+            "log_file": os.path.join(self.glost_dir, f"glost_{param_hash}.log"),
             "env": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh",
-            "run": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py",
-            "param_args": param_args,
-            "fastforward": float(sim_dict["fastforward"]),
-            "workdir": sim_dict["workdir"],
-            "param_hash_arg": f" --param_hash={param_hash}",
-            "individual_id_arg": "",
-            "generation_arg": "",
+            "task_list": task_list_path,
         }
 
-        # Fill template
         batch_script = template.format(**template_vars)
+        batch_path = os.path.join(self.glost_dir, f"glost_{param_hash}.batch")
 
-        # Write batch script in the protocol directory with unique name to prevent race conditions
-        batch_path = os.path.join(sim_dict["workdir"], f"simulation_{param_hash}.batch")
-        # Reduced logging: removed verbose debug
-        # logger.debug(f"Creating batch script at: {batch_path}")
         with open(batch_path, "w") as f:
             f.write(batch_script)
 
-        return batch_path
-
-    def submit_batch_job(self, batch_path):
-        """Submit batch job and return job ID with job limit enforcement"""
-        # Wait for available job slots before submitting
-        wait_for_job_slots(max_jobs=self.max_jobs)
-
-        # Check if batch script exists
-        if not os.path.exists(batch_path):
-            logger.error(f"Batch script not found: {batch_path}")
-            raise FileNotFoundError(f"Batch script not found: {batch_path}")
-
-        # Submit without --parsable flag to avoid potential issues
         result = subprocess.run(
-            ["sbatch", batch_path], capture_output=True, text=True, check=True
+            ["sbatch", batch_path], capture_output=True, text=True, check=False
         )
+        if result.returncode != 0:
+            logger.error(f"sbatch failed with return code {result.returncode}")
+            logger.error(f"sbatch stdout: {result.stdout}")
+            logger.error(f"sbatch stderr: {result.stderr}")
+            logger.error("Batch file contents:")
+            with open(batch_path, "r") as f:
+                logger.error(f.read())
+            raise subprocess.CalledProcessError(
+                result.returncode, ["sbatch", batch_path], result.stdout, result.stderr
+            )
 
-        # Parse job ID from output (format: "Submitted batch job 12345")
         output = result.stdout.strip()
-        job_id_match = output.split()[-1]  # Get last word which should be the job ID
-        try:
-            job_id = int(job_id_match)
-        except ValueError:
-            logger.error(f"Could not parse job ID from output: {output}")
-            raise ValueError(f"Could not parse job ID from output: {output}")
+        job_id = int(output.split()[-1])
 
-        logger.info(f"Submitted job {job_id}")
-        return job_id
+        logger.info(
+            f"Submitted GLOST job {job_id} with {num_tasks} tasks on {nodes} node(s)"
+        )
+        return job_id, batch_path
 
     def submit_ephys_job_array(self, missing_ephys_list):
         """Submit ephys generation as SLURM job array"""
@@ -618,7 +730,9 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
             float(merged_db.loc[merged_db["protocol_id"] == obj.name, "error"].iloc[0])
             for obj in self.objectives
         ]
-        error = (np.array(error) * self.weight_reduce).tolist()
+        # Apply fitness mask based on generation
+        fitness_mask = self.get_fitness_mask()
+        error = (np.array(error) * self.weight_reduce * fitness_mask).tolist()
 
         logger.info("Sorting errors")
         logger.info(error)
@@ -659,27 +773,34 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
             if os.path.isfile(pklf_name):
                 with open(pklf_name, "rb") as f:
                     cache_data = pickle.load(f)
-                np.testing.assert_array_equal(
-                    param_values, cache_data["individual"]
-                )
+                np.testing.assert_array_equal(param_values, cache_data["individual"])
                 logger.info(f"Returning cached results for individual {cachekey[:12]}")
 
                 if "resdb" in cache_data:
                     res_db = cache_data["resdb"]
                     current_protocol_ids = [obj.name for obj in self.objectives]
-                    res_db_filtered = res_db[res_db['protocol_id'].isin(current_protocol_ids)]
+                    res_db_filtered = res_db[
+                        res_db["protocol_id"].isin(current_protocol_ids)
+                    ]
 
                     if len(res_db_filtered) == len(self.objectives):
-                        results = [(row['protocol_id'], row['epsp_ratio']) for _, row in res_db_filtered.iterrows()]
+                        results = [
+                            (row["protocol_id"], row["epsp_ratio"])
+                            for _, row in res_db_filtered.iterrows()
+                        ]
                         error = self._process_evaluation_results(results, param_values)
                         return error
                     else:
-                        logger.warning(f"Cache missing protocols - need {len(self.objectives)}, have {len(res_db_filtered)}. Recomputing.")
+                        logger.warning(
+                            f"Cache missing protocols - need {len(self.objectives)}, have {len(res_db_filtered)}. Recomputing."
+                        )
                 else:
                     if len(cache_data["error"]) == len(self.objectives):
                         return cache_data["error"]
                     else:
-                        logger.warning(f"Cached error length mismatch - need {len(self.objectives)}, have {len(cache_data['error'])}. Recomputing.")
+                        logger.warning(
+                            f"Cached error length mismatch - need {len(self.objectives)}, have {len(cache_data['error'])}. Recomputing."
+                        )
 
             param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]
             existing_results = []
@@ -711,7 +832,12 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                             log_details=False,
                         )
                         if result is not None and result[1] is not None:
-                            existing_results.append(result)
+                            if len(result) == 3:
+                                protocol_id, epsp_ratio, _ = result
+                                if protocol_id is not None and epsp_ratio is not None:
+                                    existing_results.append((protocol_id, epsp_ratio))
+                            else:
+                                existing_results.append(result)
                             continue
                         else:
                             logger.warning(
@@ -720,7 +846,7 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     except Exception as e:
                         logger.info(f"Failed to load existing PKL file {pkl_file}: {e}")
 
-                jobs_to_run.append((param_values, sim_dict, param_hash))
+                jobs_to_run.append((param_values, sim_dict, param_hash, self.recipe_path))
 
             # Run simulations - check if we're in a daemon process
             results = existing_results.copy()
@@ -753,7 +879,12 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     # Filter out None results and add to results
                     for result in mp_results:
                         if result is not None:
-                            results.append(result)
+                            if len(result) == 3:
+                                protocol_id, epsp_ratio, _ = result
+                                if protocol_id is not None and epsp_ratio is not None:
+                                    results.append((protocol_id, epsp_ratio))
+                            else:
+                                results.append(result)
 
             # Process results using shared logic
             error = self._process_evaluation_results(results, param_values)
@@ -783,7 +914,10 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                                 workdir, f"simulation_{param_hash}.batch"
                             )
                             if os.path.exists(batch_file):
-                                os.remove(batch_file)
+                                try:
+                                    os.remove(batch_file)
+                                except FileNotFoundError:
+                                    pass
                             return True
                     except (OSError, IOError):
                         # File might be being written, continue checking
@@ -896,12 +1030,17 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     res_db = cache_data["resdb"]
                     # Filter resdb to only include current protocols
                     current_protocol_ids = [obj.name for obj in self.objectives]
-                    res_db_filtered = res_db[res_db['protocol_id'].isin(current_protocol_ids)]
+                    res_db_filtered = res_db[
+                        res_db["protocol_id"].isin(current_protocol_ids)
+                    ]
 
                     # Check if we have results for all current protocols
                     if len(res_db_filtered) == len(self.objectives):
                         # Recompute error with current weight_reduce
-                        results = [(row['protocol_id'], row['epsp_ratio']) for _, row in res_db_filtered.iterrows()]
+                        results = [
+                            (row["protocol_id"], row["epsp_ratio"])
+                            for _, row in res_db_filtered.iterrows()
+                        ]
                         error = self._process_evaluation_results(results, param_values)
 
                         # Save filtered results to CSV
@@ -930,27 +1069,28 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                                 )
                         return error
                     else:
-                        logger.warning(f"Cache missing protocols - need {len(self.objectives)}, have {len(res_db_filtered)}. Recomputing.")
+                        logger.warning(
+                            f"Cache missing protocols - need {len(self.objectives)}, have {len(res_db_filtered)}. Recomputing."
+                        )
                 else:
                     # Old cache format, just return it (assuming it matches)
                     if len(cache_data["error"]) == len(self.objectives):
                         return cache_data["error"]
                     else:
-                        logger.warning(f"Cached error length mismatch - need {len(self.objectives)}, have {len(cache_data['error'])}. Recomputing.")
+                        logger.warning(
+                            f"Cached error length mismatch - need {len(self.objectives)}, have {len(cache_data['error'])}. Recomputing."
+                        )
 
-            param_dict = self.get_param_dict(param_values)
-            param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[
-                :12
-            ]  # Use first 12 chars
-            batch_jobs = []
+            param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]
             existing_results = []
+            sims_to_run = []
 
-            for i, sim_dict in enumerate(self.all_sims):
+            for sim_dict in self.all_sims:
                 pkl_file = os.path.join(
                     sim_dict["workdir"], f"simulation_{param_hash}.pkl"
                 )
-
                 file_key = f"{pkl_file}_{param_hash}"
+
                 if file_key in self._processed_files:
                     logger.warning(
                         f"Already processed file {pkl_file} in this evaluation, skipping to prevent infinite loop"
@@ -961,7 +1101,7 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     logger.info(
                         f"Found existing PKL file for {sim_dict['protocol_id']}: {pkl_file}"
                     )
-                    self._processed_files.add(file_key)  # Mark as processed
+                    self._processed_files.add(file_key)
                     try:
                         result = compute_epsp_ratio_prefire_batch(
                             param_values,
@@ -969,104 +1109,93 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                             sim_dict["workdir"],
                             log_details=False,
                         )
-                        if (
-                            result is not None and result[1] is not None
-                        ):  # Check for valid result
+                        if result is not None and result[1] is not None:
                             existing_results.append(result)
                             continue
                         else:
                             logger.warning(
-                                f"Invalid result from existing PKL file {pkl_file}, will submit new batch job"
+                                f"Invalid result from existing PKL file {pkl_file}, will run via GLOST"
                             )
                     except Exception as e:
                         logger.info(f"Failed to load existing PKL file {pkl_file}: {e}")
                 else:
                     logger.info(
-                        f"No existing PKL file found for {sim_dict['protocol_id']}: {pkl_file}, submitting batch job"
+                        f"No existing PKL file found for {sim_dict['protocol_id']}: {pkl_file}"
                     )
 
-                batch_path = self.create_batch_script(param_values, sim_dict)
-                job_id = self.submit_batch_job(batch_path)
-                batch_jobs.append((job_id, batch_path, sim_dict, param_hash))
+                sims_to_run.append(sim_dict)
 
-            failed_jobs = []
+            glost_job_id = None
+            batch_path = None
             successful_jobs = []
 
-            if batch_jobs:
-                logger.info(f"Waiting for {len(batch_jobs)} batch jobs to complete...")
+            if sims_to_run:
+                task_list_path, param_hash = self.create_glost_task_list(
+                    param_values, sims_to_run
+                )
+                glost_job_id, batch_path = self.submit_glost_job(
+                    task_list_path, param_hash, len(sims_to_run)
+                )
 
-                # Poll jobs until all complete
-                max_wait_time = 7200  # 2 hours maximum
-                poll_interval = 10  # Check every 10 seconds
+                logger.info(f"Waiting for GLOST job {glost_job_id} to complete...")
+
+                max_wait_time = 7200
+                poll_interval = 10
                 start_time = time.time()
 
-                pending_jobs = batch_jobs.copy()
+                while (time.time() - start_time) < max_wait_time:
+                    all_complete = True
+                    for sim_dict in sims_to_run:
+                        if not self.check_pkl_completion(
+                            sim_dict["workdir"], param_hash
+                        ):
+                            all_complete = False
+                            break
 
-                while pending_jobs and (time.time() - start_time) < max_wait_time:
-                    still_pending = []
-
-                    for job_id, batch_path, sim_dict, param_hash in pending_jobs:
-                        if self.check_pkl_completion(sim_dict["workdir"], param_hash):
-                            logger.info(f"Job {job_id} completed successfully")
-                            successful_jobs.append((job_id, batch_path, sim_dict))
-                        else:
-                            # Check if job is still running
-                            try:
-                                result = subprocess.run(
-                                    ["squeue", "-j", str(job_id), "-h"],
-                                    capture_output=True,
-                                    text=True,
-                                    timeout=10,
-                                )
-                                if result.stdout.strip():
-                                    # Job still in queue
-                                    still_pending.append(
-                                        (job_id, batch_path, sim_dict, param_hash)
-                                    )
-                                else:
-                                    # Job not in queue but no PKL - failed
-                                    logger.error(
-                                        f"Job {job_id} not in queue and no results found"
-                                    )
-                                    failed_jobs.append((job_id, batch_path, sim_dict))
-                            except (
-                                subprocess.TimeoutExpired,
-                                subprocess.CalledProcessError,
-                            ) as e:
-                                logger.warning(
-                                    f"Failed to check job {job_id} status: {e}"
-                                )
-                                still_pending.append(
-                                    (job_id, batch_path, sim_dict, param_hash)
-                                )
-
-                    pending_jobs = still_pending
-
-                    if pending_jobs:
-                        logger.info(
-                            f"Still waiting for {len(pending_jobs)} jobs... (elapsed: {int(time.time() - start_time)}s)"
-                        )
-                        time.sleep(poll_interval)
-
-                # Check for timeout
-                if pending_jobs:
-                    logger.error(
-                        f"Timeout waiting for {len(pending_jobs)} jobs after {max_wait_time}s"
-                    )
-                    failed_jobs.extend(
-                        [
-                            (job_id, batch_path, sim_dict)
-                            for job_id, batch_path, sim_dict, _ in pending_jobs
+                    if all_complete:
+                        logger.info(f"GLOST job {glost_job_id} completed successfully")
+                        successful_jobs = [
+                            (glost_job_id, batch_path, sim_dict)
+                            for sim_dict in sims_to_run
                         ]
+                        break
+
+                    try:
+                        result = subprocess.run(
+                            ["squeue", "-j", str(glost_job_id), "-h"],
+                            capture_output=True,
+                            text=True,
+                            timeout=10,
+                        )
+                        if not result.stdout.strip():
+                            logger.error(
+                                f"GLOST job {glost_job_id} not in queue but not all results found"
+                            )
+                            break
+                    except (
+                        subprocess.TimeoutExpired,
+                        subprocess.CalledProcessError,
+                    ) as e:
+                        logger.warning(
+                            f"Failed to check GLOST job {glost_job_id} status: {e}"
+                        )
+
+                    logger.info(
+                        f"Still waiting for GLOST job {glost_job_id}... (elapsed: {int(time.time() - start_time)}s)"
+                    )
+                    time.sleep(poll_interval)
+
+                if (time.time() - start_time) >= max_wait_time:
+                    logger.error(
+                        f"Timeout waiting for GLOST job {glost_job_id} after {max_wait_time}s"
                     )
             else:
                 logger.info(
-                    "All results found in existing PKL files, no batch jobs needed"
+                    "All results found in existing PKL files, no GLOST job needed"
                 )
 
-            # Log summary of job results
             logger.info(
-                f"Job completion summary: {len(existing_results)} from existing files, {len(successful_jobs)} new successful jobs, {len(failed_jobs)} failed jobs"
+                f"Job completion summary: {len(existing_results)} from existing files, {len(successful_jobs)} new successful jobs"
             )
 
             # Start with existing results and collect missing ephys files
@@ -1086,18 +1215,18 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     results.append(result)
 
             # Process newly completed jobs and collect missing ephys
-            for job_id, batch_path, sim_dict in successful_jobs:
+            for _, batch_path, sim_dict in successful_jobs:
                 try:
                     result = compute_epsp_ratio_prefire_batch(
                         param_values, sim_dict, sim_dict["workdir"], log_details=False
                     )
-                    if len(result) == 3:  # New format
+                    if len(result) == 3:
                         protocol_id, epsp_ratio, missing_ephys = result
                         if missing_ephys:
                             all_missing_ephys.extend(missing_ephys)
                         if protocol_id is not None and epsp_ratio is not None:
                             results.append((protocol_id, epsp_ratio))
-                    else:  # Old format
+                    else:
                         results.append(result)
                 except Exception as e:
                     logger.error(
@@ -1105,11 +1234,11 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
                     )
                     failed_processing.append((sim_dict, str(e)))
 
-                # Clean up batch script (now with unique naming)
-                if os.path.exists(batch_path):
+            if batch_path and os.path.exists(batch_path):
+                try:
                     os.remove(batch_path)
-                # Note: Don't delete log files as they may be useful for debugging
-                # and could belong to other concurrent jobs
+                except FileNotFoundError:
+                    pass
 
             # If there are missing ephys files, submit them as a job array
             if all_missing_ephys:
@@ -1154,12 +1283,10 @@ python {script_dir}/compute_test_pulse_epsp_ratio.py \\
 
                         time.sleep(30)  # Check every 30 seconds
 
-                    # Now retry processing with ephys files available
                     logger.info(
                         "Retrying result processing with generated ephys files..."
                     )
-                    for job_id, batch_path, sim_dict in successful_jobs:
-                        # Check if this was waiting for ephys
+                    for _, _, sim_dict in successful_jobs:
                         needs_retry = False
                         for result in results:
                             if (

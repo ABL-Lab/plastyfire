@@ -16,5 +16,11 @@ plastyfire/x86_64/
 .cursor/
 /refitting_results/
 
+plastyfire/glost_jobs/
+evaluation_results/Chindemi_params/sim_results/
+evaluation_results/Chindemi_params_mod/sim_results
+evaluation_results/custom_v2/sim_results
+evaluation_results/mrk97_07_mrk97_08/sim_results
 *.pkl
 *.log
+plastyfire/simulation_epsp_df.csv

@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --job-name={name}
+#SBATCH --account=ctb-emuller
+#SBATCH --nodes={nodes}
+#SBATCH --ntasks-per-node={ntasks_per_node}
+#SBATCH --time={cpu_time}
+#SBATCH --mem={mem_per_node}
+#SBATCH --output={log_file}
+
+source {env}
+
+module load openmpi glost
+
+srun glost_launch {task_list}

@@ -1,0 +1,20 @@
+# Fitness masking schedule for dynamic protocol optimization
+#
+# This file defines which protocols to optimize during different phases of optimization.
+# Protocols with weight 0.0 will not contribute to fitness (masked out).
+# Protocols with weight > 0.0 will contribute to fitness proportionally.
+#
+# Example use case:
+# - Generations 1-10: Optimize only mrk97_07 and mrk97_08
+# - Generations 11-20: Optimize all 5 protocols
+# - Generations 21-30: Optimize only mrk97_07 and mrk97_08 again
+
+phases:
+  - generation_start: 1
+    generation_end: 101
+    mask:
+      mrk97_01: 0.75
+      mrk97_02: 0.75
+      mrk97_07: 1.0
+      mrk97_08: 2.0
+      sjh06_02: 0.75

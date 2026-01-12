@@ -563,7 +563,7 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
 
 def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=None,
                      node_pop="S1nonbarrel_neurons", edge_pop="S1nonbarrel_neurons__S1nonbarrel_neurons__chemical",
-                     fixhp=True):
+                     fixhp=True, recipe_path=None):
     """
     Pairs spikes (at given frequency and dt written in `plastyfire/simwriter`) and triggers EPSP before and after that
     (to test the effect of the STDP protocol on the EPSP amplitude)
@@ -576,7 +576,11 @@ def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=Non
     width, amp = sim.config["inputs"]["pulse0"]["width"], sim.config["inputs"]["pulse0"]["amp_start"]
     stimulus = {"nspikes": 1, "freq": 0.1, "width": width, "offset": 1000, "amp": amp}
     # Get reference Cpre and Cpost values (used to derive depression and potentiation thresholds)
-    pgen = ParamsGenerator(sim.circuit, node_pop, edge_pop, EXTRA_RECIPE_PATH)
+    
+    # Use custom recipe path if provided, otherwise use default
+    recipe_file = recipe_path if recipe_path else EXTRA_RECIPE_PATH
+    
+    pgen = ParamsGenerator(sim.circuit, node_pop, edge_pop, recipe_file)
     syn_extra_params = pgen.generate_params(pre_gid, post_gid)
     c_pre = c_pre_finder(sim_config, fit_params, syn_extra_params, pre_gid, post_gid,
                          node_pop=node_pop, edge_pop=edge_pop, fixhp=fixhp)

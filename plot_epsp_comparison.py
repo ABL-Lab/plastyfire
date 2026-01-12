@@ -359,11 +359,12 @@ def main():
 
     if fitness_scores is not None:
         fitness_text = "Fitness scores:\n"
-        # Map fitness scores to protocol labels in the order they appear on y-axis
-        for i, (protocol_id, score) in enumerate(zip(PROTOCOL_ORDER, fitness_scores)):
-            if protocol_id in comparison["protocol_id"].values:
+        # Map fitness scores to protocol labels using PROTOCOLS order (not PROTOCOL_ORDER)
+        # fitness_scores correspond to PROTOCOLS order from the optimization
+        for i, protocol_id in enumerate(PROTOCOLS):
+            if i < len(fitness_scores) and protocol_id in comparison["protocol_id"].values:
                 label = get_protocol_label(protocol_id, invitro_db)
-                fitness_text += f"  {label}: {score:.6f}\n"
+                fitness_text += f"  {label}: {fitness_scores[i]:.6f}\n"
 
         ax.text(
             0.02,
