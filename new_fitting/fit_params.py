@@ -1,0 +1,827 @@
+#!/usr/bin/env python3
+"""
+Parameter fitting for Graupner-Brunel plasticity model.
+
+Optimizes 10 parameters (gamma_d, gamma_p, a00-a31) to minimize
+the sum of squared errors between in-silico and experimental EPSP ratios
+across 5 STDP protocols.
+
+Pipeline per objective evaluation:
+    candidate params -> thresholds -> rho ODE (numba) -> binarize
+    -> EPSP extrapolation from basis -> ratio -> loss
+
+Usage:
+    python fit_params.py --method de --max-iter 1000 --workers 4
+    python fit_params.py --method cmaes --max-iter 1000
+    python fit_params.py --method optuna --n-trials 5000
+    python fit_params.py --method lbfgsb --n-starts 50
+    python fit_params.py --method all     # run all 4 and compare
+    python fit_params.py --generate-slurm  # create SLURM submission script
+"""
+
+import os
+import sys
+import json
+import time
+import pickle
+import logging
+import argparse
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from numba import njit
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# ══════════════════════════════════════════════════════════════════
+# Constants
+# ══════════════════════════════════════════════════════════════════
+
+TAU_IND_GB = 70.0       # seconds
+RHO_STAR_GB = 0.5
+
+EXPERIMENTAL_TARGETS = {
+    "2Hz_5ms":    0.9886,   # mrk97_01
+    "5Hz_5ms":    1.0161,   # mrk97_02
+    "10Hz_10ms":  1.2013,   # mrk97_07
+    "10Hz_-10ms": 0.7922,   # mrk97_08
+    "50Hz_10ms":  1.06,     # sjh06_02
+}
+
+FIT_PARAMS = [
+    # gamma
+    ("gamma_d_GB_GluSynapse", 50.0, 200.0),
+    ("gamma_p_GB_GluSynapse", 150.0, 300.0),
+    # basal theta_d: a00*c_pre + a01*c_post + a02*c_pre*c_post + d0
+    ("a00", 1.0, 5.0),
+    ("a01", 1.0, 5.0),
+    ("a02", -2.0, 2.0),
+    ("d0",  -1.0, 5.0),
+    # basal theta_p: a10*c_pre + a11*c_post + a12*c_pre*c_post + p0
+    ("a10", 1.0, 5.0),
+    ("a11", 1.0, 5.0),
+    ("a12", -2.0, 2.0),
+    ("p0",  -1.0, 5.0),
+    # apical theta_d: a20*c_pre + a21*c_post + a22*c_pre*c_post + d0_ap
+    ("a20", 1.0, 10.0),
+    ("a21", 1.0, 5.0),
+    ("a22", -2.0, 2.0),
+    ("d0_ap", -1.0, 5.0),
+    # apical theta_p: a30*c_pre + a31*c_post + a32*c_pre*c_post + p0_ap
+    ("a30", 1.0, 10.0),
+    ("a31", 1.0, 5.0),
+    ("a32", -2.0, 2.0),
+    ("p0_ap", -1.0, 5.0),
+]
+
+PARAM_NAMES = [p[0] for p in FIT_PARAMS]
+PARAM_BOUNDS = [(p[1], p[2]) for p in FIT_PARAMS]
+
+DEFAULT_PARAMS = {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 216.2,
+    "a00": 1.002, "a01": 1.954, "a02": 0.0, "d0": 0.0,
+    "a10": 1.159, "a11": 2.483, "a12": 0.0, "p0": 0.0,
+    "a20": 1.127, "a21": 2.456, "a22": 0.0, "d0_ap": 0.0,
+    "a30": 5.236, "a31": 1.782, "a32": 0.0, "p0_ap": 0.0,
+}
+DEFAULT_X0 = np.array([DEFAULT_PARAMS[name] for name in PARAM_NAMES])
+
+# Paths
+BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+L5_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/Chindemi_params")
+L23_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/L23PC_Chindemi_params")
+L5_BASIS_DIR = os.path.join(BASE_DIR, "basis_results")
+L23_BASIS_DIR = os.path.join(BASE_DIR, "basis_results_L23PC_L5TTPC")
+
+PROTOCOL_PATHWAY = {
+    "2Hz_5ms": "L5TTPC",
+    "5Hz_5ms": "L5TTPC",
+    "10Hz_10ms": "L5TTPC",
+    "10Hz_-10ms": "L5TTPC",
+    "50Hz_10ms": "L23PC",
+}
+
+# ══════════════════════════════════════════════════════════════════
+# Module-level globals for multiprocessing-safe objective
+# ══════════════════════════════════════════════════════════════════
+
+_PROTOCOL_DATA = None
+_TARGETS = None
+_LAMBDA_REG = 0.0
+_DEFAULT_X0 = None
+_WEIGHTS = None
+
+
+# ══════════════════════════════════════════════════════════════════
+# Numba-accelerated rho ODE
+# ══════════════════════════════════════════════════════════════════
+
+@njit(cache=True)
+def _compute_rho_final(effcai, t, theta_d, theta_p, gamma_d, gamma_p, rho0):
+    """Euler-integrate rho ODE for one synapse, return final value only."""
+    n = len(t)
+    rho = rho0
+    inv_tau = 1.0 / (70.0 * 1000.0)
+    rho_star = 0.5
+
+    for i in range(n - 1):
+        dt = t[i + 1] - t[i]
+        dep = 1.0 if effcai[i] > theta_d else 0.0
+        pot = 1.0 if effcai[i] > theta_p else 0.0
+        drho = (-rho * (1.0 - rho) * (rho_star - rho)
+                + pot * gamma_p * (1.0 - rho)
+                - dep * gamma_d * rho) * inv_tau
+        rho_new = rho + dt * drho
+        if rho_new < 0.0:
+            rho_new = 0.0
+        elif rho_new > 1.0:
+            rho_new = 1.0
+        rho = rho_new
+
+    return rho
+
+
+@njit(cache=True)
+def _compute_pair_ratio(effcai, t, c_pre, c_post, is_apical, rho0,
+                        baseline_mean, singleton_means,
+                        gamma_d, gamma_p,
+                        a00, a01, a02, d0,
+                        a10, a11, a12, p0,
+                        a20, a21, a22, d0_ap,
+                        a30, a31, a32, p0_ap):
+    """
+    Compute EPSP ratio for one pair.
+
+    Threshold equations (Option B: linear + interaction + intercept):
+      basal:  theta_d = a00*c_pre + a01*c_post + a02*c_pre*c_post + d0
+              theta_p = a10*c_pre + a11*c_post + a12*c_pre*c_post + p0
+      apical: theta_d = a20*c_pre + a21*c_post + a22*c_pre*c_post + d0_ap
+              theta_p = a30*c_pre + a31*c_post + a32*c_pre*c_post + p0_ap
+
+    effcai: (n_syn, n_time)
+    Returns: ratio (float) or NaN if EPSP_before <= 0
+    """
+    n_syn = effcai.shape[0]
+
+    # EPSP before (from initial rho)
+    epsp_before = baseline_mean
+    for s in range(n_syn):
+        if rho0[s] >= 0.5:
+            epsp_before += singleton_means[s] - baseline_mean
+
+    # EPSP after (from rho evolved with candidate params)
+    epsp_after = baseline_mean
+    for s in range(n_syn):
+        cp = c_pre[s]
+        cq = c_post[s]
+        cpq = cp * cq
+        if is_apical[s]:
+            theta_d = a20 * cp + a21 * cq + a22 * cpq + d0_ap
+            theta_p = a30 * cp + a31 * cq + a32 * cpq + p0_ap
+        else:
+            theta_d = a00 * cp + a01 * cq + a02 * cpq + d0
+            theta_p = a10 * cp + a11 * cq + a12 * cpq + p0
+
+        rho_final = _compute_rho_final(
+            effcai[s], t, theta_d, theta_p, gamma_d, gamma_p, rho0[s]
+        )
+
+        if rho_final >= 0.5:
+            epsp_after += singleton_means[s] - baseline_mean
+
+    if epsp_before <= 0.0:
+        return np.nan
+
+    return epsp_after / epsp_before
+
+
+# ══════════════════════════════════════════════════════════════════
+# Data loading
+# ══════════════════════════════════════════════════════════════════
+
+def _load_pkl(pkl_path):
+    """Extract effcai, rho0, synprops from simulation_traces.pkl."""
+    with open(pkl_path, "rb") as f:
+        data = pickle.load(f)
+
+    t = np.asarray(data["t"], dtype=np.float64)
+
+    # effcai_GB -> (n_syn, n_time)
+    effcai = np.asarray(data["effcai_GB"], dtype=np.float64)
+    if effcai.ndim == 1:
+        effcai = effcai.reshape(1, -1)
+    elif effcai.shape[0] == len(t) and effcai.shape[1] != len(t):
+        effcai = effcai.T
+
+    n_syn = effcai.shape[0]
+
+    # rho_GB -> initial rho from trace start
+    rho0 = np.zeros(n_syn, dtype=np.float64)
+    if "rho_GB" in data:
+        rho_gb = np.asarray(data["rho_GB"], dtype=np.float64)
+        if rho_gb.ndim == 1:
+            rho_gb = rho_gb.reshape(1, -1)
+        elif rho_gb.shape[0] == len(t) and rho_gb.shape[1] != len(t):
+            rho_gb = rho_gb.T
+        rho0 = rho_gb[:, 0].copy()
+
+    # synprops
+    synprops = data.get("synprop", {})
+    c_pre = np.asarray(synprops.get("Cpre", np.zeros(n_syn)), dtype=np.float64)
+    c_post = np.asarray(synprops.get("Cpost", np.zeros(n_syn)), dtype=np.float64)
+    loc_list = synprops.get("loc", ["basal"] * n_syn)
+    is_apical = np.array([loc == "apical" for loc in loc_list], dtype=np.bool_)
+
+    return {
+        "effcai": np.ascontiguousarray(effcai),
+        "t": np.ascontiguousarray(t),
+        "c_pre": np.ascontiguousarray(c_pre),
+        "c_post": np.ascontiguousarray(c_post),
+        "is_apical": is_apical,
+        "rho0": np.ascontiguousarray(rho0),
+    }
+
+
+def _load_basis(pre_gid, post_gid, basis_dir):
+    """Load baseline_mean and singleton_means from basis CSV."""
+    csv_path = os.path.join(basis_dir, f"basis_{pre_gid}_{post_gid}.csv")
+    if not os.path.exists(csv_path):
+        return None
+
+    df = pd.read_csv(csv_path)
+    configs = df["config"].apply(lambda x: [int(i) for i in x.split(",")])
+    n_syn = len(configs.iloc[0])
+
+    baseline_row = df[configs.apply(lambda x: sum(x) == 0)]
+    if baseline_row.empty:
+        return None
+    baseline_mean = float(baseline_row["mean"].values[0])
+
+    singleton_means = np.zeros(n_syn, dtype=np.float64)
+    for i in range(n_syn):
+        row = df[configs.apply(lambda x: sum(x) == 1 and x[i] == 1)]
+        if row.empty:
+            return None
+        singleton_means[i] = row["mean"].values[0]
+
+    return {"baseline_mean": baseline_mean, "singleton_means": singleton_means, "n_syn": n_syn}
+
+
+def preload_all_data():
+    """Preload all trace + basis data, organized by protocol."""
+    protocol_data = {proto: [] for proto in EXPERIMENTAL_TARGETS}
+
+    # ── L5TTPC pairs (4 protocols) ──
+    l5_protocols = [p for p, pw in PROTOCOL_PATHWAY.items() if pw == "L5TTPC"]
+
+    if Path(L5_TRACE_DIR).exists():
+        l5_pair_dirs = sorted(
+            d for d in Path(L5_TRACE_DIR).iterdir() if d.is_dir()
+        )
+        logger.info(f"Found {len(l5_pair_dirs)} L5TTPC trace directories")
+
+        for pair_dir in l5_pair_dirs:
+            parts = pair_dir.name.split("-")
+            if len(parts) != 2:
+                continue
+            pre_gid, post_gid = int(parts[0]), int(parts[1])
+
+            basis = _load_basis(pre_gid, post_gid, L5_BASIS_DIR)
+            if basis is None:
+                continue
+
+            for proto in l5_protocols:
+                pkl_path = pair_dir / proto / "simulation_traces.pkl"
+                if not pkl_path.exists():
+                    continue
+                try:
+                    pd_item = _load_pkl(str(pkl_path))
+                    if pd_item["effcai"].shape[0] != basis["n_syn"]:
+                        logger.warning(
+                            f"Synapse mismatch {pre_gid}-{post_gid} {proto}: "
+                            f"traces={pd_item['effcai'].shape[0]} basis={basis['n_syn']}"
+                        )
+                        continue
+                    pd_item["baseline_mean"] = basis["baseline_mean"]
+                    pd_item["singleton_means"] = basis["singleton_means"]
+                    protocol_data[proto].append(pd_item)
+                except Exception as e:
+                    logger.warning(f"Error loading {pkl_path}: {e}")
+
+    # ── L23PC pairs (1 protocol: 50Hz_10ms) ──
+    if Path(L23_TRACE_DIR).exists():
+        l23_pair_dirs = sorted(
+            d for d in Path(L23_TRACE_DIR).iterdir() if d.is_dir()
+        )
+        logger.info(f"Found {len(l23_pair_dirs)} L23PC trace directories")
+
+        for pair_dir in l23_pair_dirs:
+            parts = pair_dir.name.split("-")
+            if len(parts) != 2:
+                continue
+            pre_gid, post_gid = int(parts[0]), int(parts[1])
+
+            basis = _load_basis(pre_gid, post_gid, L23_BASIS_DIR)
+            if basis is None:
+                continue
+
+            pkl_path = pair_dir / "50Hz_10ms" / "simulation_traces.pkl"
+            if not pkl_path.exists():
+                continue
+            try:
+                pd_item = _load_pkl(str(pkl_path))
+                if pd_item["effcai"].shape[0] != basis["n_syn"]:
+                    logger.warning(f"Synapse mismatch L23 {pre_gid}-{post_gid}")
+                    continue
+                pd_item["baseline_mean"] = basis["baseline_mean"]
+                pd_item["singleton_means"] = basis["singleton_means"]
+                protocol_data["50Hz_10ms"].append(pd_item)
+            except Exception as e:
+                logger.warning(f"Error loading L23 {pkl_path}: {e}")
+
+    # Summary
+    total = 0
+    for proto, pairs in protocol_data.items():
+        logger.info(f"  {proto}: {len(pairs)} pairs")
+        total += len(pairs)
+    logger.info(f"  Total pair-protocol combos: {total}")
+
+    return protocol_data
+
+
+# ══════════════════════════════════════════════════════════════════
+# Objective function (module-level for pickling)
+# ══════════════════════════════════════════════════════════════════
+
+def objective(x):
+    """
+    SSE between predicted and experimental EPSP ratios.
+
+    Uses module-level _PROTOCOL_DATA, _TARGETS, _LAMBDA_REG, _DEFAULT_X0.
+    """
+    gamma_d, gamma_p = x[0], x[1]
+    a00, a01, a02, d0 = x[2], x[3], x[4], x[5]
+    a10, a11, a12, p0 = x[6], x[7], x[8], x[9]
+    a20, a21, a22, d0_ap = x[10], x[11], x[12], x[13]
+    a30, a31, a32, p0_ap = x[14], x[15], x[16], x[17]
+
+    total_loss = 0.0
+
+    for p_idx, (proto, target_ratio) in enumerate(_TARGETS.items()):
+        ratios = []
+        for pd_item in _PROTOCOL_DATA[proto]:
+            ratio = _compute_pair_ratio(
+                pd_item["effcai"], pd_item["t"],
+                pd_item["c_pre"], pd_item["c_post"],
+                pd_item["is_apical"], pd_item["rho0"],
+                pd_item["baseline_mean"], pd_item["singleton_means"],
+                gamma_d, gamma_p,
+                a00, a01, a02, d0,
+                a10, a11, a12, p0,
+                a20, a21, a22, d0_ap,
+                a30, a31, a32, p0_ap,
+            )
+            if not np.isnan(ratio):
+                ratios.append(ratio)
+
+        if ratios:
+            mean_ratio = np.mean(ratios)
+            w = _WEIGHTS[p_idx] if _WEIGHTS is not None else 1.0
+            total_loss += w * (mean_ratio - target_ratio) ** 2
+
+    if _LAMBDA_REG > 0 and _DEFAULT_X0 is not None:
+        total_loss += _LAMBDA_REG * np.sum((x - _DEFAULT_X0) ** 2)
+
+    return total_loss
+
+
+def _init_objective(protocol_data, targets, lambda_reg=0.0, default_x0=None, weights=None):
+    """Set module-level globals for the objective function."""
+    global _PROTOCOL_DATA, _TARGETS, _LAMBDA_REG, _DEFAULT_X0, _WEIGHTS
+    _PROTOCOL_DATA = protocol_data
+    _TARGETS = targets
+    _LAMBDA_REG = lambda_reg
+    _DEFAULT_X0 = default_x0
+    _WEIGHTS = weights
+
+
+# ══════════════════════════════════════════════════════════════════
+# Optimizers
+# ══════════════════════════════════════════════════════════════════
+
+def run_de(max_iter=1000, workers=1, seed=42, popsize=15, **kw):
+    """Differential Evolution (scipy)."""
+    from scipy.optimize import differential_evolution
+
+    logger.info(f"Running Differential Evolution "
+                f"(maxiter={max_iter}, popsize={popsize}, workers={workers})")
+
+    callback_history = []
+    _start = time.time()
+
+    def callback(xk, convergence):
+        loss = objective(xk)
+        elapsed = time.time() - _start
+        callback_history.append({"iter": len(callback_history), "loss": float(loss)})
+        logger.info(f"  DE gen {len(callback_history):>4d}: loss={loss:.10f}  "
+                     f"conv={convergence:.6f}  [{elapsed/60:.1f}min]")
+
+    result = differential_evolution(
+        objective, PARAM_BOUNDS,
+        maxiter=max_iter,
+        popsize=popsize,
+        tol=1e-10,
+        seed=seed,
+        workers=workers if workers > 1 else 1,
+        disp=True,
+        polish=True,
+        callback=callback,
+        updating="deferred" if workers > 1 else "immediate",
+    )
+
+    return {
+        "method": "differential_evolution",
+        "x": result.x.tolist(),
+        "fun": float(result.fun),
+        "nfev": result.nfev,
+        "nit": result.nit,
+        "success": result.success,
+        "message": result.message,
+        "history": callback_history,
+    }
+
+
+def run_cmaes(max_iter=1000, seed=42, **kw):
+    """CMA-ES optimization."""
+    import cma
+
+    logger.info(f"Running CMA-ES (maxiter={max_iter})")
+
+    x0 = DEFAULT_X0.copy()
+    lower = np.array([b[0] for b in PARAM_BOUNDS])
+    upper = np.array([b[1] for b in PARAM_BOUNDS])
+    sigma0 = 0.3 * np.mean(upper - lower)
+
+    opts = {
+        "bounds": [lower.tolist(), upper.tolist()],
+        "maxiter": max_iter,
+        "tolfun": 1e-12,
+        "seed": seed,
+        "verb_disp": 100,
+    }
+
+    es = cma.CMAEvolutionStrategy(x0.tolist(), sigma0, opts)
+    es.optimize(objective)
+
+    res = es.result
+    return {
+        "method": "cma-es",
+        "x": list(res.xbest),
+        "fun": float(res.fbest),
+        "nfev": res.evaluations,
+        "iterations": res.iterations,
+    }
+
+
+def run_optuna(n_trials=5000, seed=42, **kw):
+    """Optuna (TPE) Bayesian optimization."""
+    import optuna
+
+    logger.info(f"Running Optuna TPE (n_trials={n_trials})")
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+    def optuna_obj(trial):
+        x = np.array([
+            trial.suggest_float(name, lo, hi)
+            for name, lo, hi in FIT_PARAMS
+        ])
+        return objective(x)
+
+    sampler = optuna.samplers.TPESampler(seed=seed)
+    study = optuna.create_study(direction="minimize", sampler=sampler)
+
+    # Seed with default params
+    study.enqueue_trial({name: DEFAULT_PARAMS[name] for name in PARAM_NAMES})
+
+    study.optimize(optuna_obj, n_trials=n_trials, show_progress_bar=True)
+
+    best = study.best_trial
+    x_best = [best.params[name] for name in PARAM_NAMES]
+
+    return {
+        "method": "optuna",
+        "x": x_best,
+        "fun": float(best.value),
+        "nfev": len(study.trials),
+    }
+
+
+def run_lbfgsb(n_starts=50, seed=42, **kw):
+    """Multi-start L-BFGS-B."""
+    from scipy.optimize import minimize
+
+    logger.info(f"Running multi-start L-BFGS-B (n_starts={n_starts})")
+
+    rng = np.random.default_rng(seed)
+    lower = np.array([b[0] for b in PARAM_BOUNDS])
+    upper = np.array([b[1] for b in PARAM_BOUNDS])
+
+    best_result = None
+
+    for i in range(n_starts):
+        x0 = DEFAULT_X0.copy() if i == 0 else rng.uniform(lower, upper)
+
+        result = minimize(
+            objective, x0, method="L-BFGS-B", bounds=PARAM_BOUNDS,
+            options={"maxiter": 500, "ftol": 1e-14},
+        )
+
+        if best_result is None or result.fun < best_result.fun:
+            best_result = result
+            logger.info(f"  Start {i+1}/{n_starts}: loss={result.fun:.10f} * (new best)")
+
+    return {
+        "method": "L-BFGS-B",
+        "x": best_result.x.tolist(),
+        "fun": float(best_result.fun),
+        "nfev": best_result.nfev,
+        "success": best_result.success,
+    }
+
+
+OPTIMIZERS = {
+    "de": run_de,
+    "cmaes": run_cmaes,
+    "optuna": run_optuna,
+    "lbfgsb": run_lbfgsb,
+}
+
+
+# ══════════════════════════════════════════════════════════════════
+# Analysis & output
+# ══════════════════════════════════════════════════════════════════
+
+def evaluate_params(x):
+    """Return per-protocol predictions for a given parameter vector."""
+    gamma_d, gamma_p = x[0], x[1]
+    a00, a01, a02, d0 = x[2], x[3], x[4], x[5]
+    a10, a11, a12, p0 = x[6], x[7], x[8], x[9]
+    a20, a21, a22, d0_ap = x[10], x[11], x[12], x[13]
+    a30, a31, a32, p0_ap = x[14], x[15], x[16], x[17]
+
+    results = {}
+    for proto, target in _TARGETS.items():
+        ratios = []
+        for pd_item in _PROTOCOL_DATA[proto]:
+            ratio = _compute_pair_ratio(
+                pd_item["effcai"], pd_item["t"],
+                pd_item["c_pre"], pd_item["c_post"],
+                pd_item["is_apical"], pd_item["rho0"],
+                pd_item["baseline_mean"], pd_item["singleton_means"],
+                gamma_d, gamma_p,
+                a00, a01, a02, d0,
+                a10, a11, a12, p0,
+                a20, a21, a22, d0_ap,
+                a30, a31, a32, p0_ap,
+            )
+            if not np.isnan(ratio):
+                ratios.append(ratio)
+
+        mean_r = float(np.mean(ratios)) if ratios else float("nan")
+        results[proto] = {
+            "predicted": mean_r,
+            "experimental": float(target),
+            "error": float(mean_r - target),
+            "n_pairs": len(ratios),
+        }
+    return results
+
+
+def print_results(opt_result, eval_results):
+    """Pretty-print optimization results."""
+    print(f"\n{'='*70}")
+    print(f"  Method:    {opt_result['method']}")
+    print(f"  Loss(SSE): {opt_result['fun']:.10f}")
+    print(f"  Evals:     {opt_result.get('nfev', 'N/A')}")
+    elapsed = opt_result.get("elapsed_seconds", 0)
+    print(f"  Time:      {elapsed/60:.1f} min")
+    print(f"{'='*70}")
+
+    print("\n  Best parameters:")
+    for i, name in enumerate(PARAM_NAMES):
+        default = DEFAULT_PARAMS[name]
+        best = opt_result["x"][i]
+        pct = (best - default) / default * 100 if default != 0 else 0
+        print(f"    {name:30s} = {best:10.4f}  (default: {default:.4f}, {pct:+.1f}%)")
+
+    print(f"\n  {'Protocol':<15s} {'Predicted':>10s} {'Experiment':>11s} {'Error':>10s} {'N':>5s}")
+    print(f"  {'-'*51}")
+    for proto in EXPERIMENTAL_TARGETS:
+        r = eval_results[proto]
+        print(f"  {proto:<15s} {r['predicted']:10.4f} {r['experimental']:11.4f} "
+              f"{r['error']:+10.4f} {r['n_pairs']:5d}")
+    print(f"{'='*70}\n")
+
+
+# ══════════════════════════════════════════════════════════════════
+# SLURM script generation
+# ══════════════════════════════════════════════════════════════════
+
+def generate_slurm_script(args):
+    """Generate SLURM submission script to run all 4 methods in parallel."""
+    script_path = os.path.join(BASE_DIR, "new_fitting", "submit_fitting.sh")
+    output_dir = os.path.join(BASE_DIR, "new_fitting", "fitting_results")
+
+    script = f"""#!/bin/bash
+#SBATCH --job-name=fit_params
+#SBATCH --account=ctb-emuller
+#SBATCH --time=12:00:00
+#SBATCH --mem=32G
+#SBATCH --cpus-per-task=8
+#SBATCH --output={output_dir}/fit_%j.out
+#SBATCH --error={output_dir}/fit_%j.err
+
+source {BASE_DIR}/setupenv.sh
+mkdir -p {output_dir}
+
+SCRIPT="{BASE_DIR}/new_fitting/fit_params.py"
+
+echo "Starting parameter fitting at $(date)"
+echo "============================================"
+
+# Run all 4 optimizers sequentially (each uses JIT-compiled ODE)
+echo "\\n--- Differential Evolution ---"
+python $SCRIPT --method de --max-iter 1000 --workers 8 \\
+    --output {output_dir}/result_de.json
+
+echo "\\n--- CMA-ES ---"
+python $SCRIPT --method cmaes --max-iter 1000 \\
+    --output {output_dir}/result_cmaes.json
+
+echo "\\n--- Optuna ---"
+python $SCRIPT --method optuna --n-trials 5000 \\
+    --output {output_dir}/result_optuna.json
+
+echo "\\n--- L-BFGS-B ---"
+python $SCRIPT --method lbfgsb --n-starts 100 \\
+    --output {output_dir}/result_lbfgsb.json
+
+echo "\\nAll methods completed at $(date)"
+"""
+    with open(script_path, "w") as f:
+        f.write(script)
+    os.chmod(script_path, 0o755)
+    print(f"SLURM script written to: {script_path}")
+    print(f"Submit with: sbatch {script_path}")
+    return script_path
+
+
+# ══════════════════════════════════════════════════════════════════
+# Main
+# ══════════════════════════════════════════════════════════════════
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Fit Graupner-Brunel plasticity parameters to experimental EPSP ratios",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("--method", choices=list(OPTIMIZERS.keys()) + ["all"],
+                        help="Optimization method (or 'all' to run all 4)")
+    parser.add_argument("--max-iter", type=int, default=1000)
+    parser.add_argument("--n-trials", type=int, default=5000, help="Optuna trials")
+    parser.add_argument("--n-starts", type=int, default=50, help="L-BFGS-B restarts")
+    parser.add_argument("--workers", type=int, default=1, help="Parallel workers (DE)")
+    parser.add_argument("--popsize", type=int, default=15, help="DE population multiplier")
+    parser.add_argument("--lambda-reg", type=float, default=0.0,
+                        help="L2 regularization toward default params")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--output", type=str, default=None, help="Output JSON path")
+    parser.add_argument("--generate-slurm", action="store_true",
+                        help="Generate SLURM script and exit")
+    parser.add_argument("--eval-only", action="store_true",
+                        help="Only evaluate default params (no optimization)")
+
+    args = parser.parse_args()
+
+    if args.generate_slurm:
+        generate_slurm_script(args)
+        return
+
+    if not args.method and not args.eval_only:
+        parser.print_help()
+        return
+
+    # 1. Preload data
+    logger.info("Preloading trace and basis data...")
+    t0 = time.time()
+    protocol_data = preload_all_data()
+    load_time = time.time() - t0
+    logger.info(f"Data loaded in {load_time:.1f}s")
+
+    # 2. Warmup numba JIT
+    logger.info("Warming up numba JIT...")
+    _dummy_e = np.zeros((1, 100), dtype=np.float64)
+    _dummy_t = np.linspace(0, 100, 100, dtype=np.float64)
+    _compute_rho_final(_dummy_e[0], _dummy_t, 0.1, 0.2, 100.0, 200.0, 0.0)
+    _compute_pair_ratio(
+        _dummy_e, _dummy_t,
+        np.zeros(1), np.zeros(1), np.array([False]), np.zeros(1),
+        3.0, np.array([4.0]),
+        100.0, 200.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 5.0, 2.0,
+    )
+    logger.info("JIT ready")
+
+    # 3. Initialize objective globals
+    _init_objective(protocol_data, EXPERIMENTAL_TARGETS, args.lambda_reg, DEFAULT_X0)
+
+    # Sanity check: default params
+    default_loss = objective(DEFAULT_X0)
+    logger.info(f"Default params loss: {default_loss:.10f}")
+
+    default_eval = evaluate_params(DEFAULT_X0)
+    print("\n  Default parameters evaluation:")
+    print(f"  {'Protocol':<15s} {'Predicted':>10s} {'Experiment':>11s} {'Error':>10s} {'N':>5s}")
+    print(f"  {'-'*51}")
+    for proto in EXPERIMENTAL_TARGETS:
+        r = default_eval[proto]
+        print(f"  {proto:<15s} {r['predicted']:10.4f} {r['experimental']:11.4f} "
+              f"{r['error']:+10.4f} {r['n_pairs']:5d}")
+    print()
+
+    if args.eval_only:
+        return
+
+    # 4. Run optimizer(s)
+    methods = list(OPTIMIZERS.keys()) if args.method == "all" else [args.method]
+    all_results = {}
+
+    for method in methods:
+        logger.info(f"\n{'='*50}")
+        logger.info(f"Starting: {method}")
+        logger.info(f"{'='*50}")
+
+        t0 = time.time()
+        opt_result = OPTIMIZERS[method](
+            max_iter=args.max_iter,
+            n_trials=args.n_trials,
+            n_starts=args.n_starts,
+            workers=args.workers,
+            popsize=args.popsize,
+            seed=args.seed,
+        )
+        opt_result["elapsed_seconds"] = time.time() - t0
+
+        best_x = np.array(opt_result["x"])
+        eval_result = evaluate_params(best_x)
+        print_results(opt_result, eval_result)
+
+        all_results[method] = {
+            "optimization": opt_result,
+            "per_protocol": eval_result,
+        }
+
+    # 5. Compare (if multiple methods)
+    if len(methods) > 1:
+        print(f"\n{'='*70}")
+        print("  COMPARISON SUMMARY")
+        print(f"{'='*70}")
+        print(f"  {'Method':<25s} {'Loss':>12s} {'Time (min)':>12s} {'Evals':>8s}")
+        print(f"  {'-'*57}")
+        for method in methods:
+            r = all_results[method]["optimization"]
+            print(f"  {r['method']:<25s} {r['fun']:12.10f} "
+                  f"{r.get('elapsed_seconds',0)/60:12.1f} {r.get('nfev','?'):>8}")
+        print(f"{'='*70}\n")
+
+    # 6. Save
+    output_path = args.output
+    if output_path is None and len(methods) == 1:
+        pass  # no auto-save
+    elif output_path is None and len(methods) > 1:
+        output_path = os.path.join(BASE_DIR, "new_fitting", "fitting_results", "all_results.json")
+
+    if output_path:
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        save_data = {
+            "param_names": PARAM_NAMES,
+            "default_params": DEFAULT_PARAMS,
+            "experimental_targets": EXPERIMENTAL_TARGETS,
+            "results": {},
+        }
+        for method, res in all_results.items():
+            # Remove non-serializable history if present
+            opt = dict(res["optimization"])
+            opt.pop("history", None)
+            save_data["results"][method] = {
+                "optimization": opt,
+                "per_protocol": res["per_protocol"],
+            }
+        with open(output_path, "w") as f:
+            json.dump(save_data, f, indent=2)
+        logger.info(f"Results saved to {output_path}")
+
+
+if __name__ == "__main__":
+    main()

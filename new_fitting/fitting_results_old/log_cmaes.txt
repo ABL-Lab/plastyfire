@@ -1,0 +1,1 @@
+bash: fitting_results/result_cmaes.json: No such file or directory
