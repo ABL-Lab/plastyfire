@@ -1,0 +1,1 @@
+/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results_L23PC_L5TTPC/logs/56297732_submission.sh

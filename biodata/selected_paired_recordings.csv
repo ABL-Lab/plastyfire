@@ -1,0 +1,6 @@
+protocol_id,pre_mtype,post_mtype,area,animal,age,frequency_train,dt_train,n_stimuli_train,n_sweep,period_sweep,mean_epsp_ratio,sem_epsp_ratio,sample_size,reference,notes
+mrk97_01,L5TTPC,L5TTPC,SSC,rat,P14 - P16,2,5,5,10,4,0.9886,0.04,2,Markram et al. 1997,Record digitized from paper.
+mrk97_02,L5TTPC,L5TTPC,SSC,rat,P14 - P16,5,5,5,10,4,1.0161,0.0727,5,Markram et al. 1997,Record digitized from paper.
+mrk97_07,L5TTPC,L5TTPC,SSC,rat,P14 - P16,10,10,5,10,4,1.2013,0.0626,6,Markram et al. 1997,Record digitized from paper. AP train repeated 10 to 15 times.
+mrk97_08,L5TTPC,L5TTPC,SSC,rat,P14 - P16,10,-10,5,10,4,0.7922,0.0259,6,Markram et al. 1997,Record digitized from paper. AP train repeated 10 to 15 times.
+sjh06_02,L23PC,L5TTPC,VC,rat,P14 - P21,50,10,5,15,10,1.06,0.09,19,Sjostrom and Hausser 2006,Nothing.

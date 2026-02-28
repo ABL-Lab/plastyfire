@@ -1,0 +1,3 @@
+ 2026-02-07 10:53:33,901: Generating basis for 186407->182154 (11 synapses)
+ 2026-02-07 10:53:33,901: Running 130 tasks with 18 workers
+ 2026-02-07 11:41:58,294: Saving results to basis_results/basis_186407_182154.csv

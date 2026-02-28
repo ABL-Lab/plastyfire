@@ -1,0 +1,128 @@
+{
+    "method": "differential_evolution",
+    "loss": 0.0032732247,
+    "best_parameters": {
+        "gamma_d_GB_GluSynapse": {
+            "value": 181.4450,
+            "default": 101.5000,
+            "pct_change": 78.8
+        },
+        "gamma_p_GB_GluSynapse": {
+            "value": 209.9664,
+            "default": 216.2000,
+            "pct_change": -2.9
+        },
+        "a00": {
+            "value": 1.0344,
+            "default": 1.0020,
+            "pct_change": 3.2
+        },
+        "a01": {
+            "value": 1.9424,
+            "default": 1.9540,
+            "pct_change": -0.6
+        },
+        "a10": {
+            "value": 1.9207,
+            "default": 1.1590,
+            "pct_change": 65.7
+        },
+        "a11": {
+            "value": 3.5667,
+            "default": 2.4830,
+            "pct_change": 43.6
+        },
+        "a20": {
+            "value": 3.1613,
+            "default": 1.1270,
+            "pct_change": 180.5
+        },
+        "a21": {
+            "value": 2.6934,
+            "default": 2.4560,
+            "pct_change": 9.7
+        },
+        "a30": {
+            "value": 7.7314,
+            "default": 5.2360,
+            "pct_change": 47.7
+        },
+        "a31": {
+            "value": 2.7481,
+            "default": 1.7820,
+            "pct_change": 54.2
+        },
+        "tau_IP3": {
+            "value": 2357.0203,
+            "default": 800.0000,
+            "pct_change": 194.6
+        },
+        "K_P": {
+            "value": 8.0160,
+            "default": 2.5000,
+            "pct_change": 220.6
+        },
+        "n_prime": {
+            "value": 1.0173,
+            "default": 3.0000,
+            "pct_change": -66.1
+        },
+        "a_evt": {
+            "value": 0.0138,
+            "default": 0.0050,
+            "pct_change": 175.7
+        },
+        "b_evt": {
+            "value": 0.0490,
+            "default": 0.0050,
+            "pct_change": 880.0
+        },
+        "a_er": {
+            "value": 0.0390,
+            "default": 0.0050,
+            "pct_change": 680.0
+        },
+        "b_er": {
+            "value": 0.0104,
+            "default": 0.0050,
+            "pct_change": 108.7
+        },
+        "g_serca_cicr": {
+            "value": 34.5415,
+            "default": 1.9565,
+            "pct_change": 1665.5
+        },
+        "g_release_cicr": {
+            "value": 1.1009,
+            "default": 0.5000,
+            "pct_change": 120.2
+        },
+        "sat_cap": {
+            "value": 0.0812,
+            "default": 0.0500,
+            "pct_change": 62.3
+        },
+        "K_Ca": {
+            "value": 0.0048,
+            "default": 0.0005,
+            "pct_change": 853.9
+        },
+        "m_ca": {
+            "value": 1.7324,
+            "default": 3.0000,
+            "pct_change": -42.3
+        }
+    },
+    "protocol_results": {
+        "10Hz_10ms": {
+            "predicted": 1.1741,
+            "experimental": 1.2013,
+            "error": -0.0272
+        },
+        "10Hz_-10ms": {
+            "predicted": 0.8425,
+            "experimental": 0.7922,
+            "error": 0.0503
+        }
+    }
+}

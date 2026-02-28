@@ -77,7 +77,17 @@ class ParamsGenerator(object):
         self.circuit = circuit
         self.node_pop = node_pop
         self.edge_pop = edge_pop
-        self.extra_recipe = pd.read_csv(extra_recipe_path, index_col=[0, 1])
+        self.extra_recipe = pd.read_csv(extra_recipe_path, index_col=[0, 1], skipinitialspace=True)
+        # Strip whitespace from column names
+        self.extra_recipe.columns = self.extra_recipe.columns.str.strip()
+        # Strip whitespace from multi-index levels
+        self.extra_recipe.index = self.extra_recipe.index.set_levels(
+            [level.str.strip() for level in self.extra_recipe.index.levels]
+        )
+        # Strip whitespace from string values in DataFrame
+        for col in self.extra_recipe.columns:
+            if self.extra_recipe[col].dtype == object:
+                self.extra_recipe[col] = self.extra_recipe[col].str.strip()
         self.k_u = k_u
         self.k_gsyn = k_gsyn
         # Set ordered list of parameter names

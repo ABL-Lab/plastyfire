@@ -1,0 +1,306 @@
+submitit INFO (2026-02-07 11:00:47,064) - Starting with JobEnvironment(job_id=56234518_32, hostname=nc10444, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2026-02-07 11:00:47,065) - Loading pickle: /lustre06/project/6077694/dhuruva/plastyfire/basis_results/logs/56234518_32_submitted.pkl
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 14 created
+submitit INFO (2026-02-07 11:38:16,839) - Job completed successfully
+submitit INFO (2026-02-07 11:38:16,841) - Exiting after successful completion

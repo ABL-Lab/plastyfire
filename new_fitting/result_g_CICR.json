@@ -1,0 +1,129 @@
+{
+  "method": "default",
+  "best_parameters": {
+    "gamma_d_GB_GluSynapse": {
+      "value": 101.5,
+      "default": 101.5,
+      "pct_change": 0.0
+    },
+    "gamma_p_GB_GluSynapse": {
+      "value": 216.2,
+      "default": 216.2,
+      "pct_change": 0.0
+    },
+    "a00": {
+      "value": 1.002,
+      "default": 1.002,
+      "pct_change": 0.0
+    },
+    "a01": {
+      "value": 1.954,
+      "default": 1.954,
+      "pct_change": 0.0
+    },
+    "a10": {
+      "value": 1.159,
+      "default": 1.159,
+      "pct_change": 0.0
+    },
+    "a11": {
+      "value": 2.483,
+      "default": 2.483,
+      "pct_change": 0.0
+    },
+    "a20": {
+      "value": 1.127,
+      "default": 1.127,
+      "pct_change": 0.0
+    },
+    "a21": {
+      "value": 2.456,
+      "default": 2.456,
+      "pct_change": 0.0
+    },
+    "a30": {
+      "value": 5.236,
+      "default": 5.236,
+      "pct_change": 0.0
+    },
+    "a31": {
+      "value": 1.782,
+      "default": 1.782,
+      "pct_change": 0.0
+    },
+    "tau_IP3": {
+      "value": 800.0,
+      "default": 800.0,
+      "pct_change": 0.0
+    },
+    "K_P": {
+      "value": 2.5,
+      "default": 2.5,
+      "pct_change": 0.0
+    },
+    "n_prime": {
+      "value": 3.0,
+      "default": 3.0,
+      "pct_change": 0.0
+    },
+    "a_evt": {
+      "value": 0.005,
+      "default": 0.005,
+      "pct_change": 0.0
+    },
+    "b_evt": {
+      "value": 0.005,
+      "default": 0.005,
+      "pct_change": 0.0
+    },
+    "a_er": {
+      "value": 0.005,
+      "default": 0.005,
+      "pct_change": 0.0
+    },
+    "b_er": {
+      "value": 0.005,
+      "default": 0.005,
+      "pct_change": 0.0
+    },
+    "g_serca_cicr": {
+      "value": 1.9565,
+      "default": 1.9565,
+      "pct_change": 0.0
+    },
+    "g_release_cicr": {
+      "value": 0.5,
+      "default": 0.5,
+      "pct_change": 0.0
+    },
+    "sat_cap": {
+      "value": 0.05,
+      "default": 0.05,
+      "pct_change": 0.0
+    },
+    "K_Ca": {
+      "value": 0.0005,
+      "default": 0.0005,
+      "pct_change": 0.0
+    },
+    "m_ca": {
+      "value": 3.0,
+      "default": 3.0,
+      "pct_change": 0.0
+    }
+  },
+  "protocol_results": {
+    "10Hz_10ms": {
+      "predicted": 1.1285,
+      "experimental": 1.2013,
+      "error": -0.0728,
+      "n_pairs": 99
+    },
+    "10Hz_-10ms": {
+      "predicted": 0.9723,
+      "experimental": 0.7922,
+      "error": 0.1801,
+      "n_pairs": 99
+    }
+  }
+}

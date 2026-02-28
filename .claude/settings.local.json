@@ -11,7 +11,9 @@
       "Bash(python find_ephys.py:*)",
       "Bash(find:*)",
       "Bash(python evaluate_best_solution.py:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(ls:*)",
+      "mcp__plugin_claude-mem_mcp-search__get_observations"
     ],
     "deny": [],
     "ask": []

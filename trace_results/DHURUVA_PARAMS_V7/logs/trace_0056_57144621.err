@@ -1,0 +1,60 @@
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:48:56,279: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_-50ms/prefire_simulation_config.json
+ 2026-02-27 20:48:56,295: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_10ms/prefire_simulation_config.json
+ 2026-02-27 20:48:56,298: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_-30ms/prefire_simulation_config.json
+ 2026-02-27 20:48:56,302: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_50ms/prefire_simulation_config.json
+ 2026-02-27 20:54:27,978: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 20:54:31,635: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 20:54:34,913: Simulation finished in: 00:05:58
+ 2026-02-27 20:54:35,018: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:54:37,233: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 20:54:38,484: Simulation finished in: 00:06:01
+ 2026-02-27 20:54:38,568: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:54:44,087: Simulation finished in: 00:06:07
+ 2026-02-27 20:54:44,286: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:54:55,663: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_30ms/prefire_simulation_config.json
+ 2026-02-27 20:54:56,182: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 20:54:58,879: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_5ms/prefire_simulation_config.json
+ 2026-02-27 20:55:02,916: Simulation finished in: 00:06:26
+ 2026-02-27 20:55:03,006: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:55:04,668: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/203964-196350/10Hz_-10ms/prefire_simulation_config.json
+ 2026-02-27 20:55:16,976: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/204120-188861/10Hz_5ms/prefire_simulation_config.json
+ 2026-02-27 20:57:56,766: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 20:58:03,829: Simulation finished in: 00:02:58
+ 2026-02-27 20:58:03,866: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 20:58:17,694: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/204120-188861/10Hz_-30ms/prefire_simulation_config.json
+ 2026-02-27 21:00:21,637: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 21:00:28,393: Simulation finished in: 00:05:47
+ 2026-02-27 21:00:28,470: Data writing finished
+/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.2/lib/python3.11/site-packages/h5py/__init__.py:36: UserWarning: h5py is running against HDF5 1.14.4 when it was built against 1.14.2, this may cause problems
+  _warn(("h5py is running against HDF5 {0} when it was built against {1}, "
+ 2026-02-27 21:00:35,308: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 21:00:42,239: Simulation finished in: 00:06:05
+ 2026-02-27 21:00:42,325: Data writing finished
+ 2026-02-27 21:00:42,550: Loading simulation from /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/204120-188861/10Hz_30ms/prefire_simulation_config.json
+ 2026-02-27 21:00:46,084: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 21:00:53,115: Simulation finished in: 00:06:06
+ 2026-02-27 21:00:53,205: Data writing finished
+ 2026-02-27 21:01:04,707: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 21:01:11,382: Simulation finished in: 00:03:05
+ 2026-02-27 21:01:12,529: Data writing finished
+ 2026-02-27 21:03:28,315: cvode was activated outside of Simulation, this might make it impossible to load templates with stochastic channels
+ 2026-02-27 21:03:35,044: Simulation finished in: 00:03:04
+ 2026-02-27 21:03:35,086: Data writing finished

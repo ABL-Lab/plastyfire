@@ -16,7 +16,7 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from bluepysnap import Circuit
 from conntility.connectivity import ConnectivityMatrix
 
@@ -212,7 +212,7 @@ class OptSimWriter(OptConfig):
                     for i, post_gid in enumerate(post_gids)]
         
         # Process in parallel
-        with ThreadPoolExecutor(max_workers=min(8, self.npairs)) as pool:
+        with ProcessPoolExecutor(max_workers=min(30, self.npairs)) as pool:
             futures = [pool.submit(self._process_post_gid, args) for args in args_list]
             try:
                 for future in futures:
@@ -482,11 +482,10 @@ class SimWriter(Config):
             n = counts[unique_mtypes == mtype][0]
             print("For %s: %i gids (%.2f%% of total) couldn't be calibrated" % (mtype, count, (count/n) * 100))
 
-
 if __name__ == "__main__":
-    writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
-    pairs = writer.find_pairs()
-    writer.write_sim_files(pairs)
+    # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
+    # pairs = writer.find_pairs()
+    # writer.write_sim_files(pairs)
     writer = OptSimWriter("../configs/L23PC_L5TTPC.yaml")
     pairs = writer.find_pairs()
     writer.write_sim_files(pairs)

@@ -1,0 +1,10 @@
+submitit INFO (2026-02-08 18:40:36,513) - Starting with JobEnvironment(job_id=56297732_50, hostname=nc31127, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2026-02-08 18:40:36,514) - Loading pickle: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results_L23PC_L5TTPC/logs/56297732_50_submitted.pkl
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 4 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 4 created
+Mechanisms already loaded from path: /project/ctb-emuller/dhuruva/DEES_cell_packages/.  Aborting.
+Presynaptic mapping of length 4 created
+submitit INFO (2026-02-08 18:55:44,922) - Job completed successfully
+submitit INFO (2026-02-08 18:55:44,925) - Exiting after successful completion

@@ -14,7 +14,10 @@ plastyfire/x86_64/
 *.pyc
 
 .cursor/
+.claude/
 /refitting_results/
+.ipynb_checkpoints/
+__pycache__/
 
 plastyfire/glost_jobs/
 evaluation_results/Chindemi_params/sim_results/
@@ -24,3 +27,8 @@ evaluation_results/mrk97_07_mrk97_08/sim_results
 *.pkl
 *.log
 plastyfire/simulation_epsp_df.csv
+
+# Large generated data (moved from plastyfire/ by reorganize.sh)
+/data/
+/figures/
+/models/

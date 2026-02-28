@@ -11,10 +11,27 @@ import hashlib
 
 import plastyfire.simulator as sim
 
-FIT_PARAM_NAMES = [  # "tau_effca_GB_GluSynapse",
+FIT_PARAM_NAMES = ["enable_CICR_GluSynapse",
+                   "tau_effca_GB_GluSynapse",
                    "gamma_d_GB_GluSynapse", "gamma_p_GB_GluSynapse",
-                   "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"]
-FITTED_TAU = 278.3177658387  # previously optimized time constant of Ca*
+                   "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31",
+                   # Old CICR params (v2-v5)
+                   "tau_prime_CICR_GluSynapse", "k_prime_CICR_GluSynapse",
+                   "K_prime_limit_CICR_GluSynapse", "K_RyR_CICR_GluSynapse",
+                   "n_RyR_CICR_GluSynapse", "Vmax_CICR_GluSynapse",
+                   "tau_rel_CICR_GluSynapse",
+                   # New CICR params (v6) - confirmed HOC global names
+                   "k_fill_CICR_GluSynapse", "tau_leak_CICR_GluSynapse",
+                   "K_clip_CICR_GluSynapse", "K_trig_CICR_GluSynapse",
+                   "n_trig_CICR_GluSynapse",
+                   "tau_CICR_rel_GluSynapse", "g_cicr_GB_GluSynapse",
+                   # V7 params
+                   "delta_IP3_CICR_GluSynapse", "tau_IP3_CICR_GluSynapse",
+                   "phi_serca_CICR_GluSynapse", "k_leak_CICR_GluSynapse",
+                   "V_RyR_CICR_GluSynapse", "K_T_CICR_GluSynapse",
+                   "n_T_CICR_GluSynapse", "V_IP3R_CICR_GluSynapse",
+                   "g_RyR_CICR_GluSynapse"]
+FITTED_TAU = 278.318
 
 
 if __name__ == "__main__":
@@ -33,7 +50,8 @@ if __name__ == "__main__":
     # Create dictionary of fitted parameters, if needed
     fit_params = {param_name: getattr(args, param_name) for param_name in FIT_PARAM_NAMES if
                   getattr(args, param_name) is not None}
-    fit_params["tau_effca_GB_GluSynapse"] = FITTED_TAU
+    if "tau_effca_GB_GluSynapse" not in fit_params:
+        fit_params["tau_effca_GB_GluSynapse"] = FITTED_TAU
     # Configure logger
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger(__name__)

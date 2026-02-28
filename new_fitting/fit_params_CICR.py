@@ -632,7 +632,7 @@ def objective(x):
         if ratios:
             mean_ratio = np.mean(ratios)
             w = _WEIGHTS[p_idx] if _WEIGHTS is not None else 1.0
-            total_loss += w * (mean_ratio - target_ratio) ** 2
+            total_loss += w * abs(mean_ratio - target_ratio)
 
     if _LAMBDA_REG > 0 and _DEFAULT_X0 is not None:
         total_loss += _LAMBDA_REG * np.sum((x - _DEFAULT_X0) ** 2)

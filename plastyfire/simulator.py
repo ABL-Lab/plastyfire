@@ -123,10 +123,16 @@ def spike_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, m
     return None
 
 
+# RANGE params in GluSynapse.mod that cannot be set as HOC globals
+# These must be set per-synapse in _set_local_params instead
+_RANGE_PARAMS = {"enable_CICR_GluSynapse"}
+
 def _set_global_params(allparams):
     """Sets global parameters of the simulation"""
     logger.debug("Setting global parameters")
     for param_name, param_val in allparams.items():
+        if param_name in _RANGE_PARAMS:
+            continue  # RANGE params are set per-synapse in _set_local_params
         if re.match(".*_GluSynapse$", param_name):
             setattr(bluecellulab.neuron.h, param_name, param_val)
             # Reduced logging: removed verbose parameter debug
@@ -155,6 +161,9 @@ def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
         if all(key in fit_params for key in ["a30", "a31"]) and extra_params["loc"] == "apical":
             # set apical potentiation threshold
             synapse.hsynapse.theta_p_GB = fit_params["a30"] * c_pre + fit_params["a31"] * c_post
+        # Set RANGE params that can't be set as globals
+        if "enable_CICR_GluSynapse" in fit_params:
+            synapse.hsynapse.enable_CICR = fit_params["enable_CICR_GluSynapse"]
 
 
 def _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop):
@@ -184,11 +193,13 @@ def _c_pre_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, pos
     if fit_params is not None:  # setup global parameters
         _set_global_params(fit_params)
     # initialize [Ca^{2+}]_i recorders
-    recorder, syn_idx = {}, []
+    recorder, recorder_cai, syn_idx = {}, {}, []
     for syn_id, synapse in cell.synapses.items():
         syn_idx.append(syn_id[1])
         recorder[syn_id[1]] = bluecellulab.neuron.h.Vector()
         recorder[syn_id[1]].record(synapse.hsynapse._ref_effcai_GB)
+        recorder_cai[syn_id[1]] = bluecellulab.neuron.h.Vector()
+        recorder_cai[syn_id[1]].record(synapse.hsynapse._ref_cai_CR)
     # setup synapses and run simulation
     df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
     for syn_id, synapse in cell.synapses.items():
@@ -209,7 +220,10 @@ def _c_pre_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, pos
     c_pre = {df.loc[df["local_syn_idx"] == syn_id].index[0]: recorder[syn_id].max() for syn_id in syn_idx}
     results = {"c_pre": c_pre,
                "c_trace": {df.loc[df["local_syn_idx"] == syn_id].index[0]:
-                           np.array(recorder[syn_id]) for syn_id in syn_idx}}
+                           np.array(recorder[syn_id]) for syn_id in syn_idx},
+               "cai_CR": {df.loc[df["local_syn_idx"] == syn_id].index[0]:
+                           np.array(recorder_cai[syn_id]) for syn_id in syn_idx},
+               "t": np.array(sim.get_time())}
     return results
 
 
@@ -248,11 +262,13 @@ def _c_post_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, po
     if fit_params is not None:  # setup global parameters
         _set_global_params(fit_params)
     # initialize [Ca^{2+}]_i recorders
-    recorder, syn_idx = {}, []
+    recorder, recorder_cai, syn_idx = {}, {}, []
     for syn_id, synapse in cell.synapses.items():
         syn_idx.append(syn_id[1])
         recorder[syn_id[1]] = bluecellulab.neuron.h.Vector()
         recorder[syn_id[1]].record(synapse.hsynapse._ref_effcai_GB)
+        recorder_cai[syn_id[1]] = bluecellulab.neuron.h.Vector()
+        recorder_cai[syn_id[1]].record(synapse.hsynapse._ref_cai_CR)
     # setup synapses and run simulation
     df = _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop)
     for syn_id, synapse in cell.synapses.items():
@@ -274,6 +290,8 @@ def _c_post_finder_process(sim_config, fit_params, syn_extra_params, pre_gid, po
     results = {"c_post": c_post,
                "c_trace": {df.loc[df["local_syn_idx"] == syn_id].index[0]:
                            np.array(recorder[syn_id]) for syn_id in syn_idx},
+               "cai_CR": {df.loc[df["local_syn_idx"] == syn_id].index[0]:
+                           np.array(recorder_cai[syn_id]) for syn_id in syn_idx},
                "t": t,
                "v": v,
                "t_spikes": spikes,
@@ -362,10 +380,22 @@ def _runconnectedpair_prefire_process(results, workdir, fit_params, syn_extra_pa
         if fit_params is not None:  # setup global parameters
             _set_global_params(fit_params)
         syn_rec_lst = SYNREC if syn_rec_lst is None else syn_rec_lst
-        syn_rec, syn_idx = {key: [] for key in SYNREC}, []
+        # Check what is actually available on the first synapse to record
+        actual_syn_rec = []
+        if len(cell.synapses) > 0:
+            first_syn = list(cell.synapses.values())[0]
+            for key in syn_rec_lst:
+                if hasattr(first_syn.hsynapse, "_ref_%s" % key):
+                    actual_syn_rec.append(key)
+            # Add V7 specific variables if they exist
+            for k in ["IP3_CICR", "P_CICR", "ca_ryr_CICR"]:
+                if hasattr(first_syn.hsynapse, "_ref_%s" % k) and k not in actual_syn_rec:
+                    actual_syn_rec.append(k)
+
+        syn_rec, syn_idx = {key: [] for key in actual_syn_rec}, []
         for syn_id, synapse in cell.synapses.items():
             syn_idx.append(syn_id[1])
-            if len(syn_rec_lst) != 0:
+            if len(actual_syn_rec) != 0:
                 for key, lst in syn_rec.items():  # set up recordings
                     recorder = bluecellulab.neuron.h.Vector()
                     recorder.record(getattr(synapse.hsynapse, "_ref_%s" % key))
@@ -466,10 +496,22 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
     if fit_params is not None:  # setup global parameters
         _set_global_params(fit_params)
     syn_rec_lst = SYNREC if syn_rec_lst is None else syn_rec_lst
-    syn_rec, syn_idx = {key: [] for key in SYNREC}, []
+    # Check what is actually available on the first synapse to record
+    actual_syn_rec = []
+    if len(cell.synapses) > 0:
+        first_syn = list(cell.synapses.values())[0]
+        for key in syn_rec_lst:
+            if hasattr(first_syn.hsynapse, "_ref_%s" % key):
+                actual_syn_rec.append(key)
+        # Add V7 specific variables if they exist
+        for k in ["IP3_CICR", "P_CICR", "ca_ryr_CICR"]:
+            if hasattr(first_syn.hsynapse, "_ref_%s" % k) and k not in actual_syn_rec:
+                actual_syn_rec.append(k)
+
+    syn_rec, syn_idx = {key: [] for key in actual_syn_rec}, []
     for syn_id, synapse in cell.synapses.items():
         syn_idx.append(syn_id[1])
-        if len(syn_rec_lst) != 0:
+        if len(actual_syn_rec) != 0:
             for key, lst in syn_rec.items():  # set up recordings
                 recorder = bluecellulab.neuron.h.Vector()
                 recorder.record(getattr(synapse.hsynapse, "_ref_%s" % key))
@@ -582,9 +624,23 @@ def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=Non
     
     pgen = ParamsGenerator(sim.circuit, node_pop, edge_pop, recipe_file)
     syn_extra_params = pgen.generate_params(pre_gid, post_gid)
-    c_pre = c_pre_finder(sim_config, fit_params, syn_extra_params, pre_gid, post_gid,
+    # IMPORTANT: To match JAX fitting assumptions, Cpre and Cpost MUST be computed
+    # without CICR. We preserve the `tau_effca` provided by the fit_params, 
+    # dropping back to 111.4966 only if it's missing entirely.
+    baseline_params = fit_params.copy() if fit_params is not None else {}
+    if "tau_effca_GB_GluSynapse" not in baseline_params:
+        baseline_params["tau_effca_GB_GluSynapse"] = 278.318
+    # Disable CICR mechanism for baseline calculation
+    if "enable_CICR_GluSynapse" in baseline_params:
+        baseline_params["enable_CICR_GluSynapse"] = 0.0
+    elif "Vmax_CICR_GluSynapse" in baseline_params: # V2-V6
+        baseline_params["Vmax_CICR_GluSynapse"] = 0.0
+    elif "V_RyR_CICR_GluSynapse" in baseline_params: # V7
+        baseline_params["V_RyR_CICR_GluSynapse"] = 0.0
+
+    c_pre = c_pre_finder(sim_config, baseline_params, syn_extra_params, pre_gid, post_gid,
                          node_pop=node_pop, edge_pop=edge_pop, fixhp=fixhp)
-    c_post = c_post_finder(sim_config, fit_params, syn_extra_params, pre_gid, post_gid, stimulus,
+    c_post = c_post_finder(sim_config, baseline_params, syn_extra_params, pre_gid, post_gid, stimulus,
                            node_pop=node_pop, edge_pop=edge_pop, fixhp=fixhp)
     # Run main simulation
     # Reduced logging: removed verbose simulation info
@@ -608,5 +664,7 @@ def runconnectedpair(workdir, fit_params=None, syn_rec_lst=None, fastforward=Non
             pass
     
     child_proc.join()
+    if child_proc.exitcode != 0:
+        raise RuntimeError(f"Child process failed with exit code {child_proc.exitcode}")
     return dict(results)
 
