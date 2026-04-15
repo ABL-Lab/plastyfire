@@ -32,7 +32,7 @@ SYNREC = ["rho_GB", "Use_GB", "gmax_AMPA", "cai_CR", "vsyn", "ica_NMDA", "ica_VD
 PARAM_MAP = {"Use_d_TM": "Use_d", "Use_p_TM": "Use_p", "Use0_TM": "Use",
              "Dep_TM": "Dep", "Fac_TM": "Fac", "Nrrp_TM": "Nrrp"}
 
-from plastyfire.epg import ParamsGenerator
+from plastyfire.epg_dhuruva import ParamsGenerator
 
 
 def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
