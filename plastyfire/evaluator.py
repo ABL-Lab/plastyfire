@@ -30,7 +30,8 @@ FITTED_TAU = 278.3177658387  # previously optimized time constant of Ca*
 # could use `SingletonWeightObjective`s, but it's easier to just multiply the (ordered) errors with the values below...
 # WEIGHT_REDUCE will be set dynamically based on number of protocols in __init__
 CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
-FIT_PARAM_NAMES = [  # "tau_effca_GB_GluSynapse",
+FIT_PARAM_NAMES = [
+    "tau_effca_GB_GluSynapse",
     "gamma_d_GB_GluSynapse",
     "gamma_p_GB_GluSynapse",
     "a00",

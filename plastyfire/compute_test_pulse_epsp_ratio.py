@@ -14,6 +14,7 @@ from libsonata import SpikeReader
 import plastyfire.ephysutils as ephysutils
 from conntility.io.synapse_report import get_presyn_mapping
 from bluepysnap import Simulation as BluePySnapSimulation
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,8 +32,20 @@ SYNREC = ["rho_GB", "Use_GB", "gmax_AMPA", "cai_CR", "vsyn", "ica_NMDA", "ica_VD
 PARAM_MAP = {"Use_d_TM": "Use_d", "Use_p_TM": "Use_p", "Use0_TM": "Use",
              "Dep_TM": "Dep", "Fac_TM": "Fac", "Nrrp_TM": "Nrrp"}
 
-from plastyfire.epg import ParamsGenerator
+from plastyfire.simulator import _get_params_generator
 
+
+# RANGE params in GluSynapse_CICR.mod that cannot be set as HOC globals
+_RANGE_PARAMS = {"enable_CICR_GluSynapse"}
+
+def _set_global_params(allparams):
+    """Sets global parameters of the simulation"""
+    logger.debug("Setting global parameters")
+    for param_name, param_val in allparams.items():
+        if param_name in _RANGE_PARAMS:
+            continue
+        if re.match(".*_GluSynapse$", param_name):
+            setattr(bluecellulab.neuron.h, param_name, param_val)
 
 def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
     """Sets synaptic parameters in bluecellulab"""
@@ -56,6 +69,8 @@ def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
         if all(key in fit_params for key in ["a30", "a31"]) and extra_params["loc"] == "apical":
             # set apical potentiation threshold
             synapse.hsynapse.theta_p_GB = fit_params["a30"] * c_pre + fit_params["a31"] * c_post
+        if "enable_CICR_GluSynapse" in fit_params:
+            synapse.hsynapse.enable_CICR_GluSynapse = fit_params["enable_CICR_GluSynapse"]
 
 
 def _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop):
@@ -106,6 +121,9 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
     # bluecellulab.neuron.h.gamma_d_GB_GluSynapse = 101.5387594661
     # bluecellulab.neuron.h.gamma_p_GB_GluSynapse = 216.1841700668
     
+    if fit_params is not None:
+        _set_global_params(fit_params)
+
     # Set random seed for this trial to ensure different results
     np.random.seed(trial)
     logger.info(f"Creating CircuitSimulation for {pre_gid}->{post_gid}")
@@ -148,6 +166,8 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
     recipe_file = recipe_path if recipe_path else "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
     
     edge_pop = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+    epg_variant = os.environ.get("PLASTYFIRE_EPG_VARIANT", "epg_dhuruva")
+    ParamsGenerator = _get_params_generator(epg_variant)
     pgen = ParamsGenerator(bluepysnap_sim.circuit, node_pop, edge_pop, recipe_file)
     syn_extra_params = pgen.generate_params(pre_gid, post_gid)
 
@@ -297,8 +317,15 @@ def main():
     
     # Add fit params arguments
     fit_param_names = [
+        "enable_CICR_GluSynapse",
         "gamma_d_GB_GluSynapse", "gamma_p_GB_GluSynapse",
-        "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"
+        "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31",
+        "delta_IP3_CICR_GluSynapse", "tau_IP3_CICR_GluSynapse",
+        "V_IP3R_CICR_GluSynapse", "V_RyR_CICR_GluSynapse",
+        "V_SERCA_CICR_GluSynapse", "K_SERCA_CICR_GluSynapse",
+        "V_leak_CICR_GluSynapse", "tau_extrusion_CICR_GluSynapse",
+        "tau_effca_GB_GluSynapse",
+        "tau_ref_CICR_GluSynapse", "K_h_ref_CICR_GluSynapse"
     ]
     for param in fit_param_names:
         parser.add_argument(f"--{param}", type=float, default=None, help=f"Fit parameter {param}")

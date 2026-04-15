@@ -93,8 +93,10 @@ class ThresholdFinder(Config):
     def run(self, post_gid):
         """Finds c_pre and c_post (see `plastyfire.simulator`) for all afferents of `post_gid`,
         calculates thresholds used in GluSynapse, stores them in a MultiIndex DataFrame, and saves them to csv."""
-        from plastyfire.epg import ParamsGenerator
-        from plastyfire.simulator import spike_threshold_finder, c_pre_finder, c_post_finder
+        from plastyfire.simulator import _get_params_generator, spike_threshold_finder, c_pre_finder, c_post_finder
+
+        epg_variant = os.environ.get("PLASTYFIRE_EPG_VARIANT", "epg_dhuruva")
+        ParamsGenerator = _get_params_generator(epg_variant)
 
         # get afferent gids (of `post_gid` within the given target)
         c = Circuit(self.circuit_config)
@@ -175,4 +177,3 @@ if __name__ == "__main__":
     start_time = time.time()
     sim.run(args.post_gid)
     L.info("Elapsed time: %s" % time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
-

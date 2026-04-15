@@ -10,27 +10,17 @@ import logging
 import hashlib
 
 import plastyfire.simulator as sim
+from plastyfire.epg_dhuruva_custom_ratio import RHO_RATIO_ENV, parse_rho_ratio
 
 FIT_PARAM_NAMES = ["enable_CICR_GluSynapse",
-                   "tau_effca_GB_GluSynapse",
                    "gamma_d_GB_GluSynapse", "gamma_p_GB_GluSynapse",
                    "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31",
-                   # Old CICR params (v2-v5)
-                   "tau_prime_CICR_GluSynapse", "k_prime_CICR_GluSynapse",
-                   "K_prime_limit_CICR_GluSynapse", "K_RyR_CICR_GluSynapse",
-                   "n_RyR_CICR_GluSynapse", "Vmax_CICR_GluSynapse",
-                   "tau_rel_CICR_GluSynapse",
-                   # New CICR params (v6) - confirmed HOC global names
-                   "k_fill_CICR_GluSynapse", "tau_leak_CICR_GluSynapse",
-                   "K_clip_CICR_GluSynapse", "K_trig_CICR_GluSynapse",
-                   "n_trig_CICR_GluSynapse",
-                   "tau_CICR_rel_GluSynapse", "g_cicr_GB_GluSynapse",
-                   # V7 params
                    "delta_IP3_CICR_GluSynapse", "tau_IP3_CICR_GluSynapse",
-                   "phi_serca_CICR_GluSynapse", "k_leak_CICR_GluSynapse",
-                   "V_RyR_CICR_GluSynapse", "K_T_CICR_GluSynapse",
-                   "n_T_CICR_GluSynapse", "V_IP3R_CICR_GluSynapse",
-                   "g_RyR_CICR_GluSynapse"]
+                   "V_IP3R_CICR_GluSynapse", "V_RyR_CICR_GluSynapse",
+                   "V_SERCA_CICR_GluSynapse", "K_SERCA_CICR_GluSynapse",
+                   "V_leak_CICR_GluSynapse", "tau_extrusion_CICR_GluSynapse",
+                   "tau_effca_GB_GluSynapse",
+                   "tau_ref_CICR_GluSynapse", "K_h_ref_CICR_GluSynapse"]
 FITTED_TAU = 278.318
 
 
@@ -41,6 +31,12 @@ if __name__ == "__main__":
     for param_name in FIT_PARAM_NAMES:
         parser.add_argument("--%s" % param_name, type=float, help="GluSynapse model parameter")
     parser.add_argument("--fastforward", type=float, help="Fastforward begin point (ms)")
+    parser.add_argument("--epg-variant", "--variant",
+                         choices=["epg", "epg_dhuruva", "epg_dhuruva_full", "epg_dhuruva_custom_ratio"],
+                         default="epg_dhuruva",
+                         help="Parameter generator module to use (default: epg_dhuruva)")
+    parser.add_argument("--rho-ratio", "--rho_ratio", type=str, default=None,
+                         help="Depressed:potentiated percentage split for epg_dhuruva_custom_ratio, e.g. 45:55")
     parser.add_argument("--param_hash", type=str, help="Hash of parameter values for unique output filename")
     parser.add_argument("--recipe-path", type=str, default=None, help="Path to custom recipe.csv file")
     parser.add_argument("--output-filename", type=str, default=None, help="Explicit output filename")
@@ -51,7 +47,15 @@ if __name__ == "__main__":
     fit_params = {param_name: getattr(args, param_name) for param_name in FIT_PARAM_NAMES if
                   getattr(args, param_name) is not None}
     if "tau_effca_GB_GluSynapse" not in fit_params:
-        fit_params["tau_effca_GB_GluSynapse"] = FITTED_TAU
+        raise ValueError(f"Missing required parameter 'tau_effca_GB_GluSynapse'. The simulator must receive the optimized integration window from JAX.")
+    if args.epg_variant == "epg_dhuruva_custom_ratio":
+        parse_rho_ratio(args.rho_ratio)
+    elif args.rho_ratio is not None:
+        raise ValueError("--rho-ratio can only be used with --epg-variant=epg_dhuruva_custom_ratio")
+    if args.rho_ratio is not None:
+        os.environ[RHO_RATIO_ENV] = args.rho_ratio
+    else:
+        os.environ.pop(RHO_RATIO_ENV, None)
     # Configure logger
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger(__name__)
@@ -64,7 +68,13 @@ if __name__ == "__main__":
 
     # Run simulation
     start_time = time.time()
-    results = sim.runconnectedpair(workdir, fit_params=fit_params, fastforward=args.fastforward, recipe_path=args.recipe_path)
+    results = sim.runconnectedpair_induction(
+        workdir,
+        fit_params=fit_params,
+        fastforward=args.fastforward,
+        recipe_path=args.recipe_path,
+        epg_variant=args.epg_variant,
+    )
     logger.info("Simulation finished in: %s" % time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
     # Store results
     import pickle
@@ -79,6 +89,4 @@ if __name__ == "__main__":
     with open(filepath, "wb") as f:
         pickle.dump(results, f)
     logger.info("Data writing finished")
-
-
 

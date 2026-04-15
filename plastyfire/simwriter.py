@@ -5,6 +5,7 @@ last modified: András Ecker 06.2024
 """
 
 import os
+import argparse
 import h5py
 import json
 import pickle
@@ -240,22 +241,92 @@ class OptSimWriter(OptConfig):
         return pairs
 
     def write_batch_sript(self, f_name, templ, cpu_time):
-        """Writes single cell batch script"""
+        """Writes single cell batch script (simulation.batch, for pairrunner.py / bluecellulab)"""
         workdir = os.path.dirname(f_name)
         tmp = os.path.split(workdir)
         name = "%s_%s" % (tmp[1], os.path.split(tmp[0])[1])
-        # Create param_args that will be used by the SLURM system
         param_args = "--fastforward=%.1f" % self.fastforward if self.fastforward is not None else ""
-        
-        # Create unique identifiers to avoid conflicts with evaluator system
-        # Use hash of workdir path to ensure uniqueness
-        unique_id = abs(hash(workdir)) % 100000  # 5-digit unique ID
+        unique_id = abs(hash(workdir)) % 100000
         with open(f_name, "w+", encoding="latin1") as f:
             f.write(templ.format(name=name, cpu_time=cpu_time, qos="#SBATCH --chdir=%s" % workdir, log=name,
                                  env=self.env, run=self.run, param_args=param_args, workdir=workdir,
-                                 fastforward=0.0, param_hash_arg="", 
+                                 fastforward=0.0, param_hash_arg="",
                                  individual_id_arg=f" --individual_id={unique_id}",
                                  generation_arg=" --generation=0"))
+
+    def write_neurodamus_sbatch(self, workdir, cpu_time):
+        """Writes neurodamus_sbatch.sh to directly run the pair simulation with neurodamus/CORENEURON"""
+        account = self.config.get("simulator", {}).get("account", "ctb-emuller")
+        param_args = "--fastforward=%.1f" % self.fastforward if self.fastforward is not None else ""
+        content = """\
+#!/bin/bash
+#SBATCH --nodes=1                                   # number of nodes
+#SBATCH --ntasks-per-node=1                       # tasks per node: MPI procs = nodes*ntasks-per-node
+#SBATCH --mem=1G                                   # memory; default unit is megabytes
+#SBATCH --time={cpu_time}                          # time (DD-HH:MM)
+#SBATCH --account={account}
+
+unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
+unset LIBRARY_PATH
+unset JPKGDIR
+unset PYTHONPATH
+unset PATH
+unset HOC_LIBRARY_PATH
+unset NEURODAMUS_DIR
+
+hash -r
+
+module --force purge
+module load StdEnv/2023 scipy-stack/2025a gcc/12.3 openmpi/4.1.5 hdf5-mpi/1.14.4 cmake/3.31.0 cuda/12.9 mpi4py/4.0.3 pytest/8.2.2 rust/1.91.0 boost/1.85.0
+module load python/3.11.5
+
+export JPKGDIR=/project/def-emuller/opt/jupyterhub-pkgs/build-07.04.2026-py311
+# Bashrc setup
+export PYTHONPATH=/cvmfs/soft.computecanada.ca/easybuild/python/site-packages:/cvmfs/soft.computecanada.ca/custom/python/site-packages
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/
+export PATH=$PATH:/opt/software/slurm/bin/
+export PATH=$PATH:$JPKGDIR/bin
+# For NEURON
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python
+# for neurodamus (mapping.py)
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/neurodamus/core/hoc
+export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
+
+export NEURODAMUS_DIR=$JPKGDIR
+NEURODAMUS_INIT_PY=$NEURODAMUS_DIR/bin/neurodamus_init.py
+NEURODAMUS_PARAMS="{param_args}"
+
+BASE_DIR=`pwd`
+SIM_CFG=$BASE_DIR/simulation_config.json
+
+echo Starting ...
+echo Python: `which python`
+
+python - << 'EOF'
+import neuron
+print("neuron.__version__", neuron.__version__)
+print("neuron.__file__", neuron.__file__)
+EOF
+
+echo JPKGDIR $JPKGDIR
+echo PYTHONPATH $PYTHONPATH
+echo PATH $PATH
+echo NEURODAMUS_DIR $NEURODAMUS_DIR
+echo HOC_LIBRARY_PATH $HOC_LIBRARY_PATH
+echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
+echo LIBRARY_PATH $LIBRARY_PATH
+export CORENRN_DEBUG=1
+export NEURON_LOG_LEVEL=DEBUG
+
+echo "=== BUILD ==="
+srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
+    -python $NEURODAMUS_INIT_PY \\
+    --configFile=$SIM_CFG $NEURODAMUS_PARAMS --verbose
+""".format(cpu_time=cpu_time, account=account, param_args=param_args)
+        sbatch_path = os.path.join(workdir, "neurodamus_sbatch.sh")
+        with open(sbatch_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        os.chmod(sbatch_path, 0o755)
 
     def write_sim_files(self, pairs):
         """Writes pair, frequency, and dt specific `simulation_config.json` used by `bluecellulab`
@@ -275,8 +346,8 @@ class OptSimWriter(OptConfig):
         pairing_duration = self.nreps * self.T
         t_stop = before_duration + pairing_duration + n_spikes_after * self.C02_T
         prefire_t_stop = self.offset + pairing_duration + 1000.0
-        # CPU time heuristics
-        h, m = np.divmod(OPT_CPU_TIME * t_stop / 1000., 3600)
+        # CPU time heuristics: estimated sim time + 2 hour buffer
+        h, m = np.divmod(OPT_CPU_TIME * t_stop / 1000. + 7200, 3600)
         m, s = np.divmod(m, 60)
         cpu_time = "%.2i:%.2i:%.2i" % (h, m, s)
         with open(os.path.join("templates", "simulation.batch.tmpl"), "r") as f:
@@ -293,7 +364,8 @@ class OptSimWriter(OptConfig):
                     # Write node set with idx of pre- and postsynaptic neurons
                     jsonf_name = os.path.join(workdir, "node_sets.json")
                     node_sets = {"precell": {"node_id": [int(pre_gid)], "population": self.node_pop},
-                                 "postcell": {"node_id": [int(post_gid)], "population": self.node_pop}}
+                                 "postcell": {"node_id": [int(post_gid)], "population": self.node_pop},
+                                 "paircells": {"node_id": [int(pre_gid), int(post_gid)], "population": self.node_pop}}
                     with open(jsonf_name, "w", encoding="utf-8") as f:
                         json.dump(node_sets, f, indent=4)
                     try:  # load pulse amplitude and compute spike delays at the given frequency (independent of dt...)
@@ -309,14 +381,14 @@ class OptSimWriter(OptConfig):
                     isi = 1000.0 / freq  # Inter Spike Interval (ms)
                     post_spikes = np.array([self.offset + before_duration + i * isi for i in range(self.nspikes)])
                     inputs = {"pulse%i" % i: {"input_type": "current_clamp", "module": "pulse",
-                                              "node_set": self.target,  # "postcell" (to be fixed in `bluecellulab`)
+                                              "node_set": "postcell",
                                               "delay": post_spike, "duration": pairing_duration, "amp_start": amplitude,
                                               "width": self.width, "frequency": 1000. / self.T}
                               for i, post_spike in enumerate(post_spikes)}
                     
                     prefire_post_spikes = np.array([self.offset + i * isi for i in range(self.nspikes)])
                     prefire_inputs = {"pulse%i" % i: {"input_type": "current_clamp", "module": "pulse",
-                                              "node_set": self.target,  # "postcell" (to be fixed in `bluecellulab`)
+                                              "node_set": "postcell",
                                               "delay": post_spike, "duration": pairing_duration, "amp_start": amplitude,
                                               "width": self.width, "frequency": 1000. / self.T}
                               for i, post_spike in enumerate(prefire_post_spikes)}
@@ -334,10 +406,27 @@ class OptSimWriter(OptConfig):
                     h5f_prefire_name = os.path.join(workdir, "prefire_prespikes.h5")
                     save_spikes(h5f_prefire_name, self.node_pop, prefire_pre_spikes, pre_gid * np.ones(len(prefire_pre_spikes), dtype=int))
                     
-                    # Not adding spike replay to the `inputs` because one has to do it manually in `bluecellulab`
-                    # (could be kept for `neurodamus`, but that breaks the current version of `bluecellulab`)
-                    # inputs["prespikes"] = {"input_type": "spikes", "module": "synapse_replay", "node_set": "postcell",
-                    #                        "delay": 0., "duration": t_stop, "spike_file": h5f_name}
+                    # Add spike replay to inputs for neurodamus (needed for correct synapse creation).
+                    # node_set is the TARGET (postsynaptic) cell; source is the population for replay matching.
+                    inputs["prespikes"] = {"input_type": "spikes", "module": "synapse_replay", "node_set": "postcell",
+                                           "delay": 0., "duration": t_stop, "source": self.node_pop,
+                                           "spike_file": h5f_name}
+                    glusynapse_conditions = {
+                        "cao_CR": 2.0,
+                        "tau_effca_GB": 278.3177658387,
+                        "gamma_d_GB": 101.5387594661,
+                        "gamma_p_GB": 216.1841700668,
+                        "init_depleted": True,
+                        "minis_single_vesicle": False
+                    }
+                    connection_overrides = [
+                        {"name": "plasticity", "source": "paircells", "target": "paircells",
+                         "modoverride": "GluSynapse", "weight": 1.0},
+                        {"name": "no_vpm_proj", "source": "proj_Thalamocortical_VPM_Source",
+                         "target": "hex_O1", "weight": 0.0},
+                        {"name": "no_pom_proj", "source": "proj_Thalamocortical_POM_Source",
+                         "target": "hex_O1", "weight": 0.0}
+                    ]
                     # Write simulation config
                     sim_config = {"run": {"dt": 0.025, "tstop": t_stop, "random_seed": self.seed},
                                   "network": self.circuit_config,
@@ -345,30 +434,53 @@ class OptSimWriter(OptConfig):
                                   "node_set": "postcell",
                                   "output": {"output_dir": os.path.join(workdir, "out")},
                                   "inputs": inputs,
-                                  "connection_overrides": [
-                                      {"name": "plasticity", "source": self.target, "target": self.target,
-                                       # "source": "precell", "target": "postcell" (to be fixed in `bluecellulab`)
-                                       "modoverride": "GluSynapse", "weight": 1.0}]}
+                                  "conditions": {
+                                        "extracellular_calcium": 2.0,
+                                        "v_init": -80.0,
+                                        "spike_location": "AIS",
+                                        "mechanisms": {"GluSynapse": glusynapse_conditions}
+                                    },
+                                  "reports": {
+                                        "soma": {"cells": "postcell", "type": "compartment",
+                                                 "variable_name": "v", "unit": "mV", "dt": 0.1,
+                                                 "start_time": 0.0, "end_time": t_stop}
+                                    },
+                                  "target_simulator": "CORENEURON",
+                                  "connection_overrides": connection_overrides}
                     with open(os.path.join(workdir, "simulation_config.json"), "w", encoding="utf-8") as f:
                         json.dump(sim_config, f, indent=4)
 
+                    prefire_inputs["prespikes"] = {"input_type": "spikes", "module": "synapse_replay",
+                                                   "node_set": "postcell", "delay": 0.,
+                                                   "duration": prefire_t_stop, "source": self.node_pop,
+                                                   "spike_file": h5f_prefire_name}
                     prefire_sim_config = {"run": {"dt": 0.025, "tstop": prefire_t_stop, "random_seed": self.seed},
                                   "network": self.circuit_config,
                                   "node_sets_file": jsonf_name,
                                   "node_set": "postcell",
                                   "output": {"output_dir": os.path.join(workdir, "out")},
                                   "inputs": prefire_inputs,
-                                  "connection_overrides": [
-                                      {"name": "plasticity", "source": self.target, "target": self.target,
-                                       # "source": "precell", "target": "postcell" (to be fixed in `bluecellulab`)
-                                       "modoverride": "GluSynapse", "weight": 1.0}]}
+                                  "conditions": {
+                                        "extracellular_calcium": 2.0,
+                                        "v_init": -80.0,
+                                        "spike_location": "AIS",
+                                        "mechanisms": {"GluSynapse": glusynapse_conditions}
+                                    },
+                                  "reports": {
+                                        "soma": {"cells": "postcell", "type": "compartment",
+                                                 "variable_name": "v", "unit": "mV", "dt": 0.1,
+                                                 "start_time": 0.0, "end_time": prefire_t_stop}
+                                    },
+                                  "target_simulator": "CORENEURON",
+                                  "connection_overrides": connection_overrides}
                     with open(os.path.join(workdir, "prefire_simulation_config.json"), "w", encoding="utf-8") as f:
                         json.dump(prefire_sim_config, f, indent=4)
 
                 
-                    # Write launch script (to be able to run it separately with `pairrunner.py`)
+                    # Write launch scripts
                     f_name = os.path.join(workdir, "simulation.batch")
                     self.write_batch_sript(f_name, templ, cpu_time)
+                    self.write_neurodamus_sbatch(workdir, cpu_time)
                     all_sims.append((pre_gid, post_gid, freq, dt, f_name))
         sim_idx = pd.DataFrame(all_sims, columns=["pregid", "postgid", "frequency", "dt", "path"])
         sim_idx.to_csv(os.path.join(basedir, "index_%s.csv" % self.label), index=False)
@@ -483,12 +595,19 @@ class SimWriter(Config):
             print("For %s: %i gids (%.2f%% of total) couldn't be calibrated" % (mtype, count, (count/n) * 100))
 
 if __name__ == "__main__":
-    # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
-    # pairs = writer.find_pairs()
-    # writer.write_sim_files(pairs)
-    writer = OptSimWriter("../configs/L23PC_L5TTPC.yaml")
+    parser = argparse.ArgumentParser(description="Write simulation files for plastyfire optimization")
+    parser.add_argument("--npairs", type=int, default=None,
+                        help="Override the number of pairs to find (default: read from config)")
+    args = parser.parse_args()
+
+    writer = OptSimWriter("../configs/L5TTPC_L5TTPC_STDP.yaml")
+    if args.npairs is not None:
+        writer.config["npairs"] = args.npairs
     pairs = writer.find_pairs()
     writer.write_sim_files(pairs)
+    # writer = OptSimWriter("../configs/L23PC_L5TTPC_STDP.yaml")
+    # pairs = writer.find_pairs()
+    # writer.write_sim_files(pairs)
 
     # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
     # fit_params = writer.read_opt_params()

@@ -51,10 +51,8 @@ def _normtodist(dist, value):
     return dist_value
 
 
-def _get_ltpltd_params(u, gsyn, k_u, k_gsyn):
-    """Gets LTP/LTD parameters (randomly based on the release probability `u`)"""
-    #rho0 = stats.binom.rvs(1, u)
-    rho0 = stats.binom.rvs(1, 0.5)
+def _get_ltpltd_params(u, gsyn, k_u, k_gsyn, rho0):
+    """Gets LTP/LTD parameters based on explicit rho0 (derived from conductance-based median split)"""
     if rho0 > 0.5:  # Potentiated synapse (see equations (8-9) and (17-18) in Chindemi et al. 2020, bioRxiv)
         u_d = np.power(u, 1 / k_u)
         u_p = u
@@ -68,6 +66,15 @@ def _get_ltpltd_params(u, gsyn, k_u, k_gsyn):
     params = {"rho0_GB": rho0, "Use_d_TM": u_d, "Use_p_TM": u_p,
               "gmax_d_AMPA": gsyn_d, "gmax_p_AMPA": gsyn_p}
     return params
+
+
+def _get_synapse_location(branch_type):
+    """Map SONATA branch type to the GluSynapse location label."""
+    if branch_type + BRANCH_TYPE_OFFSET == NeuriteType.basal_dendrite:
+        return "basal"
+    if branch_type + BRANCH_TYPE_OFFSET == NeuriteType.apical_dendrite:
+        return "apical"
+    raise ValueError("Unknown neurite type")
 
 
 class ParamsGenerator(object):
@@ -95,6 +102,25 @@ class ParamsGenerator(object):
         self.namelst = ["u", "d", "f", "nrrp", "gsyn", "spinevol"]
         self.paramlst = ["Use0_TM", "Dep_TM", "Fac_TM", "Nrrp_TM", "gmax0_AMPA", "volume_CR"]
 
+    def _sample_raw_params(self, pre_gid, post_gid):
+        """Sample correlated per-synapse parameters before rho assignment."""
+        pre_mtype = self.circuit.nodes[self.node_pop].get(pre_gid, "mtype")
+        post_mtype = self.circuit.nodes[self.node_pop].get(post_gid, "mtype")
+        pathway_recipe = self.extra_recipe.loc[pre_mtype, post_mtype]
+        distlst = [_get_distributions(pathway_recipe["%sDist" % name],
+                   pathway_recipe["%s" % name], pathway_recipe["%sSD" % name]) for name in self.namelst]
+
+        syns = self.circuit.edges[self.edge_pop].pair_edges(pre_gid, post_gid, "afferent_section_type")
+        raw_params = {}
+        for syn_id, branch_type in syns.items():
+            cov = _get_covariance_matrix(pathway_recipe)
+            np.random.seed(np.mod(syn_id, MAX_SEED))
+            sample_normal = stats.multivariate_normal.rvs(cov=cov)
+            sample_params = map(_normtodist, distlst, sample_normal)
+            params = dict(zip(self.paramlst, sample_params))
+            raw_params[syn_id] = {"params": params, "branch_type": branch_type}
+        return raw_params, pathway_recipe
+
     def generate_params(self, pre_gid, post_gid):
         """
         Generate parameters (both general U,D,F etc. and plasticity related) for synapses between `pre_gid` and `post_gid`
@@ -102,35 +128,17 @@ class ParamsGenerator(object):
         Compared to Spykfunc this function generates different parameters to all synapses mediating the given connection
         in other words: inter-connection variability is *not* assumed to be zero
         """
-        # Find pathway recipe
-        pre_mtype = self.circuit.nodes[self.node_pop].get(pre_gid, "mtype")
-        post_mtype = self.circuit.nodes[self.node_pop].get(post_gid, "mtype")
-        pathway_recipe = self.extra_recipe.loc[pre_mtype, post_mtype]
-        # Assemble synapse parameter distribution list
-        distlst = [_get_distributions(pathway_recipe["%sDist" % name],
-                   pathway_recipe["%s" % name], pathway_recipe["%sSD" % name]) for name in self.namelst]
+        raw_params, pathway_recipe = self._sample_raw_params(pre_gid, post_gid)
+        gsyn_values = np.array([raw_params[sid]["params"]["gmax0_AMPA"] for sid in raw_params])
+        gsyn_median = np.median(gsyn_values)
 
-        # (I think the feature should be called `efferent_section_type`, but this one gives correct results)
-        syns = self.circuit.edges[self.edge_pop].pair_edges(pre_gid, post_gid, "afferent_section_type")
-        # Generate parameters for each synapse (TODO: vectorize)
         syn_params = {}
-        for syn_id, branch_type in syns.items():
-            # Generate multivariate normal sample with prescribed correlations
-            cov = _get_covariance_matrix(pathway_recipe)
-            np.random.seed(np.mod(syn_id, MAX_SEED))
-            sample_normal = stats.multivariate_normal.rvs(cov=cov)
-            # Convert random normal samples to desired distributions
-            sample_params = map(_normtodist, distlst, sample_normal)
-            params = dict(zip(self.paramlst, sample_params))
-            # Add LTP / LTD params, and NMDA conductance
-            params.update(_get_ltpltd_params(params["Use0_TM"], params["gmax0_AMPA"], self.k_u, self.k_gsyn))
+        for syn_id, data in raw_params.items():
+            params = dict(data["params"])
+            branch_type = data["branch_type"]
+            rho0 = 1 if params["gmax0_AMPA"] >= gsyn_median else 0
+            params.update(_get_ltpltd_params(params["Use0_TM"], params["gmax0_AMPA"], self.k_u, self.k_gsyn, rho0))
             params["gmax_NMDA"] = params["gmax0_AMPA"] * pathway_recipe["gsynSRSF"]
-            # Add branch type
-            if branch_type + BRANCH_TYPE_OFFSET == NeuriteType.basal_dendrite:
-                params["loc"] = "basal"
-            elif branch_type + BRANCH_TYPE_OFFSET == NeuriteType.apical_dendrite:
-                params["loc"] = "apical"
-            else:
-                raise ValueError("Unknown neurite type")
+            params["loc"] = _get_synapse_location(branch_type)
             syn_params[syn_id] = params
         return syn_params
