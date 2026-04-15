@@ -5,6 +5,20 @@ import pandas as pd
 import submitit
 from pathlib import Path
 
+CHINDEMI_PARAMS = {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 216.2,
+    "a00": 1.002,
+    "a01": 1.954,
+    "a10": 1.159,
+    "a11": 2.483,
+    "a20": 1.127,
+    "a21": 2.456,
+    "a30": 5.236,
+    "a31": 1.782,
+    "tau_effca_GB_GluSynapse": 278.318,
+}
+
 def get_pairs_and_paths(csv_path):
     df = pd.read_csv(csv_path)
     # We need unique pairs, but also their paths.
@@ -37,7 +51,7 @@ def main():
         "slurm_account": args.account,
         "nodes": 1,
         "cpus_per_task": 20, 
-        "mem_gb": 64,
+        "mem_gb": 32,
         "slurm_array_parallelism": 20
     }
     
@@ -50,7 +64,7 @@ def main():
     pairs_data = get_pairs_and_paths(args.csv)
     print(f"Found {len(pairs_data)} pairs to submit.")
     
-    worker_script = Path("run_basis_pair.py").absolute()
+    worker_script = Path(__file__).with_name("run_basis_pair.py").resolve()
     
     jobs = []
     with executor.batch():
@@ -78,6 +92,8 @@ def main():
                 "--output-csv", out_csv,
                 "--workers", "18"
             ]
+            for param_name, param_val in CHINDEMI_PARAMS.items():
+                cmd.append(f"--{param_name}={param_val}")
             
             job = executor.submit(run_cmd, cmd)
             jobs.append(job)

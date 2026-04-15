@@ -46,7 +46,7 @@ DEFAULT_PARAMS = {
 }
 
 # Where per-pair basis CSVs live  (basis_{pre}_{post}.csv)
-BASIS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results"
+#BASIS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results_new"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -160,11 +160,52 @@ def extrapolate_epsp(rho_config, baseline_mean, baseline_std,
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Ratio estimation
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def compute_ratio(after_mean, after_std, before_mean, before_std, method="simple"):
+    """
+    Estimate the EPSP ratio (after / before) from means and stds.
+
+    Parameters
+    ----------
+    after_mean, after_std : float
+    before_mean, before_std : float
+    method : str
+        "simple"       — ratio of means: after_mean / before_mean.
+                         Fast, but biased low by CV(before)^2.
+        "delta_method" — first-order bias correction via the delta method:
+                         (after_mean / before_mean) * (1 + (before_std / before_mean)^2)
+                         Deterministic and removes the Jensen's-inequality underestimation.
+
+    Returns
+    -------
+    float
+    """
+    if before_mean == 0:
+        return float("nan")
+    if method == "simple":
+        return after_mean / before_mean
+    elif method == "delta_method":
+        cv = before_std / before_mean
+        if cv > 0.3:
+            logger.warning(
+                f"compute_ratio: CV(before) = {cv:.3f} > 0.3; "
+                f"delta-method correction is a first-order approximation and may "
+                f"overcorrect at high CV. Capping CV² at 0.25 (CV=0.5)."
+            )
+        cv2 = min(cv ** 2, 0.25)
+        return (after_mean / before_mean) * (1.0 + cv2)
+    else:
+        raise ValueError(f"Unknown ratio method '{method}'. Choose 'simple' or 'delta_method'.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Public API
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def fetch_epsp_value(pre_gid, post_gid, freq, pre_post_displacement, rho_config,
-                     basis_dir=None, n_trials=0, seed=None):
+                     basis_dir=None, n_trials=0, seed=None, params=None):
     """
     Predict EPSP amplitude for a given pair and rho configuration
     using linear extrapolation from basis results.
@@ -214,7 +255,8 @@ def fetch_epsp_value(pre_gid, post_gid, freq, pre_post_displacement, rho_config,
 
 def fetch_epsp_ratio(pre_gid, post_gid, freq, pre_post_displacement,
                      initial_rho_config, final_rho_config, basis_dir=None,
-                     n_trials=0, seed=None):
+                     n_trials=10, seed=None, params=None,
+                     ratio_method="simple"):
     """
     Predict EPSP ratio (after / before) for a given pair using linear
     extrapolation from basis results.
@@ -230,11 +272,15 @@ def fetch_epsp_ratio(pre_gid, post_gid, freq, pre_post_displacement,
     n_trials : int
         If > 0, sample trial pairs and compute per-trial ratios.
     seed : int, optional
+    ratio_method : str
+        "simple"       — ratio of means (original behaviour, biased low).
+        "delta_method" — bias-corrected via delta method (default).
+        See compute_ratio() for details.
 
     Returns
     -------
     dict with keys:
-        ratio_mean : float  (from mean EPSPs)
+        ratio_mean : float
         epsp_before_mean, epsp_before_std : float
         epsp_after_mean, epsp_after_std : float
         trial_ratios : np.ndarray or None
@@ -253,7 +299,7 @@ def fetch_epsp_ratio(pre_gid, post_gid, freq, pre_post_displacement,
         singleton_means, singleton_stds, n_trials, rng
     )
 
-    ratio_mean = after_mean / before_mean if before_mean != 0 else float("nan")
+    ratio_mean = compute_ratio(after_mean, after_std, before_mean, before_std, ratio_method)
 
     trial_ratios = None
     if before_trials is not None and after_trials is not None:
@@ -264,7 +310,7 @@ def fetch_epsp_ratio(pre_gid, post_gid, freq, pre_post_displacement,
     logger.info(
         f"EPSP ratio {pre_gid}->{post_gid} ({freq}Hz, {pre_post_displacement}ms): "
         f"{before_mean:.4f} +/- {before_std:.4f} -> "
-        f"{after_mean:.4f} +/- {after_std:.4f} = {ratio_mean:.4f}"
+        f"{after_mean:.4f} +/- {after_std:.4f} = {ratio_mean:.4f} [{ratio_method}]"
     )
     if trial_ratios is not None:
         logger.info(f"  sampled {n_trials} trial ratios: "
@@ -340,7 +386,7 @@ def binarize_rho(rho_values):
 
 def effcai_to_epsp(effcai_traces, t, synprops, pre_gid, post_gid,
                    freq, pre_post_displacement, params=None, basis_dir=None,
-                   n_trials=0, seed=None):
+                   n_trials=1000, seed=None, ratio_method="simple"):
     """
     Full pipeline: effcai traces -> rho -> EPSP via linear extrapolation.
 
@@ -357,6 +403,8 @@ def effcai_to_epsp(effcai_traces, t, synprops, pre_gid, post_gid,
     n_trials : int
         If > 0, sample trial EPSP values from propagated distribution.
     seed : int, optional
+    ratio_method : str
+        "simple" or "delta_method". See compute_ratio() for details.
 
     Returns
     -------
@@ -404,7 +452,7 @@ def effcai_to_epsp(effcai_traces, t, synprops, pre_gid, post_gid,
         singleton_means, singleton_stds, n_trials, rng
     )
 
-    ratio_mean = after_mean / before_mean if before_mean != 0 else float("nan")
+    ratio_mean = compute_ratio(after_mean, after_std, before_mean, before_std, ratio_method)
 
     ratio_trials = None
     if before_trials is not None and after_trials is not None:

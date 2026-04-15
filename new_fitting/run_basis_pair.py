@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import sys
 import logging
 import argparse
@@ -10,7 +11,7 @@ import traceback
 import bluecellulab
 from pathlib import Path
 from libsonata import SpikeReader
-from plastyfire.epg import ParamsGenerator
+from plastyfire.epg_dhuruva import ParamsGenerator
 from bluepysnap import Simulation as BluePySnapSimulation
 from conntility.io.synapse_report import get_presyn_mapping
 
@@ -24,71 +25,118 @@ SYNPROPS = ["Cpre", "Cpost", "loc", "Use0_TM", "Dep_TM", "Fac_TM", "Nrrp_TM", "g
 PARAM_MAP = {"Use_d_TM": "Use_d", "Use_p_TM": "Use_p", "Use0_TM": "Use",
              "Dep_TM": "Dep", "Fac_TM": "Fac", "Nrrp_TM": "Nrrp"}
 
+# Same param names as pairrunner.py — all accepted via CLI
+FIT_PARAM_NAMES = ["enable_CICR_GluSynapse",
+                   "gamma_d_GB_GluSynapse", "gamma_p_GB_GluSynapse",
+                   "a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31",
+                   "delta_IP3_CICR_GluSynapse", "tau_IP3_CICR_GluSynapse",
+                   "V_IP3R_CICR_GluSynapse", "V_RyR_CICR_GluSynapse",
+                   "V_SERCA_CICR_GluSynapse", "K_SERCA_CICR_GluSynapse",
+                   "V_leak_CICR_GluSynapse", "tau_extrusion_CICR_GluSynapse",
+                   "tau_effca_GB_GluSynapse",
+                   "tau_ref_CICR_GluSynapse", "K_h_ref_CICR_GluSynapse"]
+
+# Fixed HOC globals not exposed as fitted params
+_BASE_HOC_PARAMS = {
+    "cao_CR_GluSynapse": 2.0,
+    "minis_single_vesicle_GluSynapse": 0.0,
+    "init_depleted_GluSynapse": 0.0,
+}
+
+# RANGE params in GluSynapse.mod that cannot be set as HOC globals
+# These must be set per-synapse in _set_local_params instead
+_RANGE_PARAMS = {"enable_CICR_GluSynapse"}
+
+# Basis simulations should measure the same observable used by
+# Experiment.compute_epsp_ratio for the C01/C02 connectivity tests.
+C01_DURATION_MIN = 4.0
+TEST_PULSE_PERIOD_S = 4.0
+N_EPSP = 60
+EPSP_WINDOW_MS = 100.0
+SPIKE_THRESHOLD_MV = -30.0
+
+
+def _set_global_params(allparams):
+    """Sets global parameters of the simulation"""
+    for param_name, param_val in allparams.items():
+        if param_name in _RANGE_PARAMS:
+            continue  # RANGE params are set per-synapse in _set_local_params
+        if re.match(".*_GluSynapse$", param_name):
+            try:
+                setattr(bluecellulab.neuron.h, param_name, param_val)
+            except Exception:
+                logger.warning("Skipping unknown HOC global: %s (not defined in loaded .mod)", param_name)
+
+
 def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
     """Sets synaptic parameters in bluecellulab"""
-    for key, val in extra_params.items():
+    for key, val in extra_params.items():  # update basic synapse parameters
         if key in PARAM_MAP:
             setattr(synapse.hsynapse, PARAM_MAP[key], val)
         else:
             if key == "loc":
                 continue
             setattr(synapse.hsynapse, key, val)
-    # Note: Threshold setting logic removed/simplified as in original if fit_params is None
-    # If necessary, copy the full logic from synapse_combinations_generator.py
+    # if fit_params is not None:  # update thresholds
+    #     if all(key in fit_params for key in ["a00", "a01"]) and extra_params["loc"] == "basal":
+    #         synapse.hsynapse.theta_d_GB = fit_params["a00"] * c_pre + fit_params["a01"] * c_post
+    #     if all(key in fit_params for key in ["a10", "a11"]) and extra_params["loc"] == "basal":
+    #         synapse.hsynapse.theta_p_GB = fit_params["a10"] * c_pre + fit_params["a11"] * c_post
+    #     if all(key in fit_params for key in ["a20", "a21"]) and extra_params["loc"] == "apical":
+    #         synapse.hsynapse.theta_d_GB = fit_params["a20"] * c_pre + fit_params["a21"] * c_post
+    #     if all(key in fit_params for key in ["a30", "a31"]) and extra_params["loc"] == "apical":
+    #         synapse.hsynapse.theta_p_GB = fit_params["a30"] * c_pre + fit_params["a31"] * c_post
+    #     # Set RANGE params that can't be set as globals
+    #     if "enable_CICR_GluSynapse" in fit_params:
+    #         synapse.hsynapse.enable_CICR = fit_params["enable_CICR_GluSynapse"]
 
 def _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop):
     return get_presyn_mapping(BluePySnapSimulation(sim_config).circuit, edge_pop,
                               pd.MultiIndex.from_tuples([(post_gid, syn_id) for syn_id in syn_idx]))
 
+def _get_epsp_vector(t, v, spikes, window=EPSP_WINDOW_MS):
+    epsps = np.zeros(len(spikes), dtype=np.float64)
+    for i, spike_t in enumerate(spikes):
+        w0 = np.searchsorted(t, spike_t)
+        w1 = np.searchsorted(t, spike_t + window)
+        if w0 >= len(v) or w1 <= w0:
+            continue
+        v_baseline = v[w0]
+        v_peak = np.max(v[w0:w1])
+        if v_peak > SPIKE_THRESHOLD_MV:
+            raise RuntimeError(f"Post-synaptic spike at t={spike_t:.0f}ms")
+        epsps[i] = v_peak - v_baseline
+    return epsps
+
+
 def calculate_epsp_amplitude(t, v, pre_spikes):
     """
-    Calculate EPSP amplitude.
-    Assumes positive deflection.
-    Baseline: Average voltage in 10ms window BEFORE the first spike.
-    Peak: Max voltage in window [spike_time, spike_time + 100ms] (or end of trace).
-    If multiple spikes, this simple logic might need adjustment, but for basis generation 
-    usually simple protocols are used. 
+    Calculate the C01 EPSP amplitude exactly the way the NEURON analysis does:
+    mean of the last N per-spike peak deflections during the 4 min / 0.25 Hz
+    connectivity-test window.
     """
-    # Default to 0 if no spikes or empty trace
-    if len(pre_spikes) == 0:
+    if len(pre_spikes) == 0 or len(t) == 0 or len(v) == 0:
         return 0.0
-    
-    # Use the first spike for baseline alignment
-    first_spike = pre_spikes[0]
-    
-    # Baseline window: [first_spike - 10, first_spike]
-    
-    # Ensure indices are valid
-    baseline_indices = np.where((t >= first_spike - 10.0) & (t < first_spike))[0]
-    
-    if len(baseline_indices) > 0:
-        baseline_v = np.mean(v[baseline_indices])
-    else:
-        # Fallback: first 10ms of simulation
-        baseline_v = np.mean(v[:min(len(v), 100)])
-        
-    # Search for peak after the spike
-    # We look for the global max in the trace after the spike
-    # Taking the max over the whole trace after spike might cover multiple EPSPs if they exist.
-    # For a basis, we usually want the response to the train or pulse.
-    # The user manual calculation might be more complex, but (Max - Baseline) is a safe proxy for "Magnitude".
-    
-    # Look for max V after first spike
-    post_spike_indices = np.where(t >= first_spike)[0]
-    if len(post_spike_indices) == 0:
+
+    period_ms = TEST_PULSE_PERIOD_S * 1000.0
+    n_c01 = int(C01_DURATION_MIN * 60.0 * 1000.0 / period_ms)
+    recorded_spikes = np.asarray(pre_spikes, dtype=np.float64)
+    recorded_spikes = recorded_spikes[recorded_spikes <= t[-1]]
+    c01_spikes = recorded_spikes[:n_c01]
+    if len(c01_spikes) == 0:
         return 0.0
-        
-    peak_v = np.max(v[post_spike_indices])
-    
-    amplitude = peak_v - baseline_v
-    return amplitude
+
+    epsps = _get_epsp_vector(np.asarray(t, dtype=np.float64),
+                             np.asarray(v, dtype=np.float64),
+                             c01_spikes)
+    return float(np.mean(epsps[-N_EPSP:]))
 
 def run_simulation_trial(args):
     """
     Worker function to run a single simulation trial.
     Returns: (rho_config, trial, epsp_amplitude)
     """
-    sim_config_path, pre_gid, post_gid, rho_config, node_pop, trial = args
+    sim_config_path, pre_gid, post_gid, rho_config, node_pop, trial, fit_params = args
     
     try:
         # Initialize bluecellulab
@@ -102,14 +150,10 @@ def run_simulation_trial(args):
         mechanisms_path = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
         bluecellulab.neuron.load_mechanisms(mechanisms_path)
         
-        # Set global parameters
+        # Merge base HOC params with fitted params, then apply globals
         h = bluecellulab.neuron.h
-        h.cao_CR_GluSynapse = 2.0
-        h.minis_single_vesicle_GluSynapse = 0.0
-        h.init_depleted_GluSynapse = 0.0
-        h.tau_effca_GB_GluSynapse = 278.3177658387
-        h.gamma_d_GB_GluSynapse = 101.5387594661
-        h.gamma_p_GB_GluSynapse = 216.1841700668
+        all_params = {**_BASE_HOC_PARAMS, **fit_params}
+        _set_global_params(all_params)
         
         # Random seed
         np.random.seed(trial)
@@ -139,7 +183,7 @@ def run_simulation_trial(args):
 
         # Parameter Generation and Setting
         bluepysnap_sim = BluePySnapSimulation(sim_config_path)
-        EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+        EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
         edge_pop = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
         pgen = ParamsGenerator(bluepysnap_sim.circuit, node_pop, edge_pop, EXTRA_RECIPE_PATH)
         syn_extra_params = pgen.generate_params(pre_gid, post_gid)
@@ -149,7 +193,8 @@ def run_simulation_trial(args):
         for syn_id, synapse in cell.synapses.items():
             if syn_extra_params is not None:
                 global_syn_id = df.loc[df["local_syn_idx"] == syn_id[1]].index[0]
-                _set_local_params(synapse, None, syn_extra_params[global_syn_id])
+                _set_local_params(synapse, fit_params, syn_extra_params[global_syn_id])
+                # note: fit_params (not all_params) — _set_local_params only uses a00–a31 / enable_CICR
                 
         # Apply Rho Configuration
         rho_values = [int(x) for x in rho_config.split(",")]
@@ -159,22 +204,30 @@ def run_simulation_trial(args):
                 rho_val = rho_values[syn_idx_counter]
                 if rho_val >= 0.5:
                     synapse.hsynapse.rho0_GB = 1.0
+                    synapse.hsynapse.rho_GB = 1.0
                     synapse.hsynapse.Use = synapse.hsynapse.Use_p
+                    synapse.hsynapse.Use_GB = synapse.hsynapse.Use_p
                     synapse.hsynapse.gmax_AMPA = synapse.hsynapse.gmax_p_AMPA
+                    synapse.hsynapse.gmax0_AMPA = synapse.hsynapse.gmax_p_AMPA
+                    #synapse.hsynapse.gmax_NMDA = synapse.hsynapse.gmax_p_AMPA * 0.55
                 else:
                     synapse.hsynapse.rho0_GB = 0.0
+                    synapse.hsynapse.rho_GB = 0.0
                     synapse.hsynapse.Use = synapse.hsynapse.Use_d
+                    synapse.hsynapse.Use_GB = synapse.hsynapse.Use_d
                     synapse.hsynapse.gmax_AMPA = synapse.hsynapse.gmax_d_AMPA
+                    synapse.hsynapse.gmax0_AMPA = synapse.hsynapse.gmax_d_AMPA
+                    #synapse.hsynapse.gmax_NMDA = synapse.hsynapse.gmax_d_AMPA * 0.55
             syn_idx_counter += 1
             
         # Disable plasticity
         for syn_id, synapse in cell.synapses.items():
-            synapse.hsynapse.theta_d_GB = 1000000
-            synapse.hsynapse.theta_p_GB = 1000000
+            synapse.hsynapse.theta_d_GB = -1
+            synapse.hsynapse.theta_p_GB = -1
             
-        # Run Simulation
+        # Run only the C01 connectivity-test window used for the basis observable.
         h.cvode_active(1)
-        sim.run(240000, cvode=True) # Check if this duration is required or if it can be shortened
+        sim.run(C01_DURATION_MIN * 60.0 * 1000.0, cvode=True)
         
         # Extract Data
         t = np.array(sim.get_time())
@@ -231,7 +284,13 @@ def main():
     parser.add_argument("--output-csv", type=str, required=True)
     parser.add_argument("--num-trials", type=int, default=10)
     parser.add_argument("--workers", type=int, default=None)
+    for param_name in FIT_PARAM_NAMES:
+        parser.add_argument("--%s" % param_name, type=float, help="GluSynapse model parameter")
     args = parser.parse_args()
+
+    # Build fit_params from CLI args (only those explicitly provided)
+    fit_params = {name: getattr(args, name) for name in FIT_PARAM_NAMES
+                  if getattr(args, name) is not None}
     
     # 1. Resolve Simulation Config
     sim_config = args.sim_config
@@ -300,7 +359,7 @@ def main():
     tasks = []
     for config in basis_configs:
         for t in range(args.num_trials):
-            tasks.append((sim_config, args.pre_gid, args.post_gid, config, "S1nonbarrel_neurons", t))
+            tasks.append((sim_config, args.pre_gid, args.post_gid, config, "S1nonbarrel_neurons", t, fit_params))
             
     # 5. Run Parallel
     n_workers = args.workers if args.workers else min(multiprocessing.cpu_count(), len(tasks))
