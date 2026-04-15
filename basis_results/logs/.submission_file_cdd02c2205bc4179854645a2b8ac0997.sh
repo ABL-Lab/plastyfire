@@ -1,1 +1,0 @@
-/lustre06/project/6077694/dhuruva/plastyfire/basis_results/logs/56234518_submission.sh

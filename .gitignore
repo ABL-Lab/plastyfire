@@ -13,8 +13,14 @@ plastyfire/mod_fix/
 plastyfire/x86_64/
 *.pyc
 
+*.out
+*.err
+*.log
+*.pkl
+*.save_tmp
 .cursor/
 .claude/
+.vscode/
 /refitting_results/
 .ipynb_checkpoints/
 __pycache__/
@@ -24,11 +30,16 @@ evaluation_results/Chindemi_params/sim_results/
 evaluation_results/Chindemi_params_mod/sim_results
 evaluation_results/custom_v2/sim_results
 evaluation_results/mrk97_07_mrk97_08/sim_results
-*.pkl
-*.log
 plastyfire/simulation_epsp_df.csv
+/basis_results/*.csv
+/basis_results/logs/
+/validation_results/*.csv
+/trace_results/**/logs/
+/new_fitting/fitting_results_old/**/*.npz
+/cell_packages.zip
 
 # Large generated data (moved from plastyfire/ by reorganize.sh)
 /data/
 /figures/
 /models/
+/working_new_refitting_results/
