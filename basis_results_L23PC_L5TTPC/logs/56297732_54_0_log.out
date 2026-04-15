@@ -1,4 +1,0 @@
-submitit INFO (2026-02-08 18:42:38,898) - Starting with JobEnvironment(job_id=56297732_54, hostname=nc31124, local_rank=0(1), node=0(1), global_rank=0(1))
-submitit INFO (2026-02-08 18:42:38,898) - Loading pickle: /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results_L23PC_L5TTPC/logs/56297732_54_submitted.pkl
-submitit INFO (2026-02-08 19:03:12,760) - Job completed successfully
-submitit INFO (2026-02-08 19:03:12,779) - Exiting after successful completion
