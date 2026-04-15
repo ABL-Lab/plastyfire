@@ -18,12 +18,12 @@ def worker(workdir, recipe_path, outdir, tau_eff):
     # Import inside the worker to ensure NEURON states are kept cleanly isolated to this process
     sys.path.append("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire")
     from bluepysnap import Simulation
-    from plastyfire.epg import ParamsGenerator
+    from plastyfire.epg_dhuruva import ParamsGenerator
     from plastyfire.simulator import _c_pre_finder_process, _c_post_finder_process
 
-    sim_config = os.path.join(workdir, "simulation_config.json")
+    sim_config = os.path.join(workdir, "prefire_simulation_config.json")
     if not os.path.exists(sim_config):
-        return f"Skipped {workdir} (no sim_config)"
+        return f"Skipped {workdir} (no prefire_simulation_config.json)"
 
     try:
         sim = Simulation(sim_config)
@@ -39,11 +39,10 @@ def worker(workdir, recipe_path, outdir, tau_eff):
         amp = sim.config["inputs"]["pulse0"]["amp_start"]
         stimulus = {"nspikes": 1, "freq": 0.1, "width": width, "offset": 1000, "amp": amp}
 
-        # We pass ref_params to ensure the SIMULATED c_pre/c_post (effcai_GB) 
-        # computed by NEURON matches our analytical baseline assumptions (no CICR).
+        # ref_params: only tau_effca needed — Vmax_CICR is not a valid HOC global
+        # in the current .mod and caused 'not a defined hoc variable' errors.
         ref_params = {
             "tau_effca_GB_GluSynapse": tau_eff,
-            "Vmax_CICR_GluSynapse": 0.0,
         }
         res_pre = _c_pre_finder_process(sim_config, ref_params, syn_extra_params, pre_gid, post_gid, node_pop, edge_pop, True)
         res_post = _c_post_finder_process(sim_config, ref_params, syn_extra_params, pre_gid, post_gid, stimulus, node_pop, edge_pop, True)
@@ -90,19 +89,18 @@ if __name__ == "__main__":
         # If user passed a specific protocol dir directly
         pair_to_workdir["single_target"] = args.rootdir
     else:
-        # Find all directories containing simulation_config.json for the 10Hz_10ms protocol explicitly
+        # Find one simulation_config.json per pair (use 10Hz_10ms as canonical protocol)
         for path in glob.glob(os.path.join(args.rootdir, "**", "10Hz_10ms", "simulation_config.json"), recursive=True):
             workdir = os.path.dirname(path)
             # The pair directory is the parent of the workdir
             pair_dir = os.path.basename(os.path.dirname(workdir))
-            
-            # If we haven't seen this pair yet, save the first protocol dir we find 
-            # to run the cpre/cpost extraction on.
+
+            # One extraction per pair is enough — Cpre/Cpost don't depend on protocol
             if pair_dir not in pair_to_workdir:
                 pair_to_workdir[pair_dir] = workdir
-            
+
     if not pair_to_workdir:
-        print(f"No simulation_config.json found in {args.rootdir}")
+        print(f"No simulation_config.json found under {args.rootdir}")
         sys.exit(1)
         
     print(f"Found {len(pair_to_workdir)} unique simulation pairs. Starting pool with {args.cores} cores...")

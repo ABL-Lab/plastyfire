@@ -24,8 +24,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from plastyfire.epg_dhuruva_custom_ratio import RHO_RATIO_ENV, parse_rho_ratio
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -36,9 +34,8 @@ logger = logging.getLogger(__name__)
 # Base directories
 SIMULATIONS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
 SIMULATIONS_DIR_STDP = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/full_trace_results"
+OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
 PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
-DEFAULT_EPG_FULL_PAIRS_FILE = os.path.join(PLASTYFIRE_DIR, "data", "pairs_n100.txt")
 
 # Chindemi parameters (from evaluate_best_solution.py)
 CHINDEMI_PARAMS = {
@@ -426,8 +423,8 @@ def find_jobs_from_prefire_configs(simulations_path):
     """
     jobs = []
     simulations_path = Path(simulations_path)
-    config_files = sorted(simulations_path.rglob("simulation_config.json"))
-    logger.info(f"Found {len(config_files)} simulation_config.json files under {simulations_path}")
+    config_files = sorted(simulations_path.rglob("prefire_simulation_config.json"))
+    logger.info(f"Found {len(config_files)} prefire_simulation_config.json files under {simulations_path}")
     for cfg_file in config_files:
         freq_dt_dir = cfg_file.parent          # e.g. .../10Hz_-10ms
         pair_dir    = freq_dt_dir.parent       # e.g. .../180164-197248
@@ -441,9 +438,7 @@ def find_jobs_from_prefire_configs(simulations_path):
 
 
 def submit_slurm_jobs(jobs, output_dir, timeout_hours=12, mem_gb=8, cpus_per_task=10,
-                       slurm_account="ctb-emuller", batch_size=10, parallel_sims=4,
-                       fastforward=None, epg_variant="epg_dhuruva",
-                       epg_full_pairs_file=DEFAULT_EPG_FULL_PAIRS_FILE, rho_ratio=None):
+                       slurm_account="ctb-emuller", batch_size=10, parallel_sims=4):
     """Submit jobs to SLURM as batch jobs.
     
     Args:
@@ -454,7 +449,6 @@ def submit_slurm_jobs(jobs, output_dir, timeout_hours=12, mem_gb=8, cpus_per_tas
         cpus_per_task: CPUs per job
         slurm_account: SLURM account
         batch_size: Number of simulations per SLURM job
-        fastforward: Fastforward begin point in ms (passed to pairrunner.py), or None
     """
     log_folder = Path(output_dir) / "logs"
     log_folder.mkdir(parents=True, exist_ok=True)
@@ -468,7 +462,7 @@ def submit_slurm_jobs(jobs, output_dir, timeout_hours=12, mem_gb=8, cpus_per_tas
     logger.info(f"Submitting {len(batches)} SLURM jobs for {len(jobs)} simulations...")
     
     # Time format
-    time_str = f"02:00:00"
+    time_str = f"00:25:00"
     
     job_ids = []
     
@@ -479,27 +473,20 @@ def submit_slurm_jobs(jobs, output_dir, timeout_hours=12, mem_gb=8, cpus_per_tas
         workdirs = [os.path.join(pair_dir, freq_dt) for pair_dir, freq_dt in batch]
         workdirs_str = " ".join(f'"{w}"' for w in workdirs)
         
-        # Build parameter args string; optionally append --fastforward
+        # Build parameter args string
         param_args = " ".join(f"--{name}={value}" for name, value in DHURUVA_PARAMS.items())
-        if fastforward is not None:
-            param_args += f" --fastforward={fastforward}"
-        param_args += f" --epg-variant={epg_variant}"
-        if rho_ratio is not None:
-            param_args += f' --rho-ratio="{rho_ratio}"'
         
         # Create sbatch script
         sbatch_script = f"""#!/bin/bash
 #SBATCH --job-name={job_name}
 #SBATCH --account={slurm_account}
 #SBATCH --time={time_str}
-#SBATCH --mem=8G
+#SBATCH --mem=4G
 #SBATCH --cpus-per-task=4
 #SBATCH --output={log_folder}/{job_name}_%j.out
 #SBATCH --error={log_folder}/{job_name}_%j.err
 
 source {PLASTYFIRE_DIR}/setupenv.sh
-export PLASTYFIRE_EPG_FULL_PAIRS_FILE="{epg_full_pairs_file}"
-{f'export {RHO_RATIO_ENV}="{rho_ratio}"' if rho_ratio is not None else f'unset {RHO_RATIO_ENV}'}
 
 run_sim() {{
     local workdir=$1
@@ -516,6 +503,7 @@ run_sim() {{
     fi
     
     mkdir -p "{output_dir}/$pair_name/$freq_dt"
+    
     cd "$workdir"
     {sys.executable} {PLASTYFIRE_DIR}/plastyfire/pairrunner.py {param_args} --output-filename=simulation_traces_temp.pkl
     
@@ -568,14 +556,11 @@ echo "Batch {batch_idx} completed"
 def _cpu_worker(args):
     """Worker function for CPU multiprocessing mode (must be at module level for pickling).
 
-    Calls `plastyfire.simulator.runconnectedpair_induction` directly (no subprocess),
-    which internally uses `_runconnectedpair_process`.
-
-    NOTE: `fit_params` and `fastforward` must be passed explicitly in the tuple — do NOT
-    read module-level globals here, because multiprocessing spawns a fresh interpreter
-    where reassignments made in main() are NOT visible.
+    NOTE: `fit_params` must be passed explicitly in the tuple — do NOT read the
+    module-level DHURUVA_PARAMS global here, because multiprocessing spawns a
+    fresh interpreter where the reassignment made in main() is NOT visible.
     """
-    pair_dir, freq_dt, output_dir, fit_params, fastforward, epg_variant, epg_full_pairs_file, rho_ratio = args
+    pair_dir, freq_dt, output_dir, fit_params = args
     workdir = os.path.join(pair_dir, freq_dt)
     pair_name = os.path.basename(pair_dir)
     output_file = os.path.join(output_dir, pair_name, freq_dt, "simulation_traces.pkl")
@@ -585,41 +570,47 @@ def _cpu_worker(args):
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
+    # Build param args from the explicitly passed dict, NOT the module-level global
+    param_args = [f"--{name}={value}" for name, value in fit_params.items()]
+    param_args.append("--output-filename=simulation_traces_temp.pkl")
+
+    cmd = [sys.executable, f"{PLASTYFIRE_DIR}/plastyfire/pairrunner.py"] + param_args
+
     try:
-        import plastyfire.simulator as simulator
-        os.environ["PLASTYFIRE_EPG_FULL_PAIRS_FILE"] = epg_full_pairs_file
-        if rho_ratio is not None:
-            os.environ[RHO_RATIO_ENV] = rho_ratio
+        result = subprocess.run(cmd, cwd=workdir, capture_output=True, text=True, timeout=7200)
+
+        temp_file = os.path.join(workdir, "simulation_traces_temp.pkl")
+        if os.path.exists(temp_file):
+            import shutil
+            shutil.move(temp_file, output_file)
+            return {"status": "success", "pair": pair_name, "freq_dt": freq_dt}
         else:
-            os.environ.pop(RHO_RATIO_ENV, None)
-        results = simulator.runconnectedpair_induction(
-            workdir, fit_params=fit_params, fastforward=fastforward, epg_variant=epg_variant)
-        with open(output_file, "wb") as f:
-            pickle.dump(results, f)
-        return {"status": "success", "pair": pair_name, "freq_dt": freq_dt}
+            return {
+                "status": "failed",
+                "pair": pair_name,
+                "freq_dt": freq_dt,
+                "returncode": result.returncode,
+                "stderr": result.stderr[:500] if result.stderr else "",
+                "stdout": result.stdout[:500] if result.stdout else "",
+                "cmd": " ".join(cmd[:3]) + "..."
+            }
     except Exception as e:
         return {"status": "error", "pair": pair_name, "freq_dt": freq_dt, "error": str(e)}
 
 
-def run_cpu_mode(jobs, output_dir, fit_params, workers=30, fastforward=None,
-                 epg_variant="epg_dhuruva", epg_full_pairs_file=DEFAULT_EPG_FULL_PAIRS_FILE,
-                 rho_ratio=None):
+def run_cpu_mode(jobs, output_dir, fit_params, workers=30):
     """Run simulations locally using multiprocessing.
 
-    `fit_params` and `fastforward` are passed explicitly so that worker
-    subprocesses receive the correct values (module-level globals are not
-    inherited by workers).
+    `fit_params` is passed explicitly so that worker subprocesses receive the
+    correct parameter set (module-level globals are not inherited by workers).
     """
     from multiprocessing import Pool
     import time
 
     logger.info(f"Running {len(jobs)} simulations with {workers} workers...")
 
-    # Pack fit_params and fastforward into each job tuple so the worker receives them directly
-    jobs_with_output = [
-        (pair_dir, freq_dt, output_dir, fit_params, fastforward, epg_variant, epg_full_pairs_file, rho_ratio)
-        for pair_dir, freq_dt in jobs
-    ]
+    # Pack fit_params into each job tuple so the worker receives it directly
+    jobs_with_output = [(pair_dir, freq_dt, output_dir, fit_params) for pair_dir, freq_dt in jobs]
 
     start = time.time()
     with Pool(workers) as pool:
@@ -683,24 +674,10 @@ Examples:
                         help="Simulations per SLURM job (default: 10)")
     parser.add_argument("--parallel-sims", type=int, default=4,
                         help="Parallel simulations to pack inside one SLURM job (default: 4)")
-    parser.add_argument("--fastforward", type=float, default=None,
-                        help="Fastforward begin point in ms: run to this point first, snap synapses, then record")
-    parser.add_argument("--epg-variant", "--variant",
-                        choices=["epg", "epg_dhuruva", "epg_dhuruva_full", "epg_dhuruva_custom_ratio"],
-                        default="epg_dhuruva",
-                        help="Parameter generator module to use (default: epg_dhuruva)")
-    parser.add_argument("--rho-ratio", "--rho_ratio", type=str, default=None,
-                        help="Depressed:potentiated percentage split for epg_dhuruva_custom_ratio, e.g. 45:55")
-    parser.add_argument("--epg-full-pairs-file", type=str, default=DEFAULT_EPG_FULL_PAIRS_FILE,
-                        help="Pairs file used by epg_dhuruva_full to compute the pooled global median")
     parser.add_argument("--slurm-account", default="ctb-emuller",
                         help="SLURM account (default: ctb-emuller)")
     
     args = parser.parse_args()
-    if args.epg_variant == "epg_dhuruva_custom_ratio":
-        parse_rho_ratio(args.rho_ratio)
-    elif args.rho_ratio is not None:
-        parser.error("--rho-ratio can only be used with --epg-variant=epg_dhuruva_custom_ratio")
     
     # Select parameter set
     global DHURUVA_PARAMS
@@ -816,10 +793,6 @@ Examples:
         "params": DHURUVA_PARAMS,
         "jobs": jobs,
         "output_dir": output_dir,
-        "fastforward": args.fastforward,
-        "epg_variant": args.epg_variant,
-        "rho_ratio": args.rho_ratio,
-        "epg_full_pairs_file": args.epg_full_pairs_file,
     }
     with open(os.path.join(output_dir, "job_metadata.pkl"), "wb") as f:
         pickle.dump(metadata, f)
@@ -833,16 +806,10 @@ Examples:
             cpus_per_task=args.cpus_per_task,
             batch_size=args.batch_size,
             slurm_account=args.slurm_account,
-            parallel_sims=args.parallel_sims,
-            fastforward=args.fastforward,
-            epg_variant=args.epg_variant,
-            rho_ratio=args.rho_ratio,
-            epg_full_pairs_file=args.epg_full_pairs_file,
+            parallel_sims=args.parallel_sims
         )
     else:
-        run_cpu_mode(jobs, output_dir, fit_params=DHURUVA_PARAMS, workers=args.workers,
-                     fastforward=args.fastforward, epg_variant=args.epg_variant,
-                     epg_full_pairs_file=args.epg_full_pairs_file, rho_ratio=args.rho_ratio)
+        run_cpu_mode(jobs, output_dir, fit_params=DHURUVA_PARAMS, workers=args.workers)
 
 
 if __name__ == "__main__":
