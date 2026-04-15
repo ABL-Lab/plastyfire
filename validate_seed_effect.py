@@ -5,7 +5,7 @@ import numpy as np
 import tempfile
 import shutil
 import bluecellulab
-from plastyfire.epg import ParamsGenerator
+from plastyfire.epg_dhuruva import ParamsGenerator
 import plastyfire.simulator as sim_module
 
 # Configure logging
