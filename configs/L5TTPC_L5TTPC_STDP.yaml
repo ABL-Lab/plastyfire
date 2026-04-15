@@ -3,7 +3,7 @@ reference: Markram et al. 1997
 seed: 19091997
 npairs: 100
 circuit:
-    config: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
+    config: "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_circuit_config.json"
     node_set: "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
     target: "hex_O1Excitatory"
     node_pop: "S1nonbarrel_neurons"
@@ -16,7 +16,7 @@ geom_cons:
     max_dist: [50., 50., 10.]  # [x, y, z] um
 sims_dir: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results"
 stimulus:
-    freq: [2.0, 5.0, 10.0, 20.0]  # Hz
+    freq: [10.0]  # Hz
     amp: "find"  # nA
     amp_min: 0.5
     amp_max: 3.0

@@ -1,0 +1,29 @@
+---
+title: "Distance-dependent plasticity in L23PC to L5TTPC connections"
+output: html_notebook
+---
+```{r}
+invitro = read.csv("data/invitro/plast_vs_dist_sjostrom_hausser_2006.csv")
+
+invitro["epsp_ratio"] = invitro["epsp_ratio"] / 100
+invitro = invitro[, c("epsp_ratio", "risetime")]
+
+invitro
+```
+```{r}
+insilico = read.csv("data/insilico/plast_vs_dist.csv")
+
+insilico
+```
+```{r}
+library(fasano.franceschini.test)
+
+fasano.franceschini.test(S1=invitro, S2=insilico)
+```
+
+
+```{r}
+library(ks)
+
+kde.test(x1=invitro, x2=insilico)
+```
