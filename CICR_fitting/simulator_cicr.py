@@ -13,7 +13,7 @@ from functools import lru_cache
 # os.environ["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/libnrnmech.so"
 # os.environ["BBP_MECH_DIR"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages"
 
-from plastyfire.epg import ParamsGenerator
+from plastyfire.epg_dhuruva import ParamsGenerator
 
 SPIKE_THRESHOLD = -30  # mV
 EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
