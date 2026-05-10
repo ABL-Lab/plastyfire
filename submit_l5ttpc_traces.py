@@ -784,12 +784,11 @@ Examples:
     output_dir = args.output_dir or os.path.join(OUTPUT_BASE_DIR, default_subdir)
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"Output directory: {output_dir}")
-    
+
     # Find simulations by scanning for prefire_simulation_config.json files
     simulations_path = Path(args.simulations_dir if args.simulations_dir is not None else default_simulations_dir)
     jobs = find_jobs_from_prefire_configs(simulations_path)
 
-    # Apply frequency / delay filters
     if args.freq:
         jobs = [(pd, fd) for pd, fd in jobs if args.freq in fd]
 
@@ -798,7 +797,6 @@ Examples:
         jobs = [(pd, fd) for pd, fd in jobs
                 if any(fd.endswith(f"_{delay}") for delay in target_delays)]
 
-    # Limit to unique pair directories if --max-pairs is given
     if args.max_pairs:
         seen_pairs = []
         filtered = []
@@ -808,10 +806,9 @@ Examples:
             if len(seen_pairs) <= args.max_pairs:
                 filtered.append((pd, fd))
         jobs = filtered
-    
+
     logger.info(f"Total simulations: {len(jobs)}")
-    
-    # Save job metadata
+
     metadata = {
         "params": DHURUVA_PARAMS,
         "jobs": jobs,
@@ -823,8 +820,7 @@ Examples:
     }
     with open(os.path.join(output_dir, "job_metadata.pkl"), "wb") as f:
         pickle.dump(metadata, f)
-    
-    # Execute
+
     if args.execution_mode == "slurm":
         submit_slurm_jobs(
             jobs, output_dir,

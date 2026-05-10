@@ -8,7 +8,7 @@ import multiprocessing
 import bluecellulab
 from bluepysnap import Simulation
 import plastyfire.simulator as sim_module
-from plastyfire.epg import ParamsGenerator
+from plastyfire.epg_dhuruva import ParamsGenerator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

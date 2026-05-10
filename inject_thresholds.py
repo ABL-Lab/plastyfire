@@ -86,11 +86,22 @@ def _get_or_create_local_dataset(f, field_name, n_total):
     grp  = f[f"edges/{EDGE_POP}/0"]
     lnk  = grp.get(field_name, getlink=True)
 
-    if isinstance(lnk, h5py.ExternalLink):
+    chunk_size = 65_536
+
+    if lnk is None:
+        logger.info(f"  {field_name}: creating new local chunked dataset "
+                    f"(fillvalue=-1, n={n_total:,})")
+        ds = f.create_dataset(
+            path,
+            shape=(n_total,),
+            dtype="float32",
+            chunks=(chunk_size,),
+            fillvalue=-1.0,
+        )
+    elif isinstance(lnk, h5py.ExternalLink):
         logger.info(f"  {field_name}: replacing ExternalLink → local chunked dataset "
                     f"(fillvalue=-1, n={n_total:,})")
         del f[path]
-        chunk_size = 65_536
         ds = f.create_dataset(
             path,
             shape=(n_total,),

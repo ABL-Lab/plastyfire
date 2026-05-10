@@ -297,7 +297,7 @@ NEURODAMUS_INIT_PY=$NEURODAMUS_DIR/bin/neurodamus_init.py
 NEURODAMUS_PARAMS="{param_args}"
 
 BASE_DIR=`pwd`
-SIM_CFG=$BASE_DIR/simulation_config.json
+SIM_CFG=$BASE_DIR/prefire_simulation_config.json
 
 echo Starting ...
 echo Python: `which python`
@@ -419,6 +419,12 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
                         "init_depleted": True,
                         "minis_single_vesicle": False
                     }
+                    no_sk_e2_modification = {
+                        "name": "no_SK_E2",
+                        "node_set": "postcell",
+                        "type": "ConfigureAllSections",
+                        "section_configure": "%s.gSK_E2bar_SK_E2 = 0"
+                    }
                     connection_overrides = [
                         {"name": "plasticity", "source": "paircells", "target": "paircells",
                          "modoverride": "GluSynapse", "weight": 1.0},
@@ -438,11 +444,15 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
                                         "extracellular_calcium": 2.0,
                                         "v_init": -80.0,
                                         "spike_location": "AIS",
-                                        "mechanisms": {"GluSynapse": glusynapse_conditions}
+                                        "mechanisms": {"GluSynapse": glusynapse_conditions},
+                                        "modifications": [no_sk_e2_modification]
                                     },
                                   "reports": {
                                         "soma": {"cells": "postcell", "type": "compartment",
                                                  "variable_name": "v", "unit": "mV", "dt": 0.1,
+                                                 "start_time": 0.0, "end_time": t_stop},
+                                        "rho": {"cells": "postcell", "type": "synapse",
+                                                 "variable_name": "GluSynapse.rho_GB","sections": "all", "unit": "nd", "dt": 0.1,
                                                  "start_time": 0.0, "end_time": t_stop}
                                     },
                                   "target_simulator": "CORENEURON",
@@ -464,12 +474,16 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
                                         "extracellular_calcium": 2.0,
                                         "v_init": -80.0,
                                         "spike_location": "AIS",
-                                        "mechanisms": {"GluSynapse": glusynapse_conditions}
+                                        "mechanisms": {"GluSynapse": glusynapse_conditions},
+                                        "modifications": [no_sk_e2_modification]
                                     },
                                   "reports": {
                                         "soma": {"cells": "postcell", "type": "compartment",
                                                  "variable_name": "v", "unit": "mV", "dt": 0.1,
-                                                 "start_time": 0.0, "end_time": prefire_t_stop}
+                                                 "start_time": 0.0, "end_time": prefire_t_stop},
+                                        "rho": {"cells": "postcell", "type": "synapse",
+                                                 "variable_name": "GluSynapse.rho_GB","sections": "all", "unit": "nd", "dt": 0.1,
+                                                 "start_time": 0.0, "end_time": t_stop}
                                     },
                                   "target_simulator": "CORENEURON",
                                   "connection_overrides": connection_overrides}
@@ -480,7 +494,7 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
                     # Write launch scripts
                     f_name = os.path.join(workdir, "simulation.batch")
                     self.write_batch_sript(f_name, templ, cpu_time)
-                    self.write_neurodamus_sbatch(workdir, cpu_time)
+                    self.write_neurodamus_sbatch(workdir, "00:30:00")
                     all_sims.append((pre_gid, post_gid, freq, dt, f_name))
         sim_idx = pd.DataFrame(all_sims, columns=["pregid", "postgid", "frequency", "dt", "path"])
         sim_idx.to_csv(os.path.join(basedir, "index_%s.csv" % self.label), index=False)

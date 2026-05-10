@@ -43,3 +43,10 @@ plastyfire/simulation_epsp_df.csv
 /figures/
 /models/
 /working_new_refitting_results/
+
+# Large data/results directories
+/chindemi_cell_packages/
+/backup_refitting_results/
+/basis_results_edges_mini/
+/debugg_plots/
+/bluecellulab_results/
