@@ -11,7 +11,6 @@ from neurom import NeuriteType
 MAX_SEED = 2**32 - 1
 BRANCH_TYPE_OFFSET = 1
 
-
 def _get_covariance_matrix(pathway_recipe):
     """
     Covariance matrix of synaptic parameters (see eq. (28) in Chindemi et al. 2020, bioRxiv)

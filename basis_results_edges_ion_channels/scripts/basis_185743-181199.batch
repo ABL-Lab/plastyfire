@@ -1,0 +1,36 @@
+#!/bin/bash
+#SBATCH --job-name=basis_185743-181199
+#SBATCH --account=ctb-emuller
+#SBATCH --cpus-per-task=12
+#SBATCH --ntasks=1
+#SBATCH --mem=10g
+#SBATCH --time=00:30:00
+#SBATCH --chdir=/lustre06/project/6077694/dhuruva/plastyfire
+#SBATCH --output=/lustre06/project/6077694/dhuruva/plastyfire/basis_results_edges_ion_channels/logs/basis_185743-181199.log
+
+unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
+unset LIBRARY_PATH JPKGDIR NEURODAMUS_DIR HOC_LIBRARY_PATH
+hash -r
+
+module --force purge
+module load StdEnv/2023 scipy-stack/2024a gcc/12.3 openmpi/4.1.5 \
+    hdf5-mpi/1.14.2 cmake/3.31.0 mpi4py/4.0.3 python/3.11.5
+
+export JPKGDIR=/project/def-emuller/opt/jupyterhub-pkgs/build-07.04.2026-py311
+export PYTHONPATH=/cvmfs/soft.computecanada.ca/easybuild/python/site-packages
+export PYTHONPATH=$PYTHONPATH:/cvmfs/soft.computecanada.ca/custom/python/site-packages
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/neurodamus/core/hoc
+export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
+export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
+export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
+
+python /lustre06/project/6077694/dhuruva/plastyfire/run_basis_pair_edges.py \
+    --pre-gid 185743 \
+    --post-gid 181199 \
+    --sim-config /lustre06/project/6077694/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/185743-181199/10Hz_-10ms/simulation_config.json \
+    --output-csv basis_results_edges_ion_channels/basis_185743_181199.csv \
+    --num-trials 5 \
+    --workers 12 \
+    --circuit-config data/dhuruva_modified_ion_channels_circuit_config.json

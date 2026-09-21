@@ -29,6 +29,19 @@ OPT_CPU_TIME = 2.  # heuristics: it takes ~2x compute time (w/ CVode w/ reportin
 CPU_TIME = 1.  # heuristics: c_pre and c_post for a single connection takes <1 minute to simulate/calculate
 FIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/figures/plastyfire"
 
+# Single-AP threshold search (for c_post), mirroring thresholdfinder.py::run()
+# and simulator_edges.C_POST_*. Distinct from the induction-train search, which
+# takes its amplitude grid from the stimulus config.
+# Widths stop at 5 ms on purpose: spike_threshold_finder's binary search assumes
+# the leftmost amplitude firing >=nspikes also fires ==nspikes, which for
+# nspikes=1 holds only while the pulse is short enough that rheobase gives a
+# single AP rather than a train. Do not extend this list upward.
+SINGLE_AP_PULSE_WIDTHS_MS = [1.5, 3, 5]
+SINGLE_AP_FREQ_HZ         = 0.1
+SINGLE_AP_MIN_AMP_NA      = 0.05
+SINGLE_AP_MAX_AMP_NA      = 5.
+SINGLE_AP_AMP_LEVELS      = 100   # -> 0.05 nA grid over [0.05, 5.] nA
+
 
 def check_geom_constraint(conn_mat, pre_mtype, post_gid, max_dist):
     """Check if cell has any presynaptic partners within `max_dists`"""
@@ -51,10 +64,40 @@ def check_geom_constraint(conn_mat, pre_mtype, post_gid, max_dist):
 
 def check_electrical_constraint(sim_config, gid, stim_config, save_dir):
     """Check if the cell can fire correctly at every stim. frequency
-    (and save params. of current injection that makes it fire)"""
+    (and save params. of current injection that makes it fire)
+
+    Two searches are run per cell and both are stored in the same pkl:
+
+    - one per entry in `stim_config["freq"]`, keyed by that float frequency,
+      for the `nspikes`-spike induction train. This is the one that gates pair
+      selection: no amplitude found -> the cell is rejected (return False).
+    - one under the "single_ap" key, for the single AP that c_post needs
+      (`_find_cpre_cpost` in simulator_edges.py). Cached here so it is paid
+      once per cell at calibration instead of once per pair on every rebuild
+      of the c_pre/c_post cache — tau_effca / gamma_d / gamma_p are GluSynapse
+      params and do not change whether the soma fires.
+
+    BOTH searches gate pair selection. A cell that cannot be made to fire
+    exactly one AP has no valid c_post, so `_find_cpre_cpost` raises on it and
+    the pair is lost anyway — but only after the basis and the whole c_pre/c_post
+    sweep have been paid for. Rejecting it here costs one extra search per cell
+    and keeps the pair list to cells the full pipeline can actually use.
+    """
     pklf_name = os.path.join(save_dir, "%i.pkl" % gid)
     if os.path.isfile(pklf_name):  # check if these sims were already run...
-        return True
+        with open(pklf_name, "rb") as f:
+            cached = pickle.load(f)
+        # A pkl written before the single-AP gate existed carries only the
+        # induction-train entries. Its presence proves the cell fires `nspikes`
+        # APs at the induction frequency -- NOT that c_post is defined. gids
+        # 185042 and 197123 passed on exactly that and then failed later in
+        # `_find_cpre_cpost` ("could not fire ... exactly one AP at any width
+        # up to 5.0 nA"), costing 2 of the 100 pairs. Re-run the searches
+        # rather than trusting the file's existence.
+        if "single_ap" in cached and set(stim_config["freq"]).issubset(cached):
+            return True
+        warnings.warn("Stale stimulus cache for gid %i (keys %s) - re-running searches"
+                      % (gid, sorted(cached, key=str)))
     results = {}
     for freq in stim_config["freq"]:
         simres = spike_threshold_finder(sim_config, gid, stim_config["nspikes"],
@@ -64,6 +107,24 @@ def check_electrical_constraint(sim_config, gid, stim_config, save_dir):
             return False
         else:
             results[freq] = simres
+    # Single-AP threshold for c_post. Widths / amplitude range / level count
+    # mirror thresholdfinder.py::run() and simulator_edges.C_POST_* — keep them
+    # in sync. The 1-AP amplitude is lower than the induction one, so the
+    # induction amp_min/amp_lev grid is too coarse and starts too high to use.
+    for pulse_width in SINGLE_AP_PULSE_WIDTHS_MS:
+        simres = spike_threshold_finder(sim_config, gid, 1, SINGLE_AP_FREQ_HZ,
+                                        pulse_width, stim_config["offset"], SINGLE_AP_MIN_AMP_NA,
+                                        SINGLE_AP_MAX_AMP_NA, SINGLE_AP_AMP_LEVELS, fixhp=True)
+        if simres is not None:
+            results["single_ap"] = simres
+            break
+    if "single_ap" not in results:
+        # No single AP at any width -> c_post is undefined for this cell. Reject
+        # it now rather than letting _find_cpre_cpost raise on it later.
+        warnings.warn("No single-AP stimulus found for gid %i at any width in %s ms "
+                      "up to %.1f nA - rejecting cell (c_post would be invalid)"
+                      % (gid, SINGLE_AP_PULSE_WIDTHS_MS, SINGLE_AP_MAX_AMP_NA))
+        return False
     # Store results for manual validation and simulation setup
     with open(pklf_name, "wb") as f:
         pickle.dump(results, f, -1)
@@ -614,14 +675,14 @@ if __name__ == "__main__":
                         help="Override the number of pairs to find (default: read from config)")
     args = parser.parse_args()
 
-    writer = OptSimWriter("../configs/L5TTPC_L5TTPC_STDP.yaml")
-    if args.npairs is not None:
-        writer.config["npairs"] = args.npairs
-    pairs = writer.find_pairs()
-    writer.write_sim_files(pairs)
-    # writer = OptSimWriter("../configs/L23PC_L5TTPC_STDP.yaml")
+    # writer = OptSimWriter("../configs/L5TTPC_L5TTPC_STDP.yaml")
+    # if args.npairs is not None:
+    #     writer.config["npairs"] = args.npairs
     # pairs = writer.find_pairs()
     # writer.write_sim_files(pairs)
+    writer = OptSimWriter("../configs/L23PC_L5TTPC_STDP.yaml")
+    pairs = writer.find_pairs()
+    writer.write_sim_files(pairs)
 
     # writer = OptSimWriter("../configs/L5TTPC_L5TTPC.yaml")
     # fit_params = writer.read_opt_params()

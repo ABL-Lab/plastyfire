@@ -188,7 +188,6 @@ def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
             synapse.hsynapse.enable_CICR = fit_params["enable_CICR_GluSynapse"]
     
 
-
 def _map_syn_idx(sim_config, post_gid, syn_idx, edge_pop):
     """Compared to `bluepysnap` which has one global synapse ID for all synapses in the circuit,
     `bluecellulab` (just as `neurodamus`) re-indexes synapses for each postsynaptic cell starting at 0

@@ -423,13 +423,25 @@ class Evaluator(Evaluator):
             # Ensure fastforward is a clean float to avoid precision issues
             fastforward = float(fastforward)
             nepsp = int(config.C01_duration * MIN2MS / config.T)
-            # Load simulation index (witten by `simwriter.py`)
-            sim_idx = pd.read_csv(
-                os.path.join(
-                    os.path.split(os.path.split(config.out_dir)[0])[0],
-                    "index_%s_%s.csv" % (elem.pre_mtype, elem.post_mtype),
-                )
-            )
+            # Load simulation index (written by `simwriter.py`)
+            base_dir = os.path.split(os.path.split(config.out_dir)[0])[0]
+            # Prefer config.label-based filename (handles _STDP and other suffixes);
+            # fall back to glob so either naming convention works.
+            idx_by_label = os.path.join(base_dir, "index_%s.csv" % config.label)
+            if os.path.exists(idx_by_label):
+                idx_path = idx_by_label
+            else:
+                candidates = sorted(glob.glob(
+                    os.path.join(base_dir, "index_%s_%s*.csv" % (elem.pre_mtype, elem.post_mtype))
+                ))
+                if not candidates:
+                    raise FileNotFoundError(
+                        "No index CSV found in %r for %s_%s (tried: %s)"
+                        % (base_dir, elem.pre_mtype, elem.post_mtype, idx_by_label)
+                    )
+                idx_path = candidates[0]
+                logger.warning("Index CSV not found at %s — using %s", idx_by_label, idx_path)
+            sim_idx = pd.read_csv(idx_path)
             sim_idx.set_index(["frequency", "dt"], inplace=True)
             sim_idx.sort_index(inplace=True)
 

@@ -115,7 +115,62 @@ def _get_or_create_local_dataset(f, field_name, n_total):
     return ds
 
 
-def inject(edges_h5, global_idx, theta_d, theta_p, dry_run=False):
+def compare_existing(edges_h5, global_idx, theta_d, theta_p, tol=1e-4):
+    """
+    Read current theta_d/theta_p from edges.h5 for the given indices and compare
+    to the new values.  Logs a WARNING (and returns False) if any values differ
+    by more than `tol`, so the caller can decide whether to abort.
+    Returns True if everything matches within tolerance.
+    """
+    logger.info("Comparing new thresholds against values currently in edges.h5 …")
+    with h5py.File(edges_h5, "r") as f:
+        pop = f[POP_PATH]
+        if "theta_d" not in pop or "theta_p" not in pop:
+            logger.warning("  theta_d/theta_p not yet present in edges.h5 — skipping comparison.")
+            return True
+
+        lnk_d = pop.get("theta_d", getlink=True)
+        lnk_p = pop.get("theta_p", getlink=True)
+        if isinstance(lnk_d, h5py.ExternalLink) or isinstance(lnk_p, h5py.ExternalLink):
+            logger.warning("  theta_d/theta_p are ExternalLinks — cannot read current values for comparison.")
+            return True
+
+        cur_td = f[f"{POP_PATH}/theta_d"][global_idx]
+        cur_tp = f[f"{POP_PATH}/theta_p"][global_idx]
+
+    delta_d = np.abs(cur_td - theta_d)
+    delta_p = np.abs(cur_tp - theta_p)
+
+    n_mismatch_d = int((delta_d > tol).sum())
+    n_mismatch_p = int((delta_p > tol).sum())
+
+    if n_mismatch_d == 0 and n_mismatch_p == 0:
+        logger.info(f"  All {len(global_idx):,} theta_d and theta_p values match within tol={tol:.0e}. Safe to overwrite.")
+        return True
+
+    logger.warning(
+        f"  THRESHOLD MISMATCH DETECTED (tol={tol:.0e}):\n"
+        f"    theta_d: {n_mismatch_d:,}/{len(global_idx):,} entries differ "
+        f"(max delta={delta_d.max():.6f}, mean delta={delta_d.mean():.6f})\n"
+        f"    theta_p: {n_mismatch_p:,}/{len(global_idx):,} entries differ "
+        f"(max delta={delta_p.max():.6f}, mean delta={delta_p.mean():.6f})"
+    )
+
+    # Show the worst offenders to help diagnose which params changed
+    worst_d_idx = int(np.argmax(delta_d))
+    worst_p_idx = int(np.argmax(delta_p))
+    logger.warning(
+        f"  Worst theta_d mismatch: global_idx={global_idx[worst_d_idx]} "
+        f"old={cur_td[worst_d_idx]:.6f} → new={theta_d[worst_d_idx]:.6f}"
+    )
+    logger.warning(
+        f"  Worst theta_p mismatch: global_idx={global_idx[worst_p_idx]} "
+        f"old={cur_tp[worst_p_idx]:.6f} → new={theta_p[worst_p_idx]:.6f}"
+    )
+    return False
+
+
+def inject(edges_h5, global_idx, theta_d, theta_p, dry_run=False, force=False):
     """Write theta_d / theta_p values into edges.h5, handling ExternalLinks."""
     if dry_run:
         logger.info("DRY RUN — no file changes.")
@@ -125,6 +180,16 @@ def inject(edges_h5, global_idx, theta_d, theta_p, dry_run=False):
     global_idx = global_idx[sort_order]
     theta_d    = theta_d[sort_order]
     theta_p    = theta_p[sort_order]
+
+    match = compare_existing(edges_h5, global_idx, theta_d, theta_p)
+    if not match and not force:
+        logger.error(
+            "Aborting inject — thresholds differ from what is currently in edges.h5.\n"
+            "If this is intentional (e.g. you updated a-params), re-run with --force to overwrite."
+        )
+        raise SystemExit(1)
+    elif not match and force:
+        logger.warning("--force specified — overwriting mismatched thresholds.")
 
     logger.info(f"Opening {edges_h5} for in-place write …")
     with h5py.File(edges_h5, "r+") as f:
@@ -163,10 +228,12 @@ def main():
                         help=f"Path to edges HDF5 file (default: {EDGES_H5})")
     parser.add_argument("--dry-run", action="store_true",
                         help="Read results and report statistics but do not modify the file")
+    parser.add_argument("--force", action="store_true",
+                        help="Overwrite even when new thresholds differ from the current values in edges.h5")
     args = parser.parse_args()
 
     global_idx, theta_d, theta_p = collect_results(args.results_dir)
-    inject(args.edges_h5, global_idx, theta_d, theta_p, dry_run=args.dry_run)
+    inject(args.edges_h5, global_idx, theta_d, theta_p, dry_run=args.dry_run, force=args.force)
 
     if not args.dry_run:
         verify(args.edges_h5, global_idx)

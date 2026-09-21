@@ -50,3 +50,5 @@ plastyfire/simulation_epsp_df.csv
 /basis_results_edges_mini/
 /debugg_plots/
 /bluecellulab_results/
+/analytical_method/
+*.pkl.tmp

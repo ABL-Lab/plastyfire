@@ -36,9 +36,15 @@ PAIR_RUNNER      = os.path.join(PLASTYFIRE_ROOT, "run_basis_pair_edges.py")
 DEFAULT_RESULTS  = os.path.join(PLASTYFIRE_ROOT, "refitting_results")
 DEFAULT_OUT_DIR  = os.path.join(PLASTYFIRE_ROOT, "basis_results_edges_mini")
 ACCOUNT          = "ctb-emuller"
-WALLTIME         = "06:00:00"
+WALLTIME         = "03:00:00"
 NUM_TRIALS       = 5
 CPUS_PER_TASK    = 12   # one per trial config; 10 trials + overhead
+# run_basis_pair_edges.py runs CPUS_PER_TASK concurrent bluecellulab processes in a
+# multiprocessing.Pool, each holding its own NEURON instance. The previous 5g was a
+# whole-job cap shared across all 12, so the pool OOM-killed itself (job 721237:
+# MaxRSS 5240380K == the 5g cap exactly, State OUT_OF_MEMORY) and the survivors
+# crawled until the 30-minute walltime. ~2.5g/worker is the floor that keeps 12 live.
+MEM              = "32g"
 
 SBATCH_TMPL = """\
 #!/bin/bash
@@ -46,8 +52,9 @@ SBATCH_TMPL = """\
 #SBATCH --account={account}
 #SBATCH --cpus-per-task={cpus}
 #SBATCH --ntasks=1
-#SBATCH --mem=24g
+#SBATCH --mem={mem}
 #SBATCH --time={walltime}
+#SBATCH --chdir={plastyfire_root}
 #SBATCH --output={log_file}
 
 unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
@@ -74,7 +81,7 @@ python {runner} \\
     --sim-config {sim_config} \\
     --output-csv {output_csv} \\
     --num-trials {num_trials} \\
-    --workers {workers}
+    --workers {workers}{circuit_config_arg}
 """
 
 
@@ -82,14 +89,18 @@ python {runner} \\
 # Helpers
 # ---------------------------------------------------------------------------
 
-def find_pairs(results_dir):
+def find_pairs(results_dir, stdp_name=None):
     """
     Return {pair_str: sim_config_path} for all unique pairs that have
     simulation_config.json + prespikes.h5 in at least one frequency subdir.
     Uses the first matching subdir found for each pair.
+
+    stdp_name restricts the search to one *_STDP subtree (e.g.
+    "L23PC_L5TTPC_STDP"). Without it every *_STDP set under results_dir is
+    collected, which silently mixes cell-type pairs into one output dir.
     """
     pattern = os.path.join(
-        results_dir, "fitting", "*", "seed*", "*_STDP",
+        results_dir, "fitting", "*", "seed*", stdp_name or "*_STDP",
         "simulations", "*-*",
     )
     pair_dirs = sorted(glob.glob(pattern))
@@ -111,15 +122,20 @@ def find_pairs(results_dir):
 
 
 def write_sbatch(pair, pre_gid, post_gid, sim_config, output_csv,
-                 out_dir, num_trials, walltime):
+                 out_dir, num_trials, walltime, circuit_config=None, mem=MEM):
     name    = f"basis_{pair}"
-    log     = os.path.join(out_dir, "logs", f"{name}.log")
+    log     = os.path.abspath(os.path.join(out_dir, "logs", f"{name}.log"))
     os.makedirs(os.path.dirname(log), exist_ok=True)
+    circuit_config_arg = (
+        f" \\\n    --circuit-config {circuit_config}" if circuit_config else ""
+    )
     content = SBATCH_TMPL.format(
         job_name=name,
         account=ACCOUNT,
         cpus=CPUS_PER_TASK,
+        mem=mem,
         walltime=walltime,
+        plastyfire_root=PLASTYFIRE_ROOT,
         log_file=log,
         runner=PAIR_RUNNER,
         pre_gid=pre_gid,
@@ -128,6 +144,7 @@ def write_sbatch(pair, pre_gid, post_gid, sim_config, output_csv,
         output_csv=output_csv,
         num_trials=num_trials,
         workers=CPUS_PER_TASK,
+        circuit_config_arg=circuit_config_arg,
     )
     script = os.path.join(out_dir, "scripts", f"{name}.batch")
     os.makedirs(os.path.dirname(script), exist_ok=True)
@@ -154,7 +171,7 @@ class _NoDaemonPool(multiprocessing.pool.Pool):
 
 
 def _cpu_worker(args):
-    pair, pre_gid, post_gid, sim_config, output_csv, num_trials, workers = args
+    pair, pre_gid, post_gid, sim_config, output_csv, num_trials, workers, circuit_config = args
     import subprocess, logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     log = logging.getLogger(__name__)
@@ -168,6 +185,8 @@ def _cpu_worker(args):
         "--num-trials", str(num_trials),
         "--workers",    str(workers),
     ]
+    if circuit_config:
+        cmd += ["--circuit-config", circuit_config]
     try:
         subprocess.check_call(cmd)
         log.info("Done %s", pair)
@@ -195,6 +214,9 @@ def main():
                         help=f"Test-pulse trials per rho config (default: {NUM_TRIALS})")
     parser.add_argument("--walltime",    default=WALLTIME,
                         help=f"Slurm wall time (default: {WALLTIME})")
+    parser.add_argument("--mem",         default=MEM,
+                        help=f"Slurm memory for the whole job, shared by all "
+                             f"{CPUS_PER_TASK} pool workers (default: {MEM})")
     parser.add_argument("--execution-mode", choices=["slurm", "cpu"], default="slurm",
                         help="slurm: one sbatch per pair; cpu: local parallel (default: slurm)")
     parser.add_argument("--workers",     type=int, default=4,
@@ -203,9 +225,15 @@ def main():
                         help="Skip pairs whose output CSV already exists")
     parser.add_argument("--dry-run",     action="store_true",
                         help="Print commands/workdirs without submitting")
+    parser.add_argument("--stdp-name", default=None,
+                        help="Restrict to one *_STDP subtree, e.g. "
+                             "L23PC_L5TTPC_STDP. Default: every set found, "
+                             "which mixes cell types in one output dir.")
+    parser.add_argument("--circuit-config", default=None,
+                        help="Override the 'network' field in each sim_config (e.g. for new ion channels)")
     args = parser.parse_args()
 
-    pairs = find_pairs(args.results_dir)
+    pairs = find_pairs(args.results_dir, args.stdp_name)
     if not pairs:
         logger.error("No pairs found in %s", args.results_dir)
         sys.exit(1)
@@ -233,6 +261,7 @@ def main():
             script = write_sbatch(
                 pair, pre_gid, post_gid, sim_config, output_csv,
                 args.output_dir, args.num_trials, args.walltime,
+                circuit_config=args.circuit_config, mem=args.mem,
             )
             if args.dry_run:
                 print(f"sbatch {script}")
@@ -254,7 +283,7 @@ def main():
             output_csv = os.path.join(args.output_dir, f"basis_{pre_gid}_{post_gid}.csv")
             worker_args.append((
                 pair, pre_gid, post_gid, sim_config, output_csv,
-                args.num_trials, CPUS_PER_TASK,
+                args.num_trials, CPUS_PER_TASK, args.circuit_config,
             ))
 
         if args.dry_run:

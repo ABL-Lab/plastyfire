@@ -125,11 +125,27 @@ def _get_pair_edges(pre_gid, post_gid, l5_ids):
     return gidx[mask], sec[mask]
 
 
-def _worker(pre_gid, post_gid, output_dir):
-    """Compute C_pre/C_post for one pair and write theta_d/theta_p."""
+def _worker(pre_gid, post_gid, output_dir, traces_dir=None):
+    """Compute C_pre/C_post for one pair and write theta_d/theta_p.
+
+    Also saves a threshold-traces pkl with per-synapse cai_CR time-series
+    (keyed by global synapse ID) for use by plastyfitting/cicr_common.py,
+    which needs to re-integrate effcai_GB dynamically at different tau values.
+
+    The pkl is written to `traces_dir` (defaults to `output_dir`) as:
+        <pre_gid>-<post_gid>_threshold_traces.pkl
+    Format matches what cicr_common._load_pkl() expects:
+        {
+          'pre_gid': int,
+          'post_gid': int,
+          'pre':  { 'cai_CR': {global_id: float32_array}, 't': float64_array },
+          'post': { 'cai_CR': {global_id: float32_array}, 't': float64_array },
+        }
+    """
     os.environ["GLOG_minloglevel"] = "3"
     sys.path.insert(0, PLASTYFIRE_DIR)
 
+    import pickle
     import tempfile, json
     import numpy as np
     import h5py
@@ -138,8 +154,13 @@ def _worker(pre_gid, post_gid, output_dir):
     from bluepysnap import Simulation
     from conntility.io.synapse_report import get_presyn_mapping
 
-    output_file = os.path.join(output_dir, f"{pre_gid}_{post_gid}.npz")
-    if os.path.exists(output_file):
+    output_file  = os.path.join(output_dir, f"{pre_gid}_{post_gid}.npz")
+    _traces_dir  = traces_dir if traces_dir is not None else output_dir
+    traces_file  = os.path.join(_traces_dir, f"{pre_gid}-{post_gid}_threshold_traces.pkl")
+
+    npz_done    = os.path.exists(output_file)
+    traces_done = os.path.exists(traces_file)
+    if npz_done and traces_done:
         return f"skip:{pre_gid}_{post_gid}"
 
     # ── 1. Load L5 ids and find edges for this pair ───────────────────────────
@@ -217,21 +238,32 @@ def _worker(pre_gid, post_gid, output_dir):
         h.theta_d_GB = -1
         h.theta_p_GB = -1
 
-    recs_cpre = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpre.synapses}
+    # dt=0.1 ms to match plastyfitting's expected resolution (15001 pts over 1500 ms)
+    CAI_DT = 0.1
+
+    recs_cpre     = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpre.synapses}
+    recs_cai_cpre = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpre.synapses}
+    t_vec_cpre    = bluecellulab.neuron.h.Vector()
+    t_vec_cpre.record(bluecellulab.neuron.h._ref_t, CAI_DT)
     for sid, syn in cell_cpre.synapses.items():
         recs_cpre[sid[1]].record(syn.hsynapse._ref_effcai_GB, 1.0)
+        recs_cai_cpre[sid[1]].record(syn.hsynapse._ref_cai_CR, CAI_DT)
 
     sim_cpre.run(C_PRE_TSTOP_MS, cvode=True)
 
-    c_pre_map = {}
+    c_pre_map     = {}
+    cai_cr_pre    = {}   # {global_id: float32 array} — for threshold traces pkl
+    t_pre_array   = np.array(t_vec_cpre.to_python(), dtype=np.float64)
     for local_idx, rec in recs_cpre.items():
         if local_idx not in local2global:
             continue
+        gid = local2global[local_idx]
         arr = np.array(rec.to_python())
-        i0 = max(0, int(C_PRE_T0_MS))
-        c_pre_map[local2global[local_idx]] = float(arr[i0:].max()) if len(arr) > i0 else 0.0
+        i0  = max(0, int(C_PRE_T0_MS))
+        c_pre_map[gid] = float(arr[i0:].max()) if len(arr) > i0 else 0.0
+        cai_cr_pre[gid] = np.array(recs_cai_cpre[local_idx].to_python(), dtype=np.float32)
 
-    del sim_cpre, cell_cpre, recs_cpre
+    del sim_cpre, cell_cpre, recs_cpre, recs_cai_cpre, t_vec_cpre
 
     # ── 5. C_post ─────────────────────────────────────────────────────────────
     amp = _get_spike_amp(post_gid)
@@ -250,9 +282,13 @@ def _worker(pre_gid, post_gid, output_dir):
         syn.hsynapse.theta_d_GB = -1
         syn.hsynapse.theta_p_GB = -1
 
-    recs_cpost = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpost.synapses}
+    recs_cpost     = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpost.synapses}
+    recs_cai_cpost = {sid[1]: bluecellulab.neuron.h.Vector() for sid in cell_cpost.synapses}
+    t_vec_cpost    = bluecellulab.neuron.h.Vector()
+    t_vec_cpost.record(bluecellulab.neuron.h._ref_t, CAI_DT)
     for sid, syn in cell_cpost.synapses.items():
         recs_cpost[sid[1]].record(syn.hsynapse._ref_effcai_GB, 1.0)
+        recs_cai_cpost[sid[1]].record(syn.hsynapse._ref_cai_CR, CAI_DT)
 
     stim = bluecellulab.neuron.h.IClamp(0.5, sec=cell_cpost.soma)
     stim.delay = C_POST_T0_MS
@@ -261,14 +297,18 @@ def _worker(pre_gid, post_gid, output_dir):
 
     sim_cpost.run(C_POST_TSTOP_MS, cvode=True)
 
-    c_post_map = {}
+    c_post_map    = {}
+    cai_cr_post   = {}   # {global_id: float32 array} — for threshold traces pkl
+    t_post_array  = np.array(t_vec_cpost.to_python(), dtype=np.float64)
     for local_idx, rec in recs_cpost.items():
         if local_idx not in local2global:
             continue
+        gid = local2global[local_idx]
         arr = np.array(rec.to_python())
-        c_post_map[local2global[local_idx]] = float(arr.max()) if len(arr) > 0 else 0.0
+        c_post_map[gid] = float(arr.max()) if len(arr) > 0 else 0.0
+        cai_cr_post[gid] = np.array(recs_cai_cpost[local_idx].to_python(), dtype=np.float32)
 
-    del sim_cpost, cell_cpost, recs_cpost
+    del sim_cpost, cell_cpost, recs_cpost, recs_cai_cpost, t_vec_cpost
 
     # ── 6. Compute theta_d / theta_p ─────────────────────────────────────────
     out_global, out_td, out_tp = [], [], []
@@ -290,16 +330,48 @@ def _worker(pre_gid, post_gid, output_dir):
         out_td.append(td)
         out_tp.append(tp)
 
-    np.savez_compressed(
-        output_file,
-        global_idx=np.array(out_global, dtype=np.int64),
-        theta_d=np.array(out_td, dtype=np.float32),
-        theta_p=np.array(out_tp, dtype=np.float32),
+    if not npz_done:
+        np.savez_compressed(
+            output_file,
+            global_idx=np.array(out_global, dtype=np.int64),
+            theta_d=np.array(out_td, dtype=np.float32),
+            theta_p=np.array(out_tp, dtype=np.float32),
+        )
+
+    # ── 7. Save threshold traces pkl for plastyfitting/cicr_common.py ────────
+    # cicr_common reintegrates effcai_GB from cai_CR at each candidate tau,
+    # so we must store the full cai_CR time-series (not just the scalar peaks).
+    if not traces_done:
+        os.makedirs(_traces_dir, exist_ok=True)
+        thresh_pkl = {
+            "pre_gid":  pre_gid,
+            "post_gid": post_gid,
+            "pre": {
+                "cai_CR": cai_cr_pre,    # {global_id: float32 array}
+                "t":      t_pre_array,   # float64 time vector at CAI_DT resolution
+            },
+            "post": {
+                "cai_CR": cai_cr_post,
+                "t":      t_post_array,
+            },
+        }
+        with open(traces_file, "wb") as fh:
+            pickle.dump(thresh_pkl, fh, protocol=-1)
+
+    return (
+        f"ok:{pre_gid}_{post_gid} n_syn={len(out_global)} "
+        f"Cpre_mean={np.mean(list(c_pre_map.values())):.4f} "
+        f"Cpost_mean={np.mean(list(c_post_map.values())):.4f} "
+        f"traces→{traces_file}"
     )
-    return f"ok:{pre_gid}_{post_gid} n_syn={len(out_global)} Cpre_mean={np.mean(list(c_pre_map.values())):.4f} Cpost_mean={np.mean(list(c_post_map.values())):.4f}"
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
+
+def _worker_unpack(pre_gid, post_gid, *, output_dir, traces_dir):
+    """Top-level wrapper so ProcessPoolExecutor can pickle it."""
+    return _worker(pre_gid, post_gid, output_dir, traces_dir=traces_dir)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Compute theta_d/theta_p for specific pairs")
@@ -308,6 +380,16 @@ def main():
     parser.add_argument("--single-pair", nargs=2, type=int, metavar=("PRE_GID", "POST_GID"),
                         help="Run worker directly for a single pair (no submitit)")
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--traces-dir", default=None,
+                        help="Directory for threshold-traces pkl files "
+                             "(default: same as --output-dir). "
+                             "Use e.g. /project/rrg-emuller/dhuruva/plastyfitting/"
+                             "trace_results/CHINDEMI_PARAMS/cpre_cpost_traces "
+                             "to match cicr_common.py's canonical lookup path.")
+    parser.add_argument("--workers", type=int, default=0,
+                        help="Number of local CPU workers (ProcessPoolExecutor). "
+                             "0 = use Slurm/submitit (default). "
+                             ">1 = run all pairs in parallel on this node.")
     parser.add_argument("--timeout-hours", type=float, default=1.0)
     parser.add_argument("--mem-gb", type=int, default=16)
     parser.add_argument("--slurm-account", default="ctb-emuller")
@@ -325,7 +407,7 @@ def main():
             logger.info(f"Already done: {pre_gid}_{post_gid}.npz — skipping")
             return
         logger.info(f"Running single pair: {pre_gid} -> {post_gid}")
-        _worker(pre_gid, post_gid, str(output_dir))
+        _worker(pre_gid, post_gid, str(output_dir), traces_dir=args.traces_dir)
         return
 
     if not args.pairs_file:
@@ -345,9 +427,33 @@ def main():
     logger.info(f"  {len(pairs)} pairs still to process")
 
     if args.dry_run:
-        logger.info(f"Dry run: would submit {len(pairs)} jobs. Exiting.")
+        logger.info(f"Dry run: would process {len(pairs)} pairs. Exiting.")
         return
 
+    # ── Local multi-core CPU mode ─────────────────────────────────────────────
+    if args.workers > 0:
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        import functools
+
+        worker_fn = functools.partial(
+            _worker_unpack, output_dir=str(output_dir), traces_dir=args.traces_dir
+        )
+        n = args.workers
+        logger.info(f"Running {len(pairs)} pairs on {n} local CPU workers …")
+        with ProcessPoolExecutor(max_workers=n) as pool:
+            futs = {pool.submit(worker_fn, pre, post): (pre, post)
+                    for pre, post in pairs}
+            for fut in as_completed(futs):
+                pre, post = futs[fut]
+                try:
+                    logger.info(fut.result())
+                except Exception as exc:
+                    logger.error(f"FAILED {pre}_{post}: {exc}")
+        logger.info("All local workers finished.")
+        logger.info(f"When done, run: python inject_thresholds.py --results-dir {output_dir}")
+        return
+
+    # ── Slurm / submitit mode ─────────────────────────────────────────────────
     import submitit
     log_folder = output_dir / "logs"
     log_folder.mkdir(exist_ok=True)
@@ -364,7 +470,8 @@ def main():
     jobs = []
     with executor.batch():
         for pre_gid, post_gid in pairs:
-            j = executor.submit(_worker, int(pre_gid), int(post_gid), str(output_dir))
+            j = executor.submit(_worker, int(pre_gid), int(post_gid),
+                                str(output_dir), args.traces_dir)
             jobs.append(j)
 
     logger.info(f"Submitted {len(jobs)} jobs. Monitor: squeue -u $USER")

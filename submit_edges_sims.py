@@ -38,6 +38,10 @@ PAIRRUNNER       = os.path.join(PLASTYFIRE_ROOT, "plastyfire", "pairrunner_edges
 DEFAULT_RESULTS  = os.path.join(PLASTYFIRE_ROOT, "refitting_results")
 DEFAULT_EDGES_H5 = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
 DEFAULT_TRACES_DIR = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results"
+DEFAULT_FITTED_TRACES_DIR  = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitted"
+DEFAULT_FITTED_BCL_DIR     = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitted"
+DEFAULT_FITTING2_TRACES_DIR = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitting2"
+DEFAULT_FITTING2_BCL_DIR    = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitting2"
 ACCOUNT          = "ctb-emuller"
 WALLTIME         = "01:00:00"
 
@@ -48,6 +52,36 @@ PARAM_PRESETS = {
         "tau_effca_GB_GluSynapse": 278.3177658387,
         "gamma_d_GB_GluSynapse":   101.5387594661,
         "gamma_p_GB_GluSynapse":   216.1841700668,
+        # chindemi uses theta_d/theta_p from edges.h5 (no a-params)
+    },
+    "fitted": {
+        # Best-fit parameters from JAX CICR optimization round 1 (loss = 0.000289)
+        "tau_effca_GB_GluSynapse": 200.4818,
+        "gamma_d_GB_GluSynapse":    60.6964,
+        "gamma_p_GB_GluSynapse":   178.2431,
+        # a-params: theta_d/theta_p computed per-synapse from c_pre/c_post
+        "a00": 0.7967, "a01": 1.1547,
+        "a10": 1.1382, "a11": 1.9027,
+        "a20": 2.2637, "a21": 7.0244,
+        "a30": 3.5947, "a31": 6.2696,
+    },
+    "ic_gen4": {
+        # Ion-channel optimizer gen-4 best (fitness=[0.123, 0.424])
+        # theta_d/theta_p are baked into dhuruva_modified_edges.h5 — no a-params needed here.
+        "tau_effca_GB_GluSynapse": 278.3177658387,
+        "gamma_d_GB_GluSynapse":   101.5,
+        "gamma_p_GB_GluSynapse":   199.773931,
+    },
+    "fitting2": {
+        # Best-fit parameters from JAX CICR optimization round 2 (differential_evolution, loss=0.0366)
+        "tau_effca_GB_GluSynapse": 308.0155,
+        "gamma_d_GB_GluSynapse":    76.1153,
+        "gamma_p_GB_GluSynapse":   181.0415,
+        # a-params: theta_d/theta_p computed per-synapse from c_pre/c_post
+        "a00": 1.0378, "a01": 1.2593,
+        "a10": 1.2523, "a11": 2.2936,
+        "a20": 1.9727, "a21": 8.3983,
+        "a30": 6.0229, "a31": 1.4087,
     },
 }
 
@@ -107,7 +141,9 @@ def find_workdirs(results_dir, freq):
             and os.path.isfile(os.path.join(d, "prefire_prespikes.h5"))]
 
 
-def build_runner_args(params_name, fastforward, edges_h5, traces_output_dir):
+def build_runner_args(params_name, fastforward, edges_h5, traces_output_dir,
+                      bluecellulab_output_dir=None, cpre_cpost_cache=None,
+                      circuit_config=None, bcl_subdir=None):
     parts = [f"--params {params_name}"]
     if fastforward is not None:
         parts.append(f"--fastforward {fastforward:.1f}")
@@ -115,10 +151,20 @@ def build_runner_args(params_name, fastforward, edges_h5, traces_output_dir):
         parts.append(f"--edges-h5 {edges_h5}")
     if traces_output_dir is not None:
         parts.append(f"--traces-output-dir {traces_output_dir}")
+    if bluecellulab_output_dir is not None:
+        parts.append(f"--bluecellulab-output-dir {bluecellulab_output_dir}")
+    if cpre_cpost_cache is not None:
+        parts.append(f"--cpre-cpost-cache {cpre_cpost_cache}")
+    if circuit_config is not None:
+        parts.append(f"--circuit-config {circuit_config}")
+    if bcl_subdir is not None:
+        parts.append(f"--bcl-subdir {bcl_subdir}")
     return " ".join(parts)
 
 
-def write_sbatch(workdir, params_name, fastforward, edges_h5, traces_output_dir):
+def write_sbatch(workdir, params_name, fastforward, edges_h5, traces_output_dir,
+                 bluecellulab_output_dir=None, cpre_cpost_cache=None,
+                 circuit_config=None, bcl_subdir=None):
     pair  = os.path.basename(os.path.dirname(workdir))
     freq  = os.path.basename(workdir)
     name  = f"edges_{freq}_{pair}"
@@ -129,7 +175,9 @@ def write_sbatch(workdir, params_name, fastforward, edges_h5, traces_output_dir)
         workdir=workdir,
         log_file=f"{name}.log",
         pairrunner=PAIRRUNNER,
-        runner_args=build_runner_args(params_name, fastforward, edges_h5, traces_output_dir),
+        runner_args=build_runner_args(params_name, fastforward, edges_h5,
+                                      traces_output_dir, bluecellulab_output_dir,
+                                      cpre_cpost_cache, circuit_config, bcl_subdir),
         plastyfire_root=PLASTYFIRE_ROOT,
     )
     script = os.path.join(workdir, "edges_sim.batch")
@@ -158,7 +206,7 @@ class _NoDaemonPool(multiprocessing.pool.Pool):
 
 def _cpu_worker(args):
     """Top-level function (picklable) for multiprocessing.Pool."""
-    workdir, fit_params, edges_h5, fastforward, traces_output_dir = args
+    workdir, fit_params, edges_h5, fastforward, traces_output_dir, bluecellulab_output_dir, cpre_cpost_cache, circuit_config, bcl_subdir = args
     import plastyfire.simulator_edges as sim_mod
     import pickle, os, logging
     logging.basicConfig(
@@ -174,6 +222,10 @@ def _cpu_worker(args):
             edges_h5=edges_h5,
             fastforward=fastforward,
             traces_output_dir=traces_output_dir,
+            bluecellulab_output_dir=bluecellulab_output_dir,
+            cpre_cpost_cache=cpre_cpost_cache,
+            circuit_config=circuit_config,
+            bcl_subdir=bcl_subdir,
         )
         out_path = os.path.join(workdir, "simulation_edges.pkl")
         with open(out_path, "wb") as f:
@@ -232,9 +284,46 @@ def main():
         ),
     )
     parser.add_argument(
+        "--bluecellulab-output-dir", default=None,
+        help=(
+            "If given, rho.h5 / rho_timeseries.npy are written to "
+            "<bluecellulab-output-dir>/<pair_name>/<protocol>/bluecellulab_results/ "
+            "instead of inside each workdir. Useful when running with a new param set "
+            "to avoid overwriting the baseline chindemi results. "
+            "For --params fitted the default is automatically set to "
+            f"{DEFAULT_FITTED_BCL_DIR}."
+        ),
+    )
+    parser.add_argument(
         "--skip-existing", action="store_true",
         help="Skip workdirs that already have both bluecellulab_results/rho.h5 "
              "and simulation_traces.pkl in the traces output dir",
+    )
+    parser.add_argument(
+        "--cpre-cpost-cache", default=None,
+        help=(
+            "Path to precomputed c_pre/c_post cache pkl "
+            "(generated by precompute_cpre_cpost.py). "
+            "When provided, mini-sims are skipped for cached pairs."
+        ),
+    )
+    parser.add_argument(
+        "--circuit-config", default=None,
+        help=(
+            "Override the 'network' field in each workdir's prefire_simulation_config.json "
+            "with this circuit config path (in-memory only — on-disk files are not changed). "
+            "When provided, --bcl-subdir defaults to bluecellulab_results_ion_channels "
+            "unless explicitly set."
+        ),
+    )
+    parser.add_argument(
+        "--bcl-subdir", default=None,
+        help=(
+            "Output subdirectory name for rho.h5 / rho_timeseries.npy inside each workdir "
+            "(or bluecellulab-output-dir). Default: bluecellulab_results. "
+            "Automatically set to bluecellulab_results_ion_channels when --circuit-config "
+            "is provided and this flag is not explicitly given."
+        ),
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -244,6 +333,26 @@ def main():
     args = parser.parse_args()
 
     traces_output_dir = None if args.traces_output_dir.lower() == "none" else args.traces_output_dir
+    bluecellulab_output_dir = args.bluecellulab_output_dir
+    circuit_config = args.circuit_config
+    bcl_subdir = args.bcl_subdir
+
+    # When a custom circuit config is provided, default the output subdir to a dedicated
+    # name so existing bluecellulab_results/ outputs are not overwritten.
+    if circuit_config is not None and bcl_subdir is None:
+        bcl_subdir = "bluecellulab_results_ion_channels"
+
+    # For the "fitted"/"fitting2" presets, auto-route outputs to dedicated dirs if not explicitly set.
+    if args.params == "fitted":
+        if traces_output_dir == DEFAULT_TRACES_DIR:
+            traces_output_dir = DEFAULT_FITTED_TRACES_DIR
+        if bluecellulab_output_dir is None:
+            bluecellulab_output_dir = DEFAULT_FITTED_BCL_DIR
+    elif args.params == "fitting2":
+        if traces_output_dir == DEFAULT_TRACES_DIR:
+            traces_output_dir = DEFAULT_FITTING2_TRACES_DIR
+        if bluecellulab_output_dir is None:
+            bluecellulab_output_dir = DEFAULT_FITTING2_BCL_DIR
 
     workdirs = find_workdirs(args.results_dir, args.freq)
     if not workdirs:
@@ -255,10 +364,15 @@ def main():
     if args.skip_existing:
         before = len(workdirs)
         def _is_done(d):
-            has_rho = os.path.isfile(os.path.join(d, "bluecellulab_results", "rho.h5"))
+            pair  = os.path.basename(os.path.dirname(d))
+            proto = os.path.basename(d)
+            if bluecellulab_output_dir is not None:
+                has_rho = os.path.isfile(
+                    os.path.join(bluecellulab_output_dir, pair, proto, "bluecellulab_results", "rho.h5")
+                )
+            else:
+                has_rho = os.path.isfile(os.path.join(d, "bluecellulab_results", "rho.h5"))
             if traces_output_dir is not None:
-                pair = os.path.basename(os.path.dirname(d))
-                proto = os.path.basename(d)
                 has_traces = os.path.isfile(
                     os.path.join(traces_output_dir, pair, proto, "simulation_traces.pkl")
                 )
@@ -277,7 +391,10 @@ def main():
     if args.execution_mode == "slurm":
         submitted = failed = 0
         for workdir in workdirs:
-            script = write_sbatch(workdir, args.params, args.fastforward, args.edges_h5, traces_output_dir)
+            script = write_sbatch(workdir, args.params, args.fastforward, args.edges_h5,
+                                  traces_output_dir, bluecellulab_output_dir,
+                                  cpre_cpost_cache=args.cpre_cpost_cache,
+                                  circuit_config=circuit_config, bcl_subdir=bcl_subdir)
             if args.dry_run:
                 print(f"sbatch {script}")
                 submitted += 1
@@ -294,7 +411,9 @@ def main():
     else:  # cpu
         fit_params = dict(PARAM_PRESETS[args.params]) if args.params else {}
         worker_args = [
-            (workdir, fit_params, args.edges_h5, args.fastforward, traces_output_dir)
+            (workdir, fit_params, args.edges_h5, args.fastforward,
+             traces_output_dir, bluecellulab_output_dir, args.cpre_cpost_cache,
+             circuit_config, bcl_subdir)
             for workdir in workdirs
         ]
 

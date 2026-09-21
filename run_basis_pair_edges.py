@@ -47,7 +47,7 @@ SPIKE_THR_MV    = -30.0
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _strip_synapse_reports(sim_config_path):
+def _strip_synapse_reports(sim_config_path, circuit_config=None):
     """
     Write a temp copy of the config with:
     - synapse-type reports removed (bluecellulab doesn't support them)
@@ -56,6 +56,7 @@ def _strip_synapse_reports(sim_config_path):
       a HOC global during __init__, before any .mod files are compiled/loaded.
       We set all synapse parameters manually after instantiate_gids, so nothing
       is lost.
+    - network overridden if circuit_config is provided (for new ion channels)
     """
     with open(sim_config_path) as f:
         cfg = json.load(f)
@@ -67,9 +68,11 @@ def _strip_synapse_reports(sim_config_path):
         cfg["conditions"].pop("mechanisms", None)
     except (KeyError, AttributeError):
         pass
+    if circuit_config is not None:
+        cfg["network"] = os.path.abspath(circuit_config)
     tmp = tempfile.NamedTemporaryFile(
         mode="w", suffix=".json",
-        dir=os.path.dirname(sim_config_path), delete=False,
+        dir=tempfile.gettempdir(), delete=False,
     )
     json.dump(cfg, tmp)
     tmp.close()
@@ -120,7 +123,7 @@ def _generate_configs(n):
 # ---------------------------------------------------------------------------
 
 def _run_trial(args):
-    sim_config_eff, pre_gid, post_gid, rho_config_str, trial = args
+    sim_config_eff, sim_config_orig, pre_gid, post_gid, rho_config_str, trial = args
     try:
         import bluecellulab
         from libsonata import SpikeReader
@@ -130,7 +133,7 @@ def _run_trial(args):
         np.random.seed(trial)
         sim = bluecellulab.CircuitSimulation(sim_config_eff, base_seed=trial)
 
-        workdir    = os.path.dirname(sim_config_eff)
+        workdir    = os.path.dirname(os.path.abspath(sim_config_orig))
         pre_spikes = SpikeReader(os.path.join(workdir, "prespikes.h5"))[NODE_POP].get_dict()["timestamps"]
 
         sim.instantiate_gids(
@@ -209,13 +212,15 @@ def main():
     parser.add_argument("--output-csv",  required=True)
     parser.add_argument("--num-trials",  type=int, default=5)
     parser.add_argument("--workers",     type=int, default=None)
+    parser.add_argument("--circuit-config", default=None,
+                        help="Override the 'network' field in sim_config (e.g. for new ion channels)")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    sim_config_eff = _strip_synapse_reports(args.sim_config)
+    sim_config_eff = _strip_synapse_reports(args.sim_config, circuit_config=args.circuit_config)
     try:
         n_syn = _count_synapses(sim_config_eff, args.pre_gid, args.post_gid)
         if n_syn == 0:
@@ -228,7 +233,7 @@ def main():
                     len(configs), args.num_trials, len(configs) * args.num_trials)
 
         tasks = [
-            (sim_config_eff, args.pre_gid, args.post_gid, cfg, trial)
+            (sim_config_eff, args.sim_config, args.pre_gid, args.post_gid, cfg, trial)
             for cfg in configs
             for trial in range(args.num_trials)
         ]
@@ -238,6 +243,15 @@ def main():
             results = pool.map(_run_trial, tasks)
 
         df = pd.DataFrame(results, columns=["config", "trial", "epsp"])
+
+        n_total = len(df)
+        n_nan   = df["epsp"].isna().sum()
+        if n_nan > 0:
+            logger.warning("%d/%d trials returned NaN EPSP", n_nan, n_total)
+        if n_nan == n_total:
+            logger.error("All trials failed (all NaN) — not writing CSV. Check errors above.")
+            raise SystemExit(1)
+
         stats = (df.groupby("config")["epsp"]
                    .agg(["mean", "std", "count"])
                    .reset_index())

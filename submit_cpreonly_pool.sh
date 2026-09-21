@@ -1,0 +1,60 @@
+#!/bin/bash
+# One Slurm job running all 700 c_pre-only BCL STDP sims in a 60-way process pool.
+#
+# c_pre-only method: theta_d = a00*c_pre, theta_p = a10*c_pre, with the c_post
+# coefficients pinned to zero. Four free params (a00, a10, gamma_d, gamma_p)
+# instead of six. Params + provenance live in run_de_fit2_pool.py::CPRE_ONLY_ARGS.
+#
+#   a00 = 1.004709  a10 = 1.977768  gamma_d = 84.3845  gamma_p = 186.5408
+#   param hash bdbf06f915d0  ->  simulation_edges_bdbf06f915d0.pkl per workdir
+#
+# Does NOT touch the DE fit #2 results (hash b8c7ff3ecf0a) — different filename.
+#
+# Sizing is the measured DE-fit-2 envelope, unchanged:
+#   elapsed  : ~1m10s typical, 16m55s max (cache-miss pairs do a live threshold search)
+#   MaxRSS   : 4.0 GB peak per simulation  => 60 * 4 GB = 240 GB (one Narval node)
+#   walltime : 700 / 60 * ~1.2 min ~= 15 min; 2h leaves room for the slow tail.
+#
+# bluecellulab computes theta at runtime from the c_pre/c_post cache + the
+# a-params, so edges.h5 theta_d/theta_p are NOT read on this path and no
+# threshold injection is needed here.
+#
+# Usage:  sbatch submit_cpreonly_pool.sh
+#         sbatch submit_cpreonly_pool.sh --skip-existing
+
+#SBATCH --job-name=cpreonly_pool
+#SBATCH --account=ctb-emuller
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=60
+#SBATCH --mem=240G
+#SBATCH --time=02:00:00
+#SBATCH --chdir=/lustre06/project/6077694/dhuruva/plastyfire
+#SBATCH --output=/lustre06/project/6077694/dhuruva/plastyfire/cpreonly_pool_%j.log
+
+unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
+unset LIBRARY_PATH JPKGDIR NEURODAMUS_DIR HOC_LIBRARY_PATH
+hash -r
+
+module --force purge
+module load StdEnv/2023 scipy-stack/2024a gcc/12.3 openmpi/4.1.5 \
+    hdf5-mpi/1.14.2 cmake/3.31.0 mpi4py/4.0.3 python/3.11.5
+
+export JPKGDIR=/project/def-emuller/opt/jupyterhub-pkgs/build-07.04.2026-py311
+export PYTHONPATH=/cvmfs/soft.computecanada.ca/easybuild/python/site-packages
+export PYTHONPATH=$PYTHONPATH:/cvmfs/soft.computecanada.ca/custom/python/site-packages
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python
+export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/neurodamus/core/hoc
+export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
+export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
+export LD_LIBRARY_PATH=$JPKGDIR/lib
+export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
+export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+
+# NEURON/numpy must not each grab all 60 cores — the pool provides the parallelism.
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+
+python run_de_fit2_pool.py --cpre-only --workers 60 "$@"

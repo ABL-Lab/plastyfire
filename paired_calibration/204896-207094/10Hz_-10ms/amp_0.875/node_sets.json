@@ -1,0 +1,21 @@
+{
+    "precell": {
+        "node_id": [
+            204896
+        ],
+        "population": "S1nonbarrel_neurons"
+    },
+    "postcell": {
+        "node_id": [
+            207094
+        ],
+        "population": "S1nonbarrel_neurons"
+    },
+    "paircells": {
+        "node_id": [
+            204896,
+            207094
+        ],
+        "population": "S1nonbarrel_neurons"
+    }
+}

@@ -69,20 +69,53 @@ def _read_rho_h5(rho_h5_path, sort_by_element_id=False):
     return initial, final, n_0to1, n_0to0, n_1to1, n_1to0
 
 
+def _read_pkl_rho(pkl_path):
+    """Read initial/final rho from a simulation_edges pkl, thresholding at 0.5."""
+    with open(pkl_path, "rb") as f:
+        r = pickle.load(f)
+    initial = [1 if v >= 0.5 else 0 for v in r["initial_rho"]]
+    final   = [1 if v >= 0.5 else 0 for v in r["final_rho"]]
+    n_0to1 = sum(1 for i, f_ in zip(initial, final) if i == 0 and f_ == 1)
+    n_0to0 = sum(1 for i, f_ in zip(initial, final) if i == 0 and f_ == 0)
+    n_1to1 = sum(1 for i, f_ in zip(initial, final) if i == 1 and f_ == 1)
+    n_1to0 = sum(1 for i, f_ in zip(initial, final) if i == 1 and f_ == 0)
+    return initial, final, n_0to1, n_0to0, n_1to1, n_1to0
+
+
 def _process_single_sim(args):
-    sim_dir, pre_gid, post_gid, dt_ms, basis_path, rho_subdir = args
-    rho_h5 = os.path.join(sim_dir, rho_subdir, "rho.h5")
-    if not os.path.exists(rho_h5):
-        return None
-    # ND element_ids are local synapse IDs (non-sequential); sort ascending to match
-    # the basis CSV positions (BCL iterates in ascending local synapse ID order).
-    # BCL element_ids are global circuit IDs — data is already in BCL iteration order.
-    sort_elements = (rho_subdir == "out")
-    try:
-        initial_rho, final_rho, n_0to1, n_0to0, n_1to1, n_1to0 = _read_rho_h5(rho_h5, sort_by_element_id=sort_elements)
-    except Exception as e:
-        print(f"Read error {pre_gid}-{post_gid} dt={dt_ms}: {e}")
-        return None
+    sim_dir, pre_gid, post_gid, dt_ms, basis_path, rho_subdir, bcl_pkl_hash = args
+    is_nd = rho_subdir.startswith("out")
+    if is_nd:
+        rho_h5 = os.path.join(sim_dir, rho_subdir, "rho.h5")
+        if not os.path.exists(rho_h5):
+            return None
+        # ND element_ids are local synapse IDs (non-sequential); sort ascending to match
+        # the basis CSV positions (BCL iterates in ascending local synapse ID order).
+        try:
+            initial_rho, final_rho, n_0to1, n_0to0, n_1to1, n_1to0 = _read_rho_h5(rho_h5, sort_by_element_id=True)
+        except Exception as e:
+            print(f"Read error {pre_gid}-{post_gid} dt={dt_ms}: {e}")
+            return None
+    else:
+        # BCL: read from hash-based pkl (preferred) or fall back to rho.h5
+        pkl_name = f"simulation_edges_{bcl_pkl_hash}.pkl" if bcl_pkl_hash else "simulation_edges.pkl"
+        pkl_path = os.path.join(sim_dir, pkl_name)
+        if not os.path.exists(pkl_path):
+            # Fall back to rho.h5 if pkl not found
+            rho_h5 = os.path.join(sim_dir, rho_subdir, "rho.h5")
+            if not os.path.exists(rho_h5):
+                return None
+            try:
+                initial_rho, final_rho, n_0to1, n_0to0, n_1to1, n_1to0 = _read_rho_h5(rho_h5, sort_by_element_id=False)
+            except Exception as e:
+                print(f"Read error {pre_gid}-{post_gid} dt={dt_ms}: {e}")
+                return None
+        else:
+            try:
+                initial_rho, final_rho, n_0to1, n_0to0, n_1to1, n_1to0 = _read_pkl_rho(pkl_path)
+            except Exception as e:
+                print(f"Read error {pre_gid}-{post_gid} dt={dt_ms}: {e}")
+                return None
     try:
         res = fetch_epsp_ratio(
             pre_gid, post_gid,
@@ -107,15 +140,23 @@ def _process_single_sim(args):
     }
 
 
-def collect_jobs(results_dir, basis_dir, rho_subdir, freq=10):
+def collect_jobs(results_dir, basis_dir, rho_subdir, freq=10, bcl_pkl_hash=None):
     jobs = []
+    is_nd = rho_subdir.startswith("out")
     sim_dirs = glob.glob(
         os.path.join(results_dir, "fitting", "*", "seed*", "*_STDP",
                      "simulations", "*-*", f"{int(freq)}Hz_*")
     )
     for sim_dir in sorted(sim_dirs):
-        if not os.path.exists(os.path.join(sim_dir, rho_subdir, "rho.h5")):
-            continue
+        if is_nd:
+            if not os.path.exists(os.path.join(sim_dir, rho_subdir, "rho.h5")):
+                continue
+        else:
+            pkl_name = f"simulation_edges_{bcl_pkl_hash}.pkl" if bcl_pkl_hash else "simulation_edges.pkl"
+            has_pkl = os.path.exists(os.path.join(sim_dir, pkl_name))
+            has_rho = os.path.exists(os.path.join(sim_dir, rho_subdir, "rho.h5"))
+            if not has_pkl and not has_rho:
+                continue
         pair_name = os.path.basename(os.path.dirname(sim_dir))
         freq_dt   = os.path.basename(sim_dir)
         try:
@@ -131,14 +172,14 @@ def collect_jobs(results_dir, basis_dir, rho_subdir, freq=10):
         if basis_path is None:
             print(f"No basis for {pair_name}, skipping.")
             continue
-        jobs.append((sim_dir, pre_gid, post_gid, dt_ms, basis_path, rho_subdir))
+        jobs.append((sim_dir, pre_gid, post_gid, dt_ms, basis_path, rho_subdir, bcl_pkl_hash))
     return jobs
 
 
-def process_results(results_dir, basis_dir, rho_subdir, freq=10, n_workers=None):
-    jobs = collect_jobs(results_dir, basis_dir, rho_subdir, freq=freq)
+def process_results(results_dir, basis_dir, rho_subdir, freq=10, n_workers=None, bcl_pkl_hash=None):
+    jobs = collect_jobs(results_dir, basis_dir, rho_subdir, freq=freq, bcl_pkl_hash=bcl_pkl_hash)
     if not jobs:
-        print(f"No rho.h5 found under '{rho_subdir}/' (freq={freq} Hz)")
+        print(f"No data found for '{rho_subdir}/' (freq={freq} Hz)")
         return pd.DataFrame()
     n_workers = n_workers or multiprocessing.cpu_count()
     print(f"  [{rho_subdir}] {len(jobs)} sims, {n_workers} workers...")
@@ -352,7 +393,7 @@ def _trace_worker(args):
         return None
 
 
-def generate_trace_figures(results_dir, figs_dir, freq=10, n_workers=None):
+def generate_trace_figures(results_dir, figs_dir, freq=10, n_workers=None, nd_subdir="out"):
     """Generate per-workdir trace figures for all pairs with both simulators done."""
     freq_str = f"{int(freq)}Hz"
     pattern  = os.path.join(results_dir, "fitting", "*", "seed*", "*_STDP",
@@ -361,7 +402,7 @@ def generate_trace_figures(results_dir, figs_dir, freq=10, n_workers=None):
 
     # Keep only dirs that have at least one of neurodamus or bluecellulab results
     valid = [d for d in workdirs
-             if os.path.exists(os.path.join(d, "out", "rho.h5")) or
+             if os.path.exists(os.path.join(d, nd_subdir, "rho.h5")) or
                 os.path.exists(os.path.join(d, "simulation_edges.pkl"))]
     print(f"Found {len(valid)} workdirs with at least one simulator result.")
 
@@ -403,6 +444,25 @@ def main():
                         help="Output directory for per-pair trace figures (default: neurodamus_bluecellulab_figures/ next to --results-dir)")
     parser.add_argument("--no-stdp-curve", action="store_true",
                         help="Skip the STDP summary curve (useful with --trace-figs only)")
+    parser.add_argument("--nd-subdir", default="out",
+                        help=(
+                            "Subdirectory inside each workdir where neurodamus rho.h5 "
+                            "is expected. Default: out. Use out_ic for ion-channels runs."
+                        ))
+    parser.add_argument("--bcl-subdir", default="bluecellulab_results",
+                        help=(
+                            "Subdirectory name inside each workdir where bluecellulab rho.h5 "
+                            "is expected. Default: bluecellulab_results. Use "
+                            "bluecellulab_results_ion_channels (or whatever --bcl-subdir was "
+                            "passed to submit_edges_sims.py) to read ion-channels results."
+                        ))
+    parser.add_argument("--bcl-pkl-hash", default=None,
+                        help=(
+                            "If given, read the BCL panel from simulation_edges_{hash}.pkl "
+                            "in each workdir instead of from rho.h5. Use the param hash from "
+                            "the BCL run (e.g. 0ce64fa83b85 for IC gen-4 best). "
+                            "Falls back to rho.h5 if the pkl is not found for a given workdir."
+                        ))
     args = parser.parse_args()
 
     output = args.output or f"stdp_compare_{int(args.freq)}Hz.png"
@@ -420,7 +480,8 @@ def main():
     if args.trace_figs:
         print(f"\n--- Generating per-pair trace figures → {figs_dir} ---")
         generate_trace_figures(args.results_dir, figs_dir,
-                               freq=args.freq, n_workers=args.workers)
+                               freq=args.freq, n_workers=args.workers,
+                               nd_subdir=args.nd_subdir)
 
     # Always plot one example pair trace alongside the STDP curve
     example_pair = "180164-197248"
@@ -436,13 +497,17 @@ def main():
             print(f"Saved trace figure: {saved}")
 
     if not args.no_stdp_curve:
-        print("\n--- Neurodamus (out/) ---")
+        print(f"\n--- Neurodamus ({args.nd_subdir}/) ---")
         df_ndamus = process_results(args.results_dir, args.basis_dir,
-                                    "out", args.freq, args.workers)
+                                    args.nd_subdir, args.freq, args.workers)
 
-        print("\n--- Bluecellulab (bluecellulab_results/) ---")
+        bcl_label = args.bcl_subdir
+        if args.bcl_pkl_hash:
+            bcl_label += f" [pkl:{args.bcl_pkl_hash}]"
+        print(f"\n--- Bluecellulab ({bcl_label}) ---")
         df_bcl = process_results(args.results_dir, args.basis_dir,
-                                 "bluecellulab_results", args.freq, args.workers)
+                                 args.bcl_subdir, args.freq, args.workers,
+                                 bcl_pkl_hash=args.bcl_pkl_hash)
 
         if args.csv_ndamus and not df_ndamus.empty:
             df_ndamus.to_csv(args.csv_ndamus, index=False)
