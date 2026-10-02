@@ -8,7 +8,6 @@ Env:
   FIT     csv prefix with predictions for all targets, e.g. s1C_s_val (reads FIT.csv, FIT_l23.csv, FIT_l23l23.csv)
   FITLBL  legend label for FIT (default FIT)
   STAGE   1, 2 or 3: which core targets were fitted (7, 11 or 18; default 1)
-  REF     optional reference prefix, drawn as grey squares; REFLBL its label
   OUT     output path without extension (default glusynapse_v2/figs/stage_fits/stage<STAGE>/<FIT>)
 MEASURED 22286465: 3 plots 0:15 elapsed, 241 MB MaxRSS; request 300M 0:15:00, 1 CPU.
 """
@@ -22,11 +21,8 @@ HERE = "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/rho_redesign"
 FIT = os.environ["FIT"]
 FITLBL = os.environ.get("FITLBL", FIT)
 STAGE = int(os.environ.get("STAGE", "1"))
-REF = os.environ.get("REF", "")
-REFLBL = os.environ.get("REFLBL", REF)
 OUT = os.environ.get("OUT", f"/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/figs/stage_fits/stage{STAGE}/{FIT}")
 PATHS = [("", "L5→L5", "#4c78a8"), ("_l23", "L2/3→L5", "#e45756"), ("_l23l23", "L2/3→L2/3", "#54a24b")]
-CREF = "0.55"
 
 # CORE_TARGETS.md, in order; stage 1 = first 7, stage 2 = first 11, stage 3 = all 18
 CORE = ["10Hz_10ms|control", "10Hz_-10ms|control", "sjostrom_0.1hz_dt+10ms|control", "sjostrom_0.1hz_dt-10ms|control",
@@ -58,7 +54,6 @@ def short(k):
 
 
 fit = {suf: load(FIT, suf) for suf, _, _ in PATHS}
-ref = {suf: load(REF, suf).set_index("key") for suf, _, _ in PATHS} if REF else None
 
 
 def sums(d):
@@ -71,10 +66,6 @@ def panel(ax, suf, label, color):
     cf, cv, nf, nv = sums(d)
     ax.errorbar(x, d.target_mean, yerr=d.target_sem, fmt="_", color="k", ms=10, capsize=2.5, lw=1.2, zorder=3,
                 label="data (mean ± SEM)")
-    if ref is not None:
-        r = ref[suf]
-        ax.plot(x + 0.18, r.loc[d.key, "pred"].values, marker="s", color=CREF, ls="none", ms=4, alpha=0.8, zorder=2,
-                label=REFLBL)
     ax.plot(x[d.fitted], d.pred[d.fitted], marker="o", color=color, ls="none", ms=6, zorder=4, label=None if nf == 0 else
             f"{FITLBL}, fitted (χ² {cf:.1f}, n {nf})")
     ax.plot(x[~d.fitted], d.pred[~d.fitted], marker="o", mfc="white", mec=color, mew=1.4, ls="none", ms=5.5,
