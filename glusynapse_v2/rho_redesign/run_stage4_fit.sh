@@ -31,8 +31,8 @@
 #           n,sem,se_pair,ratio,factor). Pure awk.
 # Env: KERNEL (default RS/gpu_v10_rho.py; 3V/3W/4V force gpu_v11), DEMOTE (1), FIXANC (1), MW (Markram +10 weight, 2.0),
 #      POP (15), MAXITER (600, total generations: phase A = MAXITER - MAXB), MAXB (150), SIGMA (0.1), A00 (1.2; 0 = no
-#      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need SPEC_FITPROC.md
-#      part 2; left unset they add no flag, so this driver runs on the current fit_v6).
+#      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need FITTER=fit_v7,
+#      run via fit_launch.py; left unset they add no flag and the kernel uses fit_v6).
 # Name: f<MODEL>[m<MW>][d][a][g<SIGMA>][e][h]_<START>; e.g. f4Nda_s5. Phase A outputs in /scratch/dhuruva/stage4.
 # Sizing (MEASURED, stage 3 at popsize 8 / maxiter 300): fits 8.6-27 min, 19.5-72.9 GB; val 70.4 GB 11:15 -> 88G 0:30.
 #   Popsize 15 / 600 generations / two builds is about 4x the DE work: pilot the smoke test (POP 15, MAXITER 5, MAXB 2)
@@ -180,12 +180,13 @@ fi
 if [ "$DEMOTE" = 1 ]; then   # data conflicts under a uniform synapse-local rule (HARD_TARGETS.md), user 2026-10-02
   DEMOTED='l23l23/zilberter_1ap_dt+10ms|control,l23l23/zilberter_1ap_dt-10ms|control,l23l23/zilberter_train10_50hz_dt-10ms_last|mglu_block,l5/sjostrom_10hz_dt-10ms|control'
   for k in ${DEMOTED//,/ }; do
-    case ",$DROP,$DROP23,$DROP2323," in *",$k,"*) ;; *) case $k in l5/*) DROP=${DROP:+$DROP,}$k ;; l23l23/*) DROP2323=${DROP2323:+$DROP2323,}$k ;; esac; NT=$((NT - 1)) ;; esac
+    case ",$DROP,$DROP23,$DROP2323," in *",$k,"*) ;; *) case $k in l5/*) DROP=${DROP:+$DROP,}$k ;; l23l23/*) DROP2323=${DROP2323:+$DROP2323,}$k ;; esac ;; esac
     e=$(printf "%s" "$k" | sed "s/[][\\.*^$+?(){}|#]/\\\\&/g"); WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#, *\"$e\": *[0-9.]+##; s#\"$e\": *[0-9.]+, *##")
   done
 fi
 DROPS=$(printf '%s\n' "$DROP" "$DROP23" "$DROP2323" | sed '/^$/d' | paste -sd,)
-echo "kept $NT core targets (stage-3 count convention); dropped l5 $(echo $DROP | tr ',' '\n' | sed '/^$/d' | wc -l), l23 $(echo $DROP23 | tr ',' '\n' | sed '/^$/d' | wc -l), l23l23 $(echo $DROP2323 | tr ',' '\n' | sed '/^$/d' | wc -l)"
+cnt() { echo "$1" | tr ',' '\n' | sed '/^$/d' | wc -l; }; N5=$(( $(wc -l < $RS/r1D_s.csv) - 1 - $(cnt "$DROP") )); N23=$(( $(wc -l < $RS/s1C_s_val_l23.csv) - 1 - $(cnt "$DROP23") )); N2323=$(( $(wc -l < $RS/s1C_s_val_l23l23.csv) - 1 - $(cnt "$DROP2323") ))
+echo "kept core targets: l5 $N5, l23 $N23, l23l23 $N2323 (total $((N5 + N23 + N2323))); dropped l5 $(cnt "$DROP"), l23 $(cnt "$DROP23"), l23l23 $(cnt "$DROP2323")"
 [ -n "${MW:-}" ] && WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#\"l5/10Hz_10ms\|control\": *[0-9.]+#\"l5/10Hz_10ms|control\": $MW#")
 if [ -n "${SEPAIR:-}" ]; then   # fix 6: w *= SEM^2 / (SEM^2 + SE_pair^2) for every target with an SE (key = NAME/target|cond)
   [ -s "$SEPAIR" ] || { echo "missing SEPAIR $SEPAIR"; exit 2; }

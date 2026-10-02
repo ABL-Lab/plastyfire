@@ -99,12 +99,13 @@ else
     # Data conflicts under a uniform synapse-local rule (HARD_TARGETS.md), moved to validation by the user 2026-10-02.
     DEMOTED='l23l23/zilberter_1ap_dt+10ms|control,l23l23/zilberter_1ap_dt-10ms|control,l23l23/zilberter_train10_50hz_dt-10ms_last|mglu_block,l5/sjostrom_10hz_dt-10ms|control'
     for k in ${DEMOTED//,/ }; do
-      case ",$DROP,$DROP23,$DROP2323," in *",$k,"*) ;; *) case $k in l5/*) DROP=${DROP:+$DROP,}$k ;; l23l23/*) DROP2323=${DROP2323:+$DROP2323,}$k ;; esac; NT=$((NT - 1)) ;; esac
+      case ",$DROP,$DROP23,$DROP2323," in *",$k,"*) ;; *) case $k in l5/*) DROP=${DROP:+$DROP,}$k ;; l23l23/*) DROP2323=${DROP2323:+$DROP2323,}$k ;; esac ;; esac
       e=$(printf "%s" "$k" | sed "s/[][\\.*^$+?(){}|#]/\\\\&/g"); WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#, *\"$e\": *[0-9.]+##; s#\"$e\": *[0-9.]+, *##")
     done
   fi
   DROPS=$(printf '%s\n' "$DROP" "$DROP23" "$DROP2323" | sed '/^$/d' | paste -sd,)
-  echo "kept $NT core targets; dropped l5 $(echo $DROP | tr ',' '\n' | wc -l), l23 $(echo $DROP23 | tr ',' '\n' | wc -l), l23l23 $(echo $DROP2323 | tr ',' '\n' | wc -l)"
+  cnt() { echo "$1" | tr ',' '\n' | sed '/^$/d' | wc -l; }; N5=$(( $(wc -l < $RS/r1D_s.csv) - 1 - $(cnt "$DROP") )); N23=$(( $(wc -l < $RS/s1C_s_val_l23.csv) - 1 - $(cnt "$DROP23") )); N2323=$(( $(wc -l < $RS/s1C_s_val_l23l23.csv) - 1 - $(cnt "$DROP2323") ))
+  echo "kept core targets: l5 $N5, l23 $N23, l23l23 $N2323 (total $((N5 + N23 + N2323))); dropped l5 $(cnt "$DROP"), l23 $(cnt "$DROP23"), l23l23 $(cnt "$DROP2323")"
   [ -n "${MW:-}" ] && WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#\"l5/10Hz_10ms\|control\": *[0-9.]+#\"l5/10Hz_10ms|control\": $MW#")
   echo "weights $WEIGHTS"
   ARGS=(--free-filters "$FREE" --set "$SET" --fit-gamma --drop-targets "$DROPT,$DROPS" "${EXTRA[@]}" --weights "$WEIGHTS" --maxiter 300 --save $OUT)
