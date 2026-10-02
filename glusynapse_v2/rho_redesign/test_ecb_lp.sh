@@ -1,5 +1,5 @@
 #!/bin/bash
-# MEASURED <jobid> <elapsed> <MaxRSS GB> (fill in from seff after the run; then resize the next run: MaxRSS + 25%, elapsed + 50%).
+# MEASURED 22306937: 15:07, 33.4 GB MaxRSS (REPRO + 7 L5 rescores), so a rerun is 42G 0:30:00 on -g.
 # Tests of the eCB LP mode in gpu_v11_rho.py (ecb_lp_mode, SPEC_ECB_LP.md). L5 model only, fixed parameters (--maxiter 0).
 # Usage (from plastyfire/, via sjob.sh -g):  bash glusynapse_v2/rho_redesign/test_ecb_lp.sh
 #   1. repro  test_v11.sh core "a": v11 at defaults on the 7 L5 cores, seed s1C_s.json; must match s1C_s.csv to 1e-6 (REPRO11 OK).
