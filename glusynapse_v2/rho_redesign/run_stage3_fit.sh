@@ -1,6 +1,7 @@
 #!/bin/bash
 # Stage 3 (STAGE3_DESIGN.md sections 2-3): 20 core targets on L5 (10), L2/3->L5 (4), L2/3->L2/3 (6); 3N adds sjostrom07_step200ms_pair|no_block (21).
 # MEASURED 22291778-83 (3C s/u, 3N s, 20 cores): fits 8.6-11.7 min, 19.5-26.9 GB; vals 7.7-11.3 min, 49.4-70.4 GB (peak 70.4), so val now 88G 0:30:00 (84G was under +25%).
+# MEASURED 22300522-27 (MW 8): fits 20.5-28.7 min, 48.8-51.3 GB; vals 7.3-9.9 min, peak 72.9 GB, so val now 92G 0:30:00.
 # MEASURED 22291785/86 (WL23 fits, 30 targets): 17.5-18.4 min, MaxRSS 66.0 GB (at the 63G limit), so fits now 83G 0:30:00.
 # MEASURED all-pathway fit 22289873/74 (S1C rule, 30 targets): 16.5-17 min, 50.1-50.4 GB, so fits 63G 0:30:00.
 # Based on run_stage_fit.sh (inputs, FILTERS, val branch) and run_s1c_l23fit.sh (--extra specs). Usage (from plastyfire/, via sjob.sh -g):

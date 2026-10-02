@@ -34,6 +34,7 @@
 #      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need FITTER=fit_v7,
 #      run via fit_launch.py; left unset they add no flag and the kernel uses fit_v6).
 # Name: f<MODEL>[m<MW>][d][a][g<SIGMA>][e][h]_<START>; e.g. f4Nda_s5. Phase A outputs in /scratch/dhuruva/stage4.
+# MEASURED 22307548 smoke 4N s5 (POP 15, 5+2 gen): 18:14, 57.7 GB, generation ~1.3 s (setup dominates); 600 gen adds ~13 min, so a fit is ~35 min -> 73G 1:00:00. LOPO: L5 unit 22307549 2:31 29.4 GB -> 37G 0:15; L2/3->L5 unit 22307550 5:00 38.2 GB -> 48G 0:15.
 # Sizing (MEASURED, stage 3 at popsize 8 / maxiter 300): fits 8.6-27 min, 19.5-72.9 GB; val 70.4 GB 11:15 -> 88G 0:30.
 #   Popsize 15 / 600 generations / two builds is about 4x the DE work: pilot the smoke test (POP 15, MAXITER 5, MAXB 2)
 #   before sizing the census. LOPO L5-only rescores: MEASURED 22292757 3 rescores 7:31 37.6 GB -> 47G 0:15 each;
