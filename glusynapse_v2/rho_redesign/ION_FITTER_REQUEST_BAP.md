@@ -117,5 +117,6 @@ Keep the current L2/3 somatic features within their present scores.
 
 **Downstream cost.** The L2/3->L2/3 chain is ~71 CPU-h on our side.
 
-## Still open (not in this request)
-- An age-matched (3-6 week) cell for Letzkus. Letzkus' cells have Rin 21 MOhm, against 142-191 MOhm for the juvenile cells. Tell us whether your pipeline can produce an older-age variant, but don't build it yet.
+## Not requested
+- No age-matched (older) emodel: the user ruled out changing the emodel age (2026-10-02).
+- No apical Ca hotspot zone (user, confirmed 2026-10-02).
