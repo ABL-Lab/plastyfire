@@ -1,5 +1,6 @@
 #!/bin/bash
 # Stage 3 (STAGE3_DESIGN.md sections 2-3): 20 core targets on L5 (10), L2/3->L5 (4), L2/3->L2/3 (6); 3N adds sjostrom07_step200ms_pair|no_block (21).
+# MEASURED all-pathway fit 22289873/74 (S1C rule, 30 targets): 16.5-17 min, 50.1-50.4 GB, so fits 63G 0:30:00.
 # Based on run_stage_fit.sh (inputs, FILTERS, val branch) and run_s1c_l23fit.sh (--extra specs). Usage (from plastyfire/, via sjob.sh -g):
 #   bash glusynapse_v2/rho_redesign/run_stage3_fit.sh MODEL SEEDMODE [val]
 #   MODEL 3C : S1C rule (G8X shaft licence + eCB), free theta_eCB (+ a00 a01 a10 a11 gamma_d gamma_p); seeds s1C_s.json,s2E_s.json

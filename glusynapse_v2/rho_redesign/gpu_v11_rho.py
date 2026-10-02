@@ -10,13 +10,15 @@ v11 options (SET; all synapse-local, uniform across pathways):
            arrival in [x - 150, x + 8], tier 2 any; NaN -> pooled median). veto_peak_k default 0.5 (placeholder; free-able).
            Spine eCB only (ecb_src 0).
   (1 - b)-unweighted eCB trigger: already v5_mode 1 (TRIG_W off: trigger on V, the unweighted pool; nothing else changes).
-  mvd_mode 1: MVD ("mGluR-gated VDCC depression"). M = [lo R_i < V <= hi R_i] [b > mvd_b], V the unweighted own spine VDCC
-           pool (tau_E1), b = min(Bg, 1) the own glutamate-bound state (jump per own arrival, decay tau_d_NMDA).
-           Depression indicator D = max(dep, M); mvd_pot 0: rho' = ... - D (1 - pot) gamma_d rho (MVD silent while licensed
-           pot, like dep); mvd_pot 1: rho' = ... - max(dep (1 - pot), M) gamma_d rho. gamma_d is counted once.
-           R_i: mvd_ref 0 = P1_i (ecb_ref 2 single-bAP pool); 1 = own control-train pool P1_i sum_{k<n} e^(-k isi / tau_E1)
-           (mvd_ref_n 10, mvd_ref_isi 20 ms: placeholders). lo = theta_MVD_lo (0.37 placeholder), hi = theta_MVD_hi (1e30 = no
-           upper edge); both free-able (--free-filters). mvd_b default 0.5. Needs ecb_ref 2.
+  mvd_mode 1: MVD ("mGluR-gated VDCC depression"). M = [lo < V <= hi P1_i] [b > b_c], V the unweighted own spine VDCC
+           pool (tau_E1), b = min(Bg, 1) the own glutamate-bound state (jump 1 per own arrival, so b_peak = 1; decay
+           tau_d_NMDA). b_c = exp(-mvd_W / tau_d_NMDA), mvd_W 50 ms (mGluR1 deactivation, Marcaggi 2009: 0.49 at 70 ms);
+           mvd_b >= 0 overrides b_c. Depression indicator D = max(dep, M); mvd_pot 0: rho' = ... - D (1 - pot) gamma_d rho
+           (MVD silent while licensed pot, like dep); mvd_pot 1: rho' = ... - max(dep (1 - pot), M) gamma_d rho (gamma_d once).
+           lo: mvd_ref 0 = theta_MVD_lo x P1_i (ecb_ref 2 single-bAP pool; 0.5 placeholder); 1 = theta_MVD_lo x P1_i
+           sum_{k<n} e^(-k isi / tau_E1) (mvd_ref_n 10, mvd_ref_isi 20 ms); 2 = theta_MVD_abs, absolute, in c_VDCC pool units
+           (1e5 x VDCC charge, the P1_i units; placeholder 100, box 1-1e4 log; set from C_MVD_CALIB.md). hi = theta_MVD_hi x
+           P1_i (1e30 = no upper edge, ANCHORS_V11). All free-able (--free-filters). Needs ecb_ref 2.
   Counter 6 (v10_counts 1): MVD-depressing steps. Saved json gets a "v11" block.
 
 v10 options (SET):
@@ -102,19 +104,19 @@ CA_REST_UM = 0.07                      # min_ca_CR (GluSynapse*.mod 70e-6 mM); c
 # v10 parameters: defaults (used only by the option that reads them), DE boxes (fit_v2 FILTER_BOX convention), log-spaced ones
 V10_DEFAULTS = dict(lic_win=100.0, a20=0.0, a21=1.0, kappa_pre=0.0, kappa_post=0.3, ecb_theta_uM=0.05, tau_L=100.0,
                     tau_NO=100.0, A_NO=0.1, dNO_step=0.05, d_NO_max=0.5, a_NO_pre=2.0, a_NO_post=4.0,
-                    theta_MVD_lo=0.37, theta_MVD_hi=1e30, veto_peak_k=0.5)            # v11 (placeholders, SPEC_V11.md)
+                    theta_MVD_lo=0.5, theta_MVD_hi=1e30, veto_peak_k=0.5, theta_MVD_abs=100.0)            # v11 (placeholders, SPEC_V11.md)
 V10_NO3 = dict(tau_NO=6.7, A_NO=190.0, d_NO_max=0.5)          # no_mode 3 defaults (Hall & Garthwaite 2006 NO lifetime)
 V10_BOX = dict(a20=(0.0, 5.0), a21=(0.0, 5.0), kappa_pre=(0.0, 3.0), kappa_post=(0.0, 3.0), ecb_theta_uM=(1e-3, 2.0),
                tau_L=(10.0, 1000.0), tau_NO=(10.0, 1000.0), A_NO=(1e-3, 10.0), dNO_step=(1e-3, 0.5), d_NO_max=(0.0, 2.0),
                a_NO_pre=(0.0, 20.0), a_NO_post=(0.0, 20.0), tau_E1=(25.0, 125.0),
-               theta_MVD_lo=(0.2, 1.0), theta_MVD_hi=(0.5, 10.0), veto_peak_k=(0.1, 3.0))
+               theta_MVD_lo=(0.2, 1.0), theta_MVD_hi=(0.5, 10.0), veto_peak_k=(0.1, 3.0), theta_MVD_abs=(1.0, 1e4))
 V10_BOX_NO3 = dict(A_NO=(32.0, 1123.0), d_NO_max=(0.4, 1.0))
-V10_LOG = {"ecb_theta_uM", "tau_L", "tau_NO", "A_NO", "dNO_step"}
+V10_LOG = {"ecb_theta_uM", "tau_L", "tau_NO", "A_NO", "dNO_step", "theta_MVD_abs"}
 TE1_GRID = np.array([25.0, 35.0, 50.0, 70.0, 100.0, 125.0])  # tau_E1 free: ecb_src 1 W1_i table (log-interpolated)
 NCNT = 6                               # counters: licensed pot steps, blocked pot steps, eCB steps, vetoed triggers, NO steps,
                                        # v11 MVD-depressing steps
-V11_CONST = dict(veto_t0=0.0, veto_peak=0, mvd_mode=0, mvd_pot=0, mvd_ref=0, mvd_ref_n=10, mvd_ref_isi=20.0, mvd_b=0.5)
-V11_KEYS = ("theta_MVD_lo", "theta_MVD_hi", "veto_peak_k")       # v11 per-candidate parameters (prm slots 20-22)
+V11_CONST = dict(veto_t0=0.0, veto_peak=0, mvd_mode=0, mvd_pot=0, mvd_ref=0, mvd_ref_n=10, mvd_ref_isi=20.0, mvd_b=-1.0, mvd_W=50.0)
+V11_KEYS = ("theta_MVD_lo", "theta_MVD_hi", "veto_peak_k", "theta_MVD_abs")   # v11 per-candidate parameters (prm slots 20-23)
 
 
 def v11_opts(P, veto_T):
@@ -124,7 +126,7 @@ def v11_opts(P, veto_T):
     o["vw"] = bool(o["veto_t0"] != 0.0 or o["veto_Tv"] != float(veto_T) or o["veto_peak"])
     if o["veto_t0"] < 0.0 or (o["vw"] and o["veto_Tv"] > 0.0 and o["veto_Tv"] <= o["veto_t0"]):
         raise ValueError(f"v11 veto window ({o['veto_t0']}, {o['veto_Tv']}]")
-    if o["mvd_mode"] not in (0, 1) or o["mvd_ref"] not in (0, 1) or o["veto_peak"] not in (0, 1) or o["mvd_pot"] not in (0, 1):
+    if o["mvd_mode"] not in (0, 1) or o["mvd_ref"] not in (0, 1, 2) or o["veto_peak"] not in (0, 1) or o["mvd_pot"] not in (0, 1):
         raise ValueError(f"v11 options {o}")
     return o
 
@@ -143,11 +145,11 @@ def v10_default(k, nom):
     return V10_NO3[k] if nom == 3 and k in V10_NO3 else V10_DEFAULTS[k]
 
 
-def v10_keys(lic, ecb, nom, llp=0, mvd=0, vpk=0):
+def v10_keys(lic, ecb, nom, llp=0, mvd=0, vpk=0, mref=0):
     """The v10 / v11 parameters read by the active options (others are never read)."""
     k = []
     if mvd:
-        k += ["theta_MVD_lo", "theta_MVD_hi"]
+        k += ["theta_MVD_abs" if mref == 2 else "theta_MVD_lo", "theta_MVD_hi"]
     if vpk:
         k += ["veto_peak_k"]
     if lic in (4, 6):
@@ -173,7 +175,7 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
     VW = bool(o["vw"]) and int(ecb) == 0
     VT0 = float(o["veto_t0"]); VTV = float(o["veto_Tv"]); VPK = bool(o["veto_peak"]) and VW
     MVD = bool(o["mvd_mode"]); MVP = bool(o["mvd_pot"]); MREF = int(o["mvd_ref"])
-    MRN = int(o["mvd_ref_n"]); MRI = float(o["mvd_ref_isi"]); MB = float(o["mvd_b"])
+    MRN = int(o["mvd_ref_n"]); MRI = float(o["mvd_ref_isi"]); MB = float(o["mvd_b"]); MW = float(o["mvd_W"])
     BGT = bool(weighted) or MVD            # own glutamate-bound state Bg tracked
     RS = float(RHO_STAR_GB)
     TRIG_W = bool(weighted)
@@ -229,7 +231,7 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
         tauN = prm[p, 13]; Ano = prm[p, 14]; dstep = prm[p, 15]; dnmax = prm[p, 16]
         thN = prm[p, 17] * cpr[i] + prm[p, 18] * cpo[i]
         tauL = prm[p, 19]
-        thMlo = 0.0; thMhi = 0.0; thP = 0.0
+        thMlo = 0.0; thMhi = 0.0; thP = 0.0; bcM = 0.0
         if MVD:                                                  # v11 MVD band on the own unweighted VDCC pool
             Rm = uE[i]
             if MREF == 1:                                        # own control-train pool, linear sum of P1_i at tau_E1
@@ -237,8 +239,12 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
                 for kk in range(MRN):
                     gs += math.exp(-kk * MRI / tauE1)
                 Rm = Rm * gs
-            thMlo = prm[p, 20] * Rm
+            if MREF == 2:                                        # absolute lower edge, c_VDCC pool units (1e5 x charge)
+                thMlo = prm[p, 23]
+            else:
+                thMlo = prm[p, 20] * Rm
             thMhi = prm[p, 21] * Rm
+            bcM = MB if MB >= 0.0 else math.exp(-MW / tauD)      # own-glutamate cutoff: b > b_peak e^(-W / tau_d_NMDA)
         if VPK:                                                  # v11 peak veto threshold, peak units
             thP = prm[p, 22] * spk[i]
         hpv = 0.0
@@ -347,7 +353,7 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
                 Bg = Bg + c
             if MVD:                                                  # v11 MVD: own VDCC pool in band and own glutamate
                 mv = 0.0
-                if V > thMlo and V <= thMhi and Bg > MB:
+                if V > thMlo and V <= thMhi and Bg > bcM:
                     mv = 1.0
                 if MVP:
                     Dd = dep * (1 - pot)
@@ -857,7 +863,7 @@ class GPUModelV11(GPUModelV7X):
                 lc = (0.0, 0.0)
             rows.append([*lc, g(p, "ecb_theta_uM"), g(p, "tau_NO"), g(p, "A_NO"), g(p, "dNO_step"), g(p, "d_NO_max"),
                          g(p, "a_NO_pre"), g(p, "a_NO_post"), g(p, "tau_L"),
-                         g(p, "theta_MVD_lo"), g(p, "theta_MVD_hi"), g(p, "veto_peak_k")])     # v11 slots 20-22
+                         g(p, "theta_MVD_lo"), g(p, "theta_MVD_hi"), g(p, "veto_peak_k"), g(p, "theta_MVD_abs")])     # v11 slots 20-23
         return np.ascontiguousarray(np.concatenate([self._params5(Ps), np.array(rows, np.float64)], axis=1))
 
     def rho_dpre_syn(self, td, tp, Ps):
@@ -941,7 +947,7 @@ if __name__ == "__main__":
         raise SystemExit("v11 mvd_mode 1 needs ecb_ref 2 (P1_i = 1e5 x cexp vdcc_q_post)")
     V11 = bool(MVD or O11["vw"])
     new = _s.get("lic_src") is not None or ECB > 0 or NOM > 0 or TEF or V11
-    KEYS = v10_keys(LIC, ECB, NOM, LLP, MVD, VPK)
+    KEYS = v10_keys(LIC, ECB, NOM, LLP, MVD, VPK, int(O11["mvd_ref"]))
     import fit_v6
     # v10 parameters freeable through --free-filters (boxes in the fit_v2 FILTER_BOX convention; BOX env still overrides)
     fit_v6.F.FILTER_BOX.update(V10_BOX)

@@ -1,5 +1,6 @@
 #!/bin/bash
 # S1C_L23_FAILURE.md test fit: the S1C rule (G8X shaft licence + eCB, theta_eCB free, NO off; 7 free) fitted on the
+# MEASURED all-pathway fit 22289873/74 (S1C rule, 30 targets): 16.5-17 min, 50.1-50.4 GB, so fits 63G 0:30:00.
 # 7 L5 STDP-shape core targets PLUS every paired L2/3->L5 and L2/3->L2/3 target (Egger and the DROPT Letzkus -10 distal
 # pair excluded) = 7 + 8 + 15 = 30 targets. Question: can one uniform parameter set inside the current boxes fit the
 # L2/3 pathways while keeping the L5 shape (Markram 10 Hz +/-10)? Copy of run_stage_fit.sh model C (same SET, FILTERS,

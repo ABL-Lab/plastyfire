@@ -1,4 +1,5 @@
 #!/bin/bash
+# MEASURED 22292756 core 1:49 7.9 GB; 22292757 L5-all (3 rescores) 7:31 37.6 GB, so l5all 47G 0:15:00.
 # Tests of gpu_v11_rho.py (SPEC_V11.md): fixed-parameter rescores of s1C_s.json (--maxiter 0), L5 model only.
 # Usage (from plastyfire/, via sjob.sh -g):  bash glusynapse_v2/rho_redesign/test_v11.sh core|l5all
 #   core   the 7 L5 core targets, as run_stage_fit.sh C s:  a = v11 at defaults (must match s1C_s.csv to 1e-6: REPRO11 OK),
