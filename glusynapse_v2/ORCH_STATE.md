@@ -4,6 +4,7 @@ Updated: 2026-10-02
 
 ## In flight
 - STAGED FIT (user 2026-10-02, picked S1C): plan rho_redesign/IMPROVE_PLAN.md. Running: 22289873/74 S1C rule + 23 L2/3 targets (s/u, out /scratch/dhuruva/s1c_l23fit); 22289864/65 L5 diagnostics (/scratch/dhuruva/s1c_diag); 22290236-39 corrected S2C/S2N val. Watchers b4ad990ck, bz28venwe. Next: stage 3 (20 cores, STAGE3_DESIGN.md) seeded from S1C; plots only via plot_stage_fit.py into figs/stage_fits/.
+- 2026-10-02 done: 3C s/u, 3N s/u, G1/G2, BCL v9 pilot, s1C_w val. Best so far (keeps Markram): 3C_u (val L5 291 / L2/3->L5 30 / L2/3->L2/3 114) and s1C_w (337/16/139). Plots in figs/stage_fits/stage3. Still running: 4N s/u, 5N s (watcher b6qsvwytg), v11 3V/3W/4V (b4bmu906u); then rerun plot_stage3_all.sh (300M 0:15:00).
 - PENDING after the stage-3/W/G2 jobs finish: edit ebner/ebner_targets.csv row 8 (40 Hz +10) to 1.54, 0.113, n 6, source Fig 1D; check whether the kernel reads it at runtime or it is baked into the extracted dirs.
 - 10 AGENTS (2026-10-02): K gpu_v11 kernel+MVD+veto window (SPEC_V11.md, test_v11.sh); S3 run_stage3_fit.sh 3C/3N fits; A ANCHORS_V11.md; D DISTAL_BAP_LIT.md; T TARGET_AUDIT.md; G run_g2_test.sh; W run_s1c_l23w.sh weight sensitivity; B V9 BCL pilot on S1C; F DOUBLET_BIAS.md; R plan review. Next after K: GluSynapseV10.mod (MVD + veto window) mod agent, then stage-3 v11 models.
 - T31 DONE (review): basal spine bAP dV <60 um 77 +/- 17 mV vs Chindemi 80-100. Emodel OK; Ca gap = steep VDCC V dependence. Next: T32.
