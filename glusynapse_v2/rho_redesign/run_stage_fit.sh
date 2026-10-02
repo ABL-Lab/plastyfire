@@ -46,6 +46,8 @@ OUT=$RS/${NAME}_$S
 if [ "$VAL" = val ]; then
   # validation rescore: all targets, no stage-1 drops, extras on, maxiter 0 from the fitted json
   rm -f ${OUT}_val.json
+  # free params must come from the fitted json, not SET (SET values override the seed in _pack10; S2C/S2N val bug 2026-10-02)
+  for k in ${FREE//,/ }; do SET=$(echo "$SET" | sed -E "s/, *\"$k\": *[-0-9.e+]+//; s/\"$k\": *[-0-9.e+]+, *//"); done
   ARGS=(--free-filters "$FREE" --set "$SET" --fit-gamma --drop-targets "$DROPT" --l23-dirs $L23D
     --extra "l23:paired_l23l5:$L23D:$L23_BASIS_DIR:$GEOM_L23:$K235"
     --extra "l23l23:paired_l23l23,paired_l23l23_egger:$Z:$W/basis_l23l23::$K2323"
