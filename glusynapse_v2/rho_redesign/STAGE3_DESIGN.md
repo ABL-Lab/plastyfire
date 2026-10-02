@@ -98,7 +98,7 @@ fit_v6.py have no SEM floor, per-group normalisation or dynamic-range penalty, s
 - Dynamic range is monitored, not penalised (awk on the csvs): the OLS slope of pred on data over the 20 cores
   (flat = 0; S1C 0.45), and sign agreement on the 18 non-nulls (S1C 12 of 18).
 
-`WEIGHTS='{"l5/10Hz_10ms|control": 2.0, "l5/sjostrom_0.1hz_dt+10ms|control": 0.64, "l5/sjostrom_20hz_dt-10ms|mglu_block": 0.5, "l23/letzkus_1ap_dt+10ms|control": 0.36, "l23/letzkus_3ap_200hz_dt-10ms@proximal|control": 0.36}'`
+`WEIGHTS='{"l5/10Hz_10ms|control": 2.0, "l5/sjostrom_0.1hz_dt+10ms|control": 0.64, "l5/sjostrom_20hz_dt-10ms|mglu_block": 0.5, "l23/letzkus_1ap_dt+10ms|control": 0.36, "l23/letzkus_3ap_200hz_dt-10ms@proximal|control": 0.36, "l23l23/zilberter_1ap_dt+10ms|control": 0.5, "l23l23/zilberter_1ap_dt-10ms|control": 0.5}'` (the two Zilberter 0.5 weights were added 2026-10-02, orchestrator decision)
 
 ## 3. Fit procedure
 

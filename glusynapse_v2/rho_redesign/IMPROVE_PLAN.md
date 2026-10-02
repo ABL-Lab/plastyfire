@@ -90,7 +90,7 @@ The BCL then needs a new mod: GluSynapseV10.mod, with a new name.
 
 ### Step 4: L2/3->L2/3 postsynaptic LTD (only if steps 1-3 leave it failing)
 
-- Add the new arm "vdep": depression from the synapse's own VDCC Ca within its own glutamate window.
+- Add the new arm MVD (mGluR-gated VDCC depression; working name vdep, approved by the user 2026-10-02): depression from the synapse's own VDCC Ca within its own glutamate window. Per the review it is a band (theta_MVD_lo, theta_MVD_hi), not one-sided; kernel gpu_v11_rho.py, mod GluSynapseV10.mod (new SUFFIX).
 - One parameter, anchored to Zilberter's D890 Ca ratio (0.37).
 - Synapse-local and uniform.
 - Zilberter 1AP +/-10 stays a uniformity conflict, because AM251 shows the equivalent L5 single pairings must not change. Accept about 20 chi2 or drop them; that is the user's decision.
@@ -108,4 +108,4 @@ The BCL then needs a new mod: GluSynapseV10.mod, with a new name.
 ## Decision points for the user
 
 - Zilberter 1AP +/-10: accept the conflict, or fit them at reduced weight?
-- vdep (step 4) adds one anchored parameter. Approve it before it is built.
+- MVD approved (2026-10-02). Zilberter 1AP +/-10 kept in the core at weight 0.5 (orchestrator decision).
