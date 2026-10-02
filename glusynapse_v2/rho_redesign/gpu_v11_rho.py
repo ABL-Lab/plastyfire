@@ -20,6 +20,11 @@ v11 options (SET; all synapse-local, uniform across pathways):
            (1e5 x VDCC charge, the P1_i units; placeholder 100, box 1-1e4 log; set from C_MVD_CALIB.md). hi = theta_MVD_hi x
            P1_i (1e30 = no upper edge, ANCHORS_V11). All free-able (--free-filters). Needs ecb_ref 2.
   Counter 6 (v10_counts 1): MVD-depressing steps. Saved json gets a "v11" block.
+  ecb_lp_mode (0; SPEC_ECB_LP.md): eCB trigger read from L, a first-order low-pass (ecb_lp_tau, default 10 ms, Ebner 2019
+           pre-LTD) of the same own spine VDCC input as the trigger pool (s, or (1 - b) s with v5_mode 2), in pool units
+           (L' = -L / ecb_lp_tau + x / i_scale, so one isolated bAP lifts L by ~P1_i). At each own arrival (exact with t_exact
+           1): trigger = L(t_a) > theta_eCB x P1_i (thE, no new threshold). 1: no veto (Ebner); 2: the configured veto (v7
+           [t_a, t_a + veto_T] integral or the v11 window) is kept. Spine eCB only (ecb_src 0). 0 = v11 unchanged.
 
 v10 options (SET):
   lic_src  LTP licence; a potentiating crossing without the licence counts as depression (v8 convention).
@@ -115,7 +120,8 @@ V10_LOG = {"ecb_theta_uM", "tau_L", "tau_NO", "A_NO", "dNO_step", "theta_MVD_abs
 TE1_GRID = np.array([25.0, 35.0, 50.0, 70.0, 100.0, 125.0])  # tau_E1 free: ecb_src 1 W1_i table (log-interpolated)
 NCNT = 6                               # counters: licensed pot steps, blocked pot steps, eCB steps, vetoed triggers, NO steps,
                                        # v11 MVD-depressing steps
-V11_CONST = dict(veto_t0=0.0, veto_peak=0, mvd_mode=0, mvd_pot=0, mvd_ref=0, mvd_ref_n=10, mvd_ref_isi=20.0, mvd_b=-1.0, mvd_W=50.0)
+V11_CONST = dict(veto_t0=0.0, veto_peak=0, mvd_mode=0, mvd_pot=0, mvd_ref=0, mvd_ref_n=10, mvd_ref_isi=20.0, mvd_b=-1.0, mvd_W=50.0,
+                 ecb_lp_mode=0, ecb_lp_tau=10.0)  # eCB LP: tau 10 ms = Ebner 2019 pre-LTD low-pass (SPEC_ECB_LP.md)
 V11_KEYS = ("theta_MVD_lo", "theta_MVD_hi", "veto_peak_k", "theta_MVD_abs")   # v11 per-candidate parameters (prm slots 20-23)
 
 
@@ -128,6 +134,10 @@ def v11_opts(P, veto_T):
         raise ValueError(f"v11 veto window ({o['veto_t0']}, {o['veto_Tv']}]")
     if o["mvd_mode"] not in (0, 1) or o["mvd_ref"] not in (0, 1, 2) or o["veto_peak"] not in (0, 1) or o["mvd_pot"] not in (0, 1):
         raise ValueError(f"v11 options {o}")
+    if o["ecb_lp_mode"] not in (0, 1, 2) or not o["ecb_lp_tau"] > 0.0:
+        raise ValueError(f"v11 ecb_lp_mode {o['ecb_lp_mode']} ecb_lp_tau {o['ecb_lp_tau']}")
+    if o["ecb_lp_mode"] == 1:                    # no veto at all: the window options are not read
+        o["vw"] = False
     return o
 
 
@@ -176,6 +186,8 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
     VT0 = float(o["veto_t0"]); VTV = float(o["veto_Tv"]); VPK = bool(o["veto_peak"]) and VW
     MVD = bool(o["mvd_mode"]); MVP = bool(o["mvd_pot"]); MREF = int(o["mvd_ref"])
     MRN = int(o["mvd_ref_n"]); MRI = float(o["mvd_ref_isi"]); MB = float(o["mvd_b"]); MW = float(o["mvd_W"])
+    LPM = int(o["ecb_lp_mode"]) if int(ecb) == 0 else 0   # eCB LP trigger (1 no veto, 2 configured veto kept)
+    TLP = float(o["ecb_lp_tau"])
     BGT = bool(weighted) or MVD            # own glutamate-bound state Bg tracked
     RS = float(RHO_STAR_GB)
     TRIG_W = bool(weighted)
@@ -257,6 +269,7 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
         Ws = 0.0; ips = 0.0; ups = 0.0                          # v10 shaft eCB pool and its last inputs
         Nn = 0.0; inN = 0.0; chN = -1.0; aN = 1.0; bN = 0.0; dn = 0.0   # v10 NO pool, its last input, NO state of d
         Gl = 0.0; chL = -1.0; aL = 1.0                          # v10 low-pass licence quantity
+        Lp = 0.0; upL = 0.0; chP = -1.0; aP = 1.0; bP = 0.0      # eCB LP pool (ecb_lp_mode) and its last input
         n_lo = 0.0; n_lb = 0.0; n_ec = 0.0; n_ve = 0.0; n_no = 0.0; n_mv = 0.0
         e0 = eoff[i]; n = slen[i]; h0 = hoff[i]
         ka = aptr[i]; kae = aptr[i + 1]
@@ -390,6 +403,10 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
                 vet = qa > thP                                       # v11 peak veto, own single-bAP peak units
             else:
                 vet = qa > thE
+            if LPM > 0:                                              # eCB LP: own VDCC low-pass at the (exact) arrival
+                trig = (Lp - fx * upL) > thE if TEX else Lp > thE
+                if LPM == 1:
+                    vet = False
             if c > 0.0 and Ae > 0.0 and trig and not vet:
                 d0 = dmin + (d0 - dmin) * math.pow(1.0 - Ae, c)
                 if CNT:
@@ -436,6 +453,12 @@ def _make_kernel_v10(weighted, lic, win, tex=False, ecb=0, nom=0, cnt=False, llp
                 V = aV * V + up
             else:
                 V = aV * V + bV * s
+            if LPM > 0:                                              # same input as the trigger pool (wb = 1 - b or 1)
+                if hm != chP:
+                    chP = hm
+                    aP = math.exp(-hm / TLP); bP = TLP * (1.0 - aP) / iscV
+                upL = bP * (wb * s)
+                Lp = aP * Lp + upL
             xs = 0.0
             if SPN:
                 if hm > 0.0 and k + 1 < n:
@@ -594,7 +617,9 @@ class GPUModelV11(GPUModelV7X):
         self.tef = bool(_STATE["te1_free"] or int(P0.get("tau_E1_free", 0)))
         self.o11 = v11_opts(P0, max(float(self.veto_T), 0.0))
         self.vw, self.vpk, self.mvd = self.o11["vw"], bool(self.o11["veto_peak"]), bool(self.o11["mvd_mode"])
-        self.k10 = not (self.lic == -1 and self.ecb == 0 and self.nom == 0 and not self.tef and not self.vw and not self.mvd)
+        self.lp = int(self.o11["ecb_lp_mode"])
+        self.k10 = not (self.lic == -1 and self.ecb == 0 and self.nom == 0 and not self.tef and not self.vw and not self.mvd
+                        and not self.lp)
         if not self.k10:
             return
         lic, ecb, nom = self.lic, self.ecb, self.nom
@@ -602,6 +627,8 @@ class GPUModelV11(GPUModelV7X):
             raise ValueError("v10 options need v5_mode 1 or 2")
         if self.vw and ecb != 0:
             raise ValueError("v11 veto window / peak veto act on the spine eCB veto only (ecb_src 0)")
+        if self.lp and ecb != 0:
+            raise ValueError("v11 ecb_lp_mode acts on the spine eCB trigger only (ecb_src 0)")
         evk = {}                                                             # v11 single-bAP peak VDCC current (veto_peak)
         if lic in (1, 2, 3):
             self.gate_win = float(P0.get("gate_win", 100.0)) if lic in (1, 2) else 0.0
@@ -743,7 +770,7 @@ class GPUModelV11(GPUModelV7X):
         _INST.append(self)
         msg = (f"v10 lic_src {lic} (win {self.gate_win} ms, lic_lp {int(self.llp)}) ecb_src {ecb} no_mode {nom} "
                f"t_exact {int(self.tex)} tau_E1 free {int(self.tef)}")
-        if self.vw or self.mvd:
+        if self.vw or self.mvd or self.lp:
             msg += f"; v11 {self.o11}"
         if self.vpk:
             msg += f"; v11 single-bAP peak VDCC rows tier 1 / tier 2 / none {self.spk_tiers}"
@@ -945,7 +972,7 @@ if __name__ == "__main__":
     MVD, VPK = int(O11["mvd_mode"]), int(O11["veto_peak"])
     if MVD and int(_s.get("ecb_ref", 0)) != 2:
         raise SystemExit("v11 mvd_mode 1 needs ecb_ref 2 (P1_i = 1e5 x cexp vdcc_q_post)")
-    V11 = bool(MVD or O11["vw"])
+    V11 = bool(MVD or O11["vw"] or O11["ecb_lp_mode"])
     new = _s.get("lic_src") is not None or ECB > 0 or NOM > 0 or TEF or V11
     KEYS = v10_keys(LIC, ECB, NOM, LLP, MVD, VPK, int(O11["mvd_ref"]))
     import fit_v6

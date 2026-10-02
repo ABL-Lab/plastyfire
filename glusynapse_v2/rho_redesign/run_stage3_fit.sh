@@ -40,11 +40,30 @@ case $M in
   4N|5N) SET="{$G8X, \"no_mode\": 3, \"tau_NO\": 6.7}"; FREE=theta_eCB,A_NO,d_NO_max; SEEDJ=$RS/s2C_s.json,/scratch/dhuruva/s1c_l23fit/s1CL_s.json ;;
   *) echo "MODEL 3C|3N|4N|5N|3V|3W|4V (stage 3)" >&2; exit 1 ;;
 esac
+# env FIXANC=1 (user 2026-10-02, FIT_META_DIAG.md fix 3): theta_eCB, A_NO, d_NO_max move from FREE to SET at their
+# literature anchors, so only the Chindemi a00..a11, gamma_d, gamma_p stay free. Name gets suffix "a". Anchors:
+#   theta_eCB (= k_E, ecb_ref 2: trigger at k_E x own single-bAP VDCC influx P1_i; window edge T = tau_E1 ln(1/k_E), tau_E1 100):
+#     0.535 = exp(-62.5/100), the middle of the L5 tLTD window edge 25-100 ms: LTD at -25 ms (0.65 +- 0.09, Sjostrom 2003
+#     Fig 9B) and no change at -100 ms (Markram 1997); this is the 0.37-0.78 bracket of EXP_PARAM.md section 4.
+#   A_NO 190: geometric middle of the 32-1123 bracket from the NO-photolysis replay of Padamsey 2017 (C-NO2,
+#     PARAM_ANCHORS.md; same as the v10 no_mode 3 default V10_NO3). Weak anchor (35x bracket), flagged.
+#   d_NO_max 0.57: the NO presynaptic factor 2.13/1.36 = 1.57 +- 0.18 at L5->L5 (Sjostrom 2007, ANCHORS_V9.md section 3);
+#     its 1-SEM floor 0.39 is why the old box started at 0.4.
+#   Override for a sensitivity run: ANC_ECB / ANC_ANO / ANC_DNO (e.g. ANC_ECB=0.37 or 0.78, the bracket ends).
+if [ "${FIXANC:-0}" = 1 ]; then
+  ANC_ECB=${ANC_ECB:-0.535}; ANC_ANO=${ANC_ANO:-190.0}; ANC_DNO=${ANC_DNO:-0.57}
+  ADD="\"theta_eCB\": $ANC_ECB"
+  case ",$FREE," in *",A_NO,"*) ADD="$ADD, \"A_NO\": $ANC_ANO";; esac
+  case ",$FREE," in *",d_NO_max,"*) ADD="$ADD, \"d_NO_max\": $ANC_DNO";; esac
+  SET="${SET%\}}, $ADD}"; FREE=$(echo "$FREE" | tr ',' '\n' | { grep -vxE 'theta_eCB|A_NO|d_NO_max' || true; } | paste -sd,)
+  echo "FIXANC: SET += {$ADD}; FREE now '${FREE}'"
+fi
 export BOX=
 FILTERS='{"pre_drive": 1, "i_scale": 1e-5, "t_drive": 4, "tau_E1": 100.0, "vamp_mode": 1, "v5_mode": 1, "rho_gamma": 1.0, "A_eCB": 1.0, "dpre_min": -0.29}'
 DROPT="letzkus_3ap_200hz_dt-10ms@distal|control,letzkus_3ap_200hz_dt-10ms@distal|nmdar_block"
 NAME=s$M; [ -n "${MW:-}" ] && NAME=s${M}m${MW/./}   # env MW: Markram +10 weight override (default 2.0), e.g. MW=8 -> s5Nm8
 [ "${DEMOTE:-0}" = 1 ] && NAME=${NAME}d                 # env DEMOTE=1: data-conflict rows to validation (user 2026-10-02), see DEMOTED below
+[ "${FIXANC:-0}" = 1 ] && NAME=${NAME}a                 # env FIXANC=1: theta_eCB, A_NO, d_NO_max fixed at anchors (block above)
 [ -n "${SEEDX:-}" ] && SEEDJ=$SEEDX                   # env SEEDX: comma list of seed jsons, overrides the model default
 OUT=$RS/${NAME}_$S
 EXTRA=(--l23-dirs $L23D
