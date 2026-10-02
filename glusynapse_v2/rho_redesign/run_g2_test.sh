@@ -3,6 +3,7 @@
 # Copy of run_r2_fit.sh (kernel gpu_v10_rho.py, split2 inputs, same L5 keep-list pairs). Usage (from plastyfire/, via sjob.sh -g):
 # MEASURED stage-1 L5-only fits s1A 22266770/72: 1-1.6 min, 5.7-7.0 GB, so fits use 9G 0:15:00. Rescores with all three models stay 85G 0:20:00 (v10 tests 58-68 GiB).
 # MEASURED stage-2 (11 targets) 22286005-17: fits 1:20-2:20, MaxRSS 7.1-8.5 GB, so fits now 11G 0:15:00; val rescores 7:29-8:23, MaxRSS 51-67 GB, so val 84G 0:15:00.
+# MEASURED G1/G2 licence test 22291762-69: fits 1.6-1.9 min, 7.7-9.8 GB; vals 7.4-11.6 min, 51.3-71.5 GB.
 #   bash glusynapse_v2/rho_redesign/run_stage_fit.sh MODEL SEEDMODE [val]
 #   MODEL  A pure Chindemi : SET {v5_mode 1, theta_V 0, A_eCB 0}, no gate_src / lic_src / ecb_src / no_mode / veto_T / ecb_ref -> lic -1, ecb 0, nom 0, theta_V <= 0 = no gate, A_eCB 0 = no eCB step = v4 M0 kernel path
 #          B Chindemi + shaft licence (G8X gate_src 2, gate_win 100, gate_theta 0.15, v5_mode 2, t_exact 1), eCB off (A_eCB 0), NO off, no veto

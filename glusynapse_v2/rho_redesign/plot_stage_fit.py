@@ -8,6 +8,8 @@ Env:
   FIT     csv prefix with predictions for all targets, e.g. s1C_s_val (reads FIT.csv, FIT_l23.csv, FIT_l23l23.csv)
   FITLBL  legend label for FIT (default FIT)
   STAGE   1, 2 or 3: which core targets were fitted (7, 11 or 18; default 1)
+  FITCSV  prefix of the fit csvs (e.g. s3C_s, or an absolute path); when set, the fitted targets are exactly those
+          listed in FITCSV.csv / FITCSV_l23.csv / FITCSV_l23l23.csv, and STAGE is ignored
   OUT     output path without extension (default glusynapse_v2/figs/stage_fits/stage<STAGE>/<FIT>)
 MEASURED 22286465: 3 plots 0:15 elapsed, 241 MB MaxRSS; request 300M 0:15:00, 1 CPU.
 """
@@ -34,15 +36,21 @@ CORE = ["10Hz_10ms|control", "10Hz_-10ms|control", "sjostrom_0.1hz_dt+10ms|contr
         "zilberter_1ap_dt+10ms|control", "zilberter_1ap_dt-10ms|control",
         "zilberter_train10_50hz_dt+4ms_last|control", "zilberter_train10_50hz_dt-10ms_last|control"]
 FITTED = set(CORE[:{1: 7, 2: 11, 3: 18}[STAGE]])
+FITCSV = os.environ.get("FITCSV", "")
 
 
 def load(name, suf):
     d = pd.read_csv(os.path.join(HERE, f"{name}{suf}.csv"))
     d["key"] = d.target + "|" + d.condition
     d["chi2"] = d.z ** 2
-    d["fitted"] = d.key.isin(FITTED)
+    if FITCSV:
+        p = FITCSV if os.path.isabs(FITCSV) else os.path.join(HERE, FITCSV)
+        fc = pd.read_csv(f"{p}{suf}.csv") if os.path.exists(f"{p}{suf}.csv") else None
+        d["fitted"] = d.key.isin(set(fc.target + "|" + fc.condition)) if fc is not None else False
+    else:
+        d["fitted"] = d.key.isin(FITTED)
     # fitted first (in CORE order), then validation in file order
-    d["order"] = [CORE.index(k) if f else 100 + i for i, (k, f) in enumerate(zip(d.key, d.fitted))]
+    d["order"] = [(CORE.index(k) if k in CORE else 50 + i) if f else 100 + i for i, (k, f) in enumerate(zip(d.key, d.fitted))]
     return d.sort_values("order").reset_index(drop=True)
 
 

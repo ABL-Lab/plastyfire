@@ -1,5 +1,6 @@
 #!/bin/bash
 # L5 vs L2/3 trade-off map (STAGE3_DESIGN step 3c): copy of run_s1c_l23fit.sh (same S1C rule, 7 L5 shape + 8 L2/3->L5 + 15
+# MEASURED 22291785/86 (WL23 fits, 30 targets): 17.5-18.4 min, MaxRSS 66.0 GB (at the 63G limit), so fits now 83G 0:30:00.
 # MEASURED all-pathway fit 22289873/74 (S1C rule, 30 targets): 16.5-17 min, 50.1-50.4 GB, so fits 63G 0:30:00.
 # L2/3->L2/3 targets) with all L2/3 target z^2 weights multiplied by WL23 (--weights "l23/<target>|<cond>": WL23 and
 # "l23l23/...": WL23; the reported chi2 stays unweighted). Seeded from SEEDJ only (default s1C_s.json), seed 5.

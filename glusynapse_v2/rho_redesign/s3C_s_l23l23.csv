@@ -1,0 +1,7 @@
+target,condition,target_mean,target_sem,pred,z,ltd,w
+zilberter_1ap_dt+10ms,control,0.64,0.07,1.0124518786478172,5.320741123540245,True,0.5
+zilberter_1ap_dt-10ms,control,0.56,0.06,0.7585031528177775,3.3083858802962904,True,0.5
+zilberter_5ap_10hz_dt+10ms,control,0.76,0.07,0.7779103813870998,0.25586259124428246,True,1.0
+zilberter_train10_50hz_dt+4ms_last,control,1.49,0.12,1.3057535447096826,-1.5353871274193114,False,1.0
+zilberter_train10_50hz_dt-10ms_last,control,0.72,0.05,0.6454915528706758,-1.4901689425864828,True,1.0
+zilberter_train10_50hz_dt-10ms_last,mglu_block,0.73,0.07,0.87724356108637,2.1034794440910005,True,1.0
