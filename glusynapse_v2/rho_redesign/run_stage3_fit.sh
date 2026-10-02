@@ -43,7 +43,10 @@ esac
 export BOX=
 FILTERS='{"pre_drive": 1, "i_scale": 1e-5, "t_drive": 4, "tau_E1": 100.0, "vamp_mode": 1, "v5_mode": 1, "rho_gamma": 1.0, "A_eCB": 1.0, "dpre_min": -0.29}'
 DROPT="letzkus_3ap_200hz_dt-10ms@distal|control,letzkus_3ap_200hz_dt-10ms@distal|nmdar_block"
-NAME=s$M; OUT=$RS/${NAME}_$S
+NAME=s$M; [ -n "${MW:-}" ] && NAME=s${M}m${MW/./}   # env MW: Markram +10 weight override (default 2.0), e.g. MW=8 -> s5Nm8
+[ "${DEMOTE:-0}" = 1 ] && NAME=${NAME}d                 # env DEMOTE=1: data-conflict rows to validation (user 2026-10-02), see DEMOTED below
+[ -n "${SEEDX:-}" ] && SEEDJ=$SEEDX                   # env SEEDX: comma list of seed jsons, overrides the model default
+OUT=$RS/${NAME}_$S
 EXTRA=(--l23-dirs $L23D
   --extra "l23:paired_l23l5:$L23D:$L23_BASIS_DIR:$GEOM_L23:$K235"
   --extra "l23l23:paired_l23l23,paired_l23l23_egger:$Z:$W/basis_l23l23::$K2323")
@@ -73,8 +76,18 @@ else
       WEIGHTS='{"l5/10Hz_10ms|control": 2.0, "l5/sjostrom_0.1hz_dt+10ms|control": 0.64, "l5/sjostrom_0.1hz_dt-10ms|mglu_block": 0.64, "l5/sjostrom_0.1hz_dt-10ms|nmdar_block": 0.64, "l5/2Hz_5ms|control": 0.64, "l5/sjostrom_40hz_dt0ms|control": 0.591, "l5/sjostrom_20hz_dt-10ms|mglu_block": 0.5, "l23/letzkus_1ap_dt+10ms|control": 0.36, "l23/letzkus_3ap_200hz_dt-10ms@proximal|control": 0.36, "l23l23/zilberter_1ap_dt+10ms|control": 0.5, "l23l23/zilberter_1ap_dt-10ms|control": 0.5, "l23l23/zilberter_train10_50hz_post_only|control": 0.64}'
     fi
   fi
+  if [ "${DEMOTE:-0}" = 1 ]; then
+    # Data conflicts under a uniform synapse-local rule (HARD_TARGETS.md), moved to validation by the user 2026-10-02.
+    DEMOTED='l23l23/zilberter_1ap_dt+10ms|control,l23l23/zilberter_1ap_dt-10ms|control,l23l23/zilberter_train10_50hz_dt-10ms_last|mglu_block,l5/sjostrom_10hz_dt-10ms|control'
+    for k in ${DEMOTED//,/ }; do
+      case ",$DROP,$DROP23,$DROP2323," in *",$k,"*) ;; *) case $k in l5/*) DROP=${DROP:+$DROP,}$k ;; l23l23/*) DROP2323=${DROP2323:+$DROP2323,}$k ;; esac; NT=$((NT - 1)) ;; esac
+      e=$(printf "%s" "$k" | sed "s/[][\\.*^$+?(){}|#]/\\\\&/g"); WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#, *\"$e\": *[0-9.]+##; s#\"$e\": *[0-9.]+, *##")
+    done
+  fi
   DROPS=$(printf '%s\n' "$DROP" "$DROP23" "$DROP2323" | sed '/^$/d' | paste -sd,)
   echo "kept $NT core targets; dropped l5 $(echo $DROP | tr ',' '\n' | wc -l), l23 $(echo $DROP23 | tr ',' '\n' | wc -l), l23l23 $(echo $DROP2323 | tr ',' '\n' | wc -l)"
+  [ -n "${MW:-}" ] && WEIGHTS=$(echo "$WEIGHTS" | sed -E "s#\"l5/10Hz_10ms\|control\": *[0-9.]+#\"l5/10Hz_10ms|control\": $MW#")
+  echo "weights $WEIGHTS"
   ARGS=(--free-filters "$FREE" --set "$SET" --fit-gamma --drop-targets "$DROPT,$DROPS" "${EXTRA[@]}" --weights "$WEIGHTS" --maxiter 300 --save $OUT)
   if [ "$S" = s ]; then ARGS+=(--seed 5 --seed-fits $SEEDJ --seed-set '{}'); else ARGS+=(--seed 6); fi
 fi
