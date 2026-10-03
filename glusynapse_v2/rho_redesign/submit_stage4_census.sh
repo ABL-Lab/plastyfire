@@ -8,6 +8,8 @@
 #         smoke 22308544 4N 58.7 GB fits inside). Time: smoke 12:01 for 7 generations + 600 x 1.3 s, so ~25 min -> 1:00:00
 #         (extrapolated, not measured; tighten after the first finishes).
 #   vals: MEASURED peak 72.9 GB 9:52 (22300527) -> 92G 0:30:00.
+# MEASURED census 22314719-42: fits 3W 12:34-15:42 peak 19.0 GB; 4V 27:41-36:08 peak 56.6 GB; 4N 25:31-38:15 peak 58.7 GB;
+#   vals 7:25-8:59 peak 62.0 GB. Next: fits 3W 24G 0:30, 4V 71G 1:00, 4N 74G 1:00; vals 78G 0:15; kimchi fit+val 78G 1:15.
 set -euo pipefail
 RS=glusynapse_v2/rho_redesign
 # options live in stage4_env.sh so that the batch jobs see them regardless of sbatch --export

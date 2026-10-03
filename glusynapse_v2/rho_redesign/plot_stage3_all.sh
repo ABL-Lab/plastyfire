@@ -9,7 +9,10 @@ for spec in "s1C_w:/scratch/dhuruva/s1c_l23w/s1CW_w025:S1C rule refit, L2/3 weig
             "s4N_s::4N seeded" "s4N_u::4N unseeded" "s5N_s::5N seeded (all targets)" \
             "s3V_s::3V seeded (v11 veto, peak)" "s3W_s::3W seeded (v11 veto, integral)" \
             "s4V_s::4V seeded (v11)" "s4V_u::4V unseeded (v11)" \
-            "s5Nm8_s::5N, Markram +10 weight 8, seeded" "s5Nm8_u::5N, Markram +10 weight 8, unseeded" "s4Nm8_s::4N, Markram +10 weight 8, seeded"; do
+            "s5Nm8_s::5N, Markram +10 weight 8, seeded" "s5Nm8_u::5N, Markram +10 weight 8, unseeded" "s4Nm8_s::4N, Markram +10 weight 8, seeded" \
+            "f4Ndah_u8::stage 4: 4N, hinge, demoted, anchored, unseeded u8 (selected)" \
+            "f4Vdah_u8::stage 4: 4V, hinge, demoted, anchored, unseeded u8" \
+            "f3Wdah_s5::stage 4: 3W, hinge, demoted, anchored, seeded s5"; do
   m=${spec%%:*}; rest=${spec#*:}; fc=${rest%%:*}; lbl=${rest#*:}; [ -n "$fc" ] || fc=$m
   [ -s $RS/${m}_val.csv ] || { echo "skip $m (no val csv)"; continue; }
   [ -s $OUTD/${m}_val.png ] && [ $OUTD/${m}_val.png -nt $RS/${m}_val.csv ] && { echo "up to date $m"; continue; }
