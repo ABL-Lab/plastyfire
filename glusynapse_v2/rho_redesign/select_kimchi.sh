@@ -10,7 +10,7 @@
 set -euo pipefail
 SW=$1; shift
 RS=/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/rho_redesign
-LED=/lustre09/project/6070394/dhuruva/kimchi_ledger_glusyn/results/$SW
+LED=${LEDDIR:-/lustre09/project/6070394/dhuruva/kimchi_ledger_glusyn/results/$SW}
 W=/scratch/dhuruva/kimchi_select/$SW; mkdir -p $W
 for f in $RS/f4Ndah_s6.csv $RS/f4Ndah_s6_l23.csv $RS/f4Ndah_s6_l23l23.csv $RS/s4N_u_sepair.csv; do ln -sf $f $W/; done
 runs=()
