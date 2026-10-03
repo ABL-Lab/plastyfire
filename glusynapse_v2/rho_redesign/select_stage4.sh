@@ -3,6 +3,8 @@
 #   1. Markram HIT: 10Hz_10ms and 10Hz_-10ms (L5 control) both |z| <= 1 on the data SEM.
 #   2. Among hits, rank by chi2_eff/n over the CORE rows, with SEM_eff^2 = SEM^2 + SE_pair^2 (SE_pair from LOPO, SEPAIR csv).
 #   3. Within 10 % of the best chi2_eff/n counts as tied; ties go to fewer free parameters (n_free from the run json).
+#   4. (user 2026-10-02) L5 slope gate: OLS slope of pred on data over all 40 L5 rows must be >= 0.6; hits that pass rank
+#      first; if none passes, the hit with the highest slope leads. This is the one place validation rows enter.
 #   Validation rows are never used: CORE = the fit targets of the CORE_FROM run (one common set for every model).
 # Usage (from rho_redesign/): bash select_stage4.sh RUN [RUN ...]
 #   RUN = prefix of RUN_val{,_l23,_l23l23}.csv and RUN.json.
@@ -22,10 +24,13 @@ for R in "$@"; do
           while((getline l < sp)>0){split(l,a,","); if(a[1]!="key") se[a[1]]=a[7]}}
     {k=$1; m=$2; s=$3; pr=$4; z=$5
      if(k=="l5/10Hz_10ms|control"){p10=pr; z10=z} if(k=="l5/10Hz_-10ms|control"){m10=pr; zm10=z}
-     if(k in isc){e=(k in se)?se[k]:0; chi+=(pr-m)^2/(s^2+e^2); nn++}}
-    END{hit=(z10*z10<=1 && zm10*zm10<=1)?"HIT":"MISS"
-        printf "%s,%s,%.3f,%.3f,%.2f,%d,%.3f,%s\n", run,hit,p10,m10,chi,nn,chi/nn,nf}'
+     if(k in isc){e=(k in se)?se[k]:0; chi+=(pr-m)^2/(s^2+e^2); nn++}
+     if(k ~ /^l5\//){q++; sx+=m; sy+=pr; sxx+=m*m; sxy+=m*pr}}
+    END{hit=(z10*z10<=1 && zm10*zm10<=1)?"HIT":"MISS"; sl=(q*sxy-sx*sy)/(q*sxx-sx*sx); g=(sl>=0.6)?"PASS":"low"
+        key=(g=="PASS")?chi/nn:1000-sl
+        printf "%s,%s,%s,%.2f,%.3f,%.3f,%.2f,%d,%.3f,%s,%.4f\n", run,hit,g,sl,p10,m10,chi,nn,chi/nn,nf,key}'
 done > $TMP
-# rank: hits first, then chi2eff_n; mark ties within 10 % of the best hit
-sort -t, -k2,2 -k7,7g $TMP | awk -F, 'BEGIN{print "run,hit,mk_p10,mk_m10,chi2eff,n,chi2eff_n,n_free,tied_best"}
-  {t=""; if($2=="HIT"){ if(best=="") best=$7; t=($7<=1.1*best)?"TIED":"" } print $0","t}' | tee $OUT | column -t -s,
+# rank: hits first; among hits, L5 slope gate PASS (>= 0.6) first ranked by chi2eff_n, then gate-low ranked by highest slope;
+# mark ties within 10 % of the best PASS hit (ties go to fewer free params)
+sort -t, -k2,2 -k3,3 -k11,11g $TMP | cut -d, -f1-10 | awk -F, 'BEGIN{print "run,hit,slope_gate,slopeL5,mk_p10,mk_m10,chi2eff,n,chi2eff_n,n_free,tied_best"}
+  {t=""; if($2=="HIT" && $3=="PASS"){ if(best=="") best=$9; t=($9<=1.1*best)?"TIED":"" } print $0","t}' | tee $OUT | column -t -s,
