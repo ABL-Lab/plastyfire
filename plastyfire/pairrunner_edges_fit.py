@@ -20,6 +20,7 @@ Output: simulation_edges_{param_hash}.pkl written in workdir.
 """
 
 import argparse
+import json
 import hashlib
 import logging
 import os
@@ -38,6 +39,15 @@ FIT_PARAM_NAMES = [
     "a30", "a31",
 ]
 FITTED_TAU = 278.3177658387  # fixed; injected via --tau_effca_GB_GluSynapse
+
+
+def _parse_glusyn_globals(text):
+    """{name_GluSynapse: float} from a JSON string; names must end in _GluSynapse (set as HOC globals)."""
+    g = {k: float(v) for k, v in json.loads(text).items()}
+    bad = [k for k in g if not k.endswith("_GluSynapse")]
+    if bad:
+        raise ValueError(f"--glusyn-globals: not GluSynapse globals: {bad}")
+    return g
 
 
 if __name__ == "__main__":
@@ -63,6 +73,9 @@ if __name__ == "__main__":
     parser.add_argument("--circuit-config", default=None,
                         help="Override the 'network' field in prefire_simulation_config.json "
                              "(e.g. for new ion channels)")
+    parser.add_argument("--glusyn-globals", default=None,
+                        help="JSON dict of extra GluSynapse GLOBALs, e.g. '{\"ljp_VDCC_GluSynapse\": 10}' "
+                             "(glusynapse_v2 spine-VDCC variant). Default: none (mod values).")
     parser.add_argument("--extracellular-calcium", type=float, default=None,
                         help="Override extracellular Ca (mM). Sets both "
                              "conditions.extracellular_calcium (release-probability "
@@ -80,6 +93,21 @@ if __name__ == "__main__":
     parser.add_argument("--out", default=None,
                         help="Explicit output pkl path. Default: "
                              "<workdir>/simulation_edges_<param_hash>.pkl")
+    parser.add_argument("--full-protocol", action="store_true",
+                        help="Run the full experiment (simulation_config.json: C01 + "
+                             "induction + C02, 520 s) and measure the EPSP ratio "
+                             "directly from the soma voltage instead of via the basis. "
+                             "Use with --fastforward=280000. Output: "
+                             "simulation_full_<param_hash>.pkl")
+    parser.add_argument("--trace-vars", default=None,
+                        help="Comma-separated traces to record in simulation_traces.pkl "
+                             "(cai_CR,shaft_cai,ica_NMDA,ica_VDCC,rho_GB; v_seg only when named). Default: all. "
+                             "Long protocols (Ebner 2019) use cai_CR, the only one "
+                             "analytical_method/extract.py reads.")
+    parser.add_argument("--allow-late-spikes", action="store_true",
+                        help="Induction guardrail counts only post spikes inside each pulse "
+                             "window (onset .. onset + width + 5 ms), so spikes after a "
+                             "high-frequency burst (Letzkus 2006) are allowed.")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -92,13 +120,16 @@ if __name__ == "__main__":
     # Build fit_params dict passed to simulator_edges
     fit_params = {name: getattr(args, name) for name in FIT_PARAM_NAMES}
     fit_params["tau_effca_GB_GluSynapse"] = args.tau_effca_GB_GluSynapse
+    if args.glusyn_globals:
+        fit_params.update(_parse_glusyn_globals(args.glusyn_globals))
 
     # Determine output filename
     if args.param_hash:
         param_hash = args.param_hash
     else:
         param_hash = hashlib.md5(str(sorted(fit_params.items())).encode()).hexdigest()[:12]
-    filename = f"simulation_edges_{param_hash}.pkl"
+    filename = (f"simulation_full_{param_hash}.pkl" if args.full_protocol
+                else f"simulation_edges_{param_hash}.pkl")
 
     log.info("workdir          : %s", workdir)
     log.info("param_hash       : %s", param_hash)
@@ -109,6 +140,7 @@ if __name__ == "__main__":
              if args.extracellular_calcium is not None else "(config default)")
     log.info("lean             : %s", args.lean)
     log.info("force            : %s", args.force)
+    log.info("full_protocol    : %s", args.full_protocol)
     if args.cpre_cpost_cache:
         import os as _os
         log.info("cpre_cpost_cache exists: %s", _os.path.exists(args.cpre_cpost_cache))
@@ -122,10 +154,16 @@ if __name__ == "__main__":
         fastforward=args.fastforward,
         cpre_cpost_cache=args.cpre_cpost_cache,
         circuit_config=args.circuit_config,
-        bcl_subdir="bluecellulab_results_optimizer",
+        # per-hash so concurrent prefire runs (e.g. two emodel pipelines) never
+        # overwrite each other's simulation_traces.pkl
+        bcl_subdir=(f"bluecellulab_results_full_{param_hash}" if args.full_protocol
+                    else f"bluecellulab_results_{param_hash}"),
         extracellular_calcium=args.extracellular_calcium,
         lean=args.lean,
         force=args.force,
+        full_protocol=args.full_protocol,
+        trace_vars=args.trace_vars.split(",") if args.trace_vars else None,
+        allow_late_spikes=args.allow_late_spikes,
     )
     elapsed = time.strftime("%H:%M:%S", time.gmtime(time.time() - t_start))
     log.info("Simulation finished in %s", elapsed)

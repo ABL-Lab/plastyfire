@@ -32,7 +32,7 @@ import numpy as np
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-EDGES_H5 = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+EDGES_H5 = "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 POP_PATH = f"edges/{EDGE_POP}/0"
 

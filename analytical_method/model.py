@@ -21,8 +21,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from constants import (RHO_STAR_GB, TAU_IND_GB, GAMMA_D_GB, GAMMA_P_GB,
                        RHO_BINARY_THRESHOLD, PROTO_DT)
 
-ROOT      = "/lustre06/project/6077694/dhuruva/plastyfire"
-BASIS_DIR = os.path.join(ROOT, "basis_results_edges_ion_channels")
+ROOT      = "/project/rrg-emuller/dhuruva/plastyfire"
+BASIS_DIR = os.environ.get("ANALYTICAL_BASIS_DIR",
+                           os.path.join(ROOT, "basis_results_edges_ion_channels"))
 EXTRACTED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extracted")
 
 

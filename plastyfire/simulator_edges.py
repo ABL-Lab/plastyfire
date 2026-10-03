@@ -26,15 +26,16 @@ from bluepysnap import Simulation
 import bluecellulab
 
 from plastyfire.simulator import (
-    _get_spikes, _map_syn_idx, _set_global_params, spike_threshold_finder,
+    _get_spikes, _map_syn_idx, _set_global_params, spike_threshold_finder, doublet_tolerant, pulse_spike_counts,
+    any_firing,
 )
 
 logger = logging.getLogger(__name__)
 
-EDGES_H5_DEFAULT  = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+EDGES_H5_DEFAULT  = "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP_DEFAULT  = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 NODE_POP_DEFAULT  = "S1nonbarrel_neurons"
-MECHANISMS_PATH   = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
+MECHANISMS_PATH   = "/project/rrg-emuller/dhuruva/DEES_cell_packages/"
 
 # Keys that trigger per-synapse theta override via c_pre/c_post computation
 _A_PARAM_KEYS = {"a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"}
@@ -61,6 +62,19 @@ C_POST_PULSE_WIDTHS_MS = [1.5, 3, 5]
 C_POST_MIN_AMP_NA      = 0.05
 C_POST_MAX_AMP_NA      = 5.
 C_POST_AMP_LEVELS      = 100   # -> 0.05 nA grid over [0.05, 5.] nA
+
+
+def _pre_gids(pre_gid):
+    """`pre_gid` is one gid, or a tuple of gids for a pipette-recruited group of presynaptic
+    cells (extracellular stimulation, e.g. Nevian 2006): all of them get the same spike train."""
+    return [int(g) for g in np.atleast_1d(pre_gid)]
+
+
+def _precell(node_sets):
+    """precell of a workdir's node sets: an int for a pair, a tuple of ints for a pipette group
+    (also the key of the c_pre/c_post cache, so pairs keep their old (pre_gid, post_gid) keys)"""
+    ids = [int(g) for g in node_sets["precell"]["node_id"]]
+    return ids[0] if len(ids) == 1 else tuple(ids)
 
 
 # ---------------------------------------------------------------------------
@@ -191,7 +205,7 @@ def _read_syn_extra_params(sim_config, pre_gid, post_gid, edge_pop, _logger):
     from plastyfire.thresholdfinder import read_sonata_params
 
     edges = Simulation(sim_config).circuit.edges[edge_pop]
-    syn_df = read_sonata_params(edges, np.array([pre_gid]), post_gid)
+    syn_df = read_sonata_params(edges, np.array(_pre_gids(pre_gid)), post_gid)
     params = syn_df.drop(columns=["@source_node"]).to_dict(orient="index")
     _logger.info("Loaded per-synapse params for %d synapses (volume_CR %.3f-%.3f)",
                  len(params),
@@ -233,8 +247,8 @@ def _find_cpre_cpost(sim_config_eff, cfg, fit_params, pre_gid, post_gid,
     sim_pre.instantiate_gids(
         [(node_pop, post_gid)],
         add_synapses=True, add_minis=False, add_pulse_stimuli=False,
-        intersect_pre_gids=[(node_pop, pre_gid)],
-        pre_spike_trains={(node_pop, pre_gid): [1000.0]},
+        intersect_pre_gids=[(node_pop, g) for g in _pre_gids(pre_gid)],
+        pre_spike_trains={(node_pop, g): [1000.0] for g in _pre_gids(pre_gid)},
     )
     cell_pre = sim_pre.cells[(node_pop, post_gid)]
     if fixhp:
@@ -310,6 +324,20 @@ def _find_cpre_cpost(sim_config_eff, cfg, fit_params, pre_gid, post_gid,
             break
         _logger.info("c_post: no single AP at width=%.1f ms up to %.1f nA — widening pulse",
                      pulse_width, C_POST_MAX_AMP_NA)
+    if stim_amp is None and doublet_tolerant():
+        # opt-in fallback (PLASTYFIRE_DOUBLET_TOLERANT=1), only after every strict width failed: the lowest amp
+        # at which the cell answers the pulse with one somatic event, 1 AP or a <= 6 ms doublet. c_post is then
+        # the Ca of that event (2 bAPs for a doublet); the multi-spike warning below logs it.
+        for pulse_width in C_POST_PULSE_WIDTHS_MS:
+            simres = spike_threshold_finder(
+                sim_config_eff, post_gid, 1, 0.1, pulse_width, 1000.,
+                C_POST_MIN_AMP_NA, C_POST_MAX_AMP_NA, C_POST_AMP_LEVELS,
+                node_pop, fixhp, doublet_ok=True)
+            if simres is not None:
+                stim_amp, stim_width = float(simres["amp"]), float(simres["width"])
+                _logger.warning("c_post stimulus (doublet-tolerant): %.4f nA, %.1f ms",
+                                stim_amp, stim_width)
+                break
     if stim_amp is None:
         raise RuntimeError(
             f"spike_threshold_finder could not fire post cell {post_gid} with "
@@ -320,7 +348,7 @@ def _find_cpre_cpost(sim_config_eff, cfg, fit_params, pre_gid, post_gid,
     sim_post.instantiate_gids(
         [(node_pop, post_gid)],
         add_synapses=True, add_minis=False, add_pulse_stimuli=False,
-        intersect_pre_gids=[(node_pop, pre_gid)],
+        intersect_pre_gids=[(node_pop, g) for g in _pre_gids(pre_gid)],
     )
     cell_post = sim_post.cells[(node_pop, post_gid)]
     if fixhp:
@@ -386,6 +414,16 @@ def _find_cpre_cpost(sim_config_eff, cfg, fit_params, pre_gid, post_gid,
         stim_amp += 0.05
     _logger.info("c_post: post cell %d fired %d spike(s) at amp=%.4f nA (%.1f ms)",
                  post_gid, _n_post_spikes, stim_amp, stim_width)
+    _post_spike_times = [float(x) for x in _get_spikes(_t, _v)]
+    if _n_post_spikes != 1:
+        _logger.warning("c_post: post cell %d fired %d spikes (times ms %s), c_post carries "
+                        "more than one bAP of Ca", post_gid, _n_post_spikes,
+                        [round(x, 2) for x in _post_spike_times])
+        # Default off: only PLASTYFIRE_STRICT_CPOST=1 turns a multi-spike c_post into an error.
+        if os.environ.get("PLASTYFIRE_STRICT_CPOST", "0") == "1":
+            raise RuntimeError(
+                f"post cell {post_gid} fired {_n_post_spikes} spikes to the c_post pulse "
+                f"({stim_amp:.4f} nA, {stim_width} ms) — c_post invalid (doublet)")
 
     c_post = {
         int(df.loc[df["local_syn_idx"] == sid].index[0]): float(rec_effcai_post[sid].max())
@@ -415,6 +453,7 @@ def _find_cpre_cpost(sim_config_eff, cfg, fit_params, pre_gid, post_gid,
     # call sites (which unpack 3 values) keep working unchanged.
     df.attrs = getattr(df, "attrs", {})
     df.attrs["n_post_spikes"] = _n_post_spikes
+    df.attrs["post_spike_times_ms"] = _post_spike_times
     df.attrs["n_syn"] = _n_syn
     df.attrs["n_syn_at_floor"] = _n_at_floor
     df.attrs["pulse_amp"] = float(stim_amp)
@@ -485,6 +524,58 @@ def _apply_theta_from_a_params(cell, global_ids, fit_params, c_pre, c_post,
 
 
 # ---------------------------------------------------------------------------
+# Full-protocol EPSP measurement
+# ---------------------------------------------------------------------------
+
+EPSP_WINDOW_MS = 100.0   # same window as ephysutils.Experiment
+
+
+def _measure_full_protocol_epsps(t, v, pre_spikes, cfg, _logger):
+    """EPSP amplitudes of the C01 (before) and C02 (after) test pulses.
+
+    The induction window is taken from the config's pulse inputs: C01 spikes are
+    the pre spikes that come before the first pulse (minus the largest |dt|), C02
+    the ones after the last pulse. Amplitude = peak - value at spike time within
+    EPSP_WINDOW_MS, exactly as ephysutils.get_epsp_vector. The ratio is
+    mean(C02) / mean(C01) over all test pulses, as Experiment.compute_epsp_ratio
+    with n = number of test pulses.
+    """
+    from plastyfire.ephysutils import get_epsp_vector
+    pulses = [p for p in cfg.get("inputs", {}).values() if p.get("module") == "pulse"]
+    ind_start = min(p["delay"] for p in pulses)
+    ind_end = max(p["delay"] + (round(p["duration"] * p["frequency"] / 1000.0) - 1)
+                  * 1000.0 / p["frequency"] + p["width"] for p in pulses)
+    pre_spikes = np.asarray(pre_spikes, dtype=np.float64)
+    c01 = pre_spikes[pre_spikes < ind_start - 500.0]
+    c02 = pre_spikes[pre_spikes > ind_end + 500.0]
+    out = {"c01_spikes": c01, "c02_spikes": c02,
+           "induction_window": (float(ind_start), float(ind_end))}
+    try:
+        e01 = get_epsp_vector(t, v, c01, EPSP_WINDOW_MS)
+        e02 = get_epsp_vector(t, v, c02, EPSP_WINDOW_MS)
+    except (RuntimeError, ValueError) as e:
+        _logger.warning("EPSP measurement failed: %s", e)
+        out.update({"epsp_c01": None, "epsp_c02": None, "epsp_ratio": None,
+                    "epsp_error": str(e)})
+        return out
+    # Mean EPSP waveform per phase on a fixed 0.1 ms grid, for plotting / slope
+    tw = np.arange(0.0, EPSP_WINDOW_MS, 0.1)
+    def _mean_trace(spk):
+        return np.mean([np.interp(tw + s, t, v) for s in spk], axis=0).astype(np.float32)
+    ratio = float(np.mean(e02) / np.mean(e01)) if np.mean(e01) > 0 else None
+    _logger.info("EPSP: C01 %d pulses mean %.4f mV | C02 %d pulses mean %.4f mV | ratio %s",
+                 len(e01), np.mean(e01), len(e02), np.mean(e02),
+                 f"{ratio:.4f}" if ratio is not None else "n/a")
+    # 1 ms decimated somatic voltage (~2 MB) instead of the raw variable-step trace
+    t_dec = np.arange(0.0, float(t[-1]), 1.0)
+    out.update({"epsp_c01": e01, "epsp_c02": e02, "epsp_ratio": ratio,
+                "trace_window_t": tw.astype(np.float32),
+                "mean_trace_c01": _mean_trace(c01), "mean_trace_c02": _mean_trace(c02),
+                "v_1ms": np.interp(t_dec, t, v).astype(np.float32)})
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Subprocess
 # ---------------------------------------------------------------------------
 
@@ -498,12 +589,20 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                                 bcl_subdir="bluecellulab_results",
                                 extracellular_calcium=None,
                                 lean=False,
-                                force=False):
+                                force=False,
+                                full_protocol=False,
+                                trace_vars=None,
+                                allow_late_spikes=False):
     """
     Runs the prefire simulation inside a subprocess.
     Uses prefire_simulation_config.json + prefire_prespikes.h5.
     Injects theta_d_GB / theta_p_GB from edges.h5.
     Writes out/rho.h5 for downstream basis extrapolation.
+
+    full_protocol=True runs the whole experiment instead (simulation_config.json +
+    prespikes.h5: C01 test pulses, induction, C02 test pulses) and measures the
+    EPSP amplitudes directly from the somatic voltage, so no basis is needed.
+    Calcium traces are not recorded in this mode (520 s would be GBs per run).
     """
     logging.basicConfig(
         level=logging.INFO,
@@ -519,8 +618,12 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
     bluecellulab.neuron.load_mechanisms(MECHANISMS_PATH)
 
     try:
-        sim_config      = os.path.join(workdir, "prefire_simulation_config.json")
-        pre_spikes_path = os.path.join(workdir, "prefire_prespikes.h5")
+        if full_protocol:
+            sim_config      = os.path.join(workdir, "simulation_config.json")
+            pre_spikes_path = os.path.join(workdir, "prespikes.h5")
+        else:
+            sim_config      = os.path.join(workdir, "prefire_simulation_config.json")
+            pre_spikes_path = os.path.join(workdir, "prefire_prespikes.h5")
 
         # bluecellulab does not support 'synapse' type reports; strip them
         # so configure_all_reports doesn't raise NotImplementedError.
@@ -572,14 +675,17 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
 
         _logger.info("Loading prefire circuit: %s", sim_config)
         sim        = bluecellulab.CircuitSimulation(sim_config_eff, base_seed=cfg["run"]["random_seed"])
-        pre_spikes = SpikeReader(pre_spikes_path)[node_pop].get_dict()["timestamps"]
+        # A pipette group's spike file repeats the train once per gid: keep one copy
+        _spk = SpikeReader(pre_spikes_path)[node_pop].get_dict()
+        pre_spikes = np.asarray(_spk["timestamps"])[
+            np.asarray(_spk["node_ids"]) == _pre_gids(pre_gid)[0]]
 
         # bluecellulab auto-loads rho0_GB, Use_d/p, gmax_d/p from dhuruva_circuit_config.json
         sim.instantiate_gids(
             [(node_pop, post_gid)],
             add_synapses=True, add_minis=False, add_pulse_stimuli=True,
-            intersect_pre_gids=[(node_pop, pre_gid)],
-            pre_spike_trains={(node_pop, pre_gid): pre_spikes},
+            intersect_pre_gids=[(node_pop, g) for g in _pre_gids(pre_gid)],
+            pre_spike_trains={(node_pop, g): pre_spikes for g in _pre_gids(pre_gid)},
         )
         cell = sim.cells[(node_pop, post_gid)]
 
@@ -634,7 +740,7 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                     c_pre  = _cache[_key]["c_pre"]
                     c_post = _cache[_key]["c_post"]
                     cache_hit = True
-                    _logger.info("Loaded c_pre/c_post from cache for pair (%d, %d)", pre_gid, post_gid)
+                    _logger.info("Loaded c_pre/c_post from cache for pair (%s, %d)", pre_gid, post_gid)
             if not cache_hit:
                 _logger.info("a-params detected — computing c_pre/c_post via mini-sims")
                 c_pre, c_post, _ = _find_cpre_cpost(
@@ -675,28 +781,33 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         shaft_vecs    = {}
         ica_nmda_vecs = {}
         ica_vdcc_vecs = {}
+        vseg_vecs     = {}
         for syn_id, synapse in cell.synapses.items():
             h_syn = synapse.hsynapse
 
             v = bluecellulab.neuron.h.Vector()
             v.record(h_syn._ref_rho_GB)
             rho_vecs[syn_id] = v
-
-            v = bluecellulab.neuron.h.Vector()
-            v.record(h_syn._ref_cai_CR)
-            cai_vecs[syn_id] = v
-
-            v = bluecellulab.neuron.h.Vector()
-            v.record(h_syn._ref_shaft_cai)
-            shaft_vecs[syn_id] = v
-
-            v = bluecellulab.neuron.h.Vector()
-            v.record(h_syn._ref_ica_NMDA)
-            ica_nmda_vecs[syn_id] = v
-
-            v = bluecellulab.neuron.h.Vector()
-            v.record(h_syn._ref_ica_VDCC)
-            ica_vdcc_vecs[syn_id] = v
+            if full_protocol:
+                continue
+            # trace_vars=None records all of them; long protocols (Ebner 2019, up to
+            # 1000 s) pass ["cai_CR"], the only trace analytical_method/extract.py reads
+            for name, ref, vecs in (("cai_CR", "_ref_cai_CR", cai_vecs),
+                                    ("shaft_cai", "_ref_shaft_cai", shaft_vecs),
+                                    ("ica_NMDA", "_ref_ica_NMDA", ica_nmda_vecs),
+                                    ("ica_VDCC", "_ref_ica_VDCC", ica_vdcc_vecs)):
+                if trace_vars is None or name in trace_vars:
+                    v = bluecellulab.neuron.h.Vector()
+                    v.record(getattr(h_syn, ref))
+                    vecs[syn_id] = v
+            # v_seg (t_drive 3): segment voltage at the synapse. Opt-in only: never recorded by default
+            # (trace_vars=None), so existing runs are unchanged.
+            if trace_vars is not None and "v_seg" in trace_vars:
+                _h = bluecellulab.neuron.h
+                _x = h_syn.get_loc(); _sec = _h.cas(); _h.pop_section()   # section of the point process, as diag_burst.py
+                # (h.cas() after get_loc(), which pushes the synapse section)
+                v = _h.Vector(); v.record(_sec(_x)._ref_v)
+                vseg_vecs[syn_id] = v
 
         # Collect initial rho from bluecellulab-loaded rho0_GB
         initial_rho = [s.hsynapse.rho0_GB for s in cell.synapses.values()]
@@ -705,7 +816,11 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         if fastforward is not None and fastforward < t_end:
             _logger.info("Fast-forwarding to %.0f ms", fastforward)
             sim.run(fastforward, cvode=True)
-            # Snap rho and use as the initial state for recording
+            # Snap rho and use as the initial state for recording. In the full
+            # protocol the snap happens AFTER induction, so rho0 stays the initial
+            # state and the snapped values are kept separately.
+            rho_at_ff = [s.hsynapse.rho_GB for s in cell.synapses.values()]
+            rho0_kept = initial_rho
             initial_rho = []
             for synapse in cell.synapses.values():
                 h       = synapse.hsynapse
@@ -718,6 +833,8 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                     h.Use = h.Use_d;  h.Use_GB = h.Use_d
                     h.gmax_AMPA = h.gmax_d_AMPA; h.gmax0_AMPA = h.gmax_d_AMPA
                 initial_rho.append(snapped)
+            if full_protocol:
+                snapped_rho, initial_rho = initial_rho, rho0_kept
             bluecellulab.neuron.h.cvode_active(1)
             bluecellulab.neuron.h.continuerun(t_end)
         else:
@@ -760,8 +877,9 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         # otherwise overwrite the 2.0 mM rho.h5 three times over. The returned
         # results dict already carries global_ids/initial_rho/final_rho, which is
         # everything rho.h5 holds.
-        if lean:
-            _logger.info("lean=True: skipping rho.h5, rho_timeseries.npy and simulation_traces.pkl")
+        if lean or full_protocol:
+            _logger.info("%s: skipping rho_timeseries.npy and simulation_traces.pkl",
+                         "full_protocol" if full_protocol else "lean=True")
         else:
             rho_ts = np.column_stack([t] + [np.array(rho_vecs[sid]) for sid in cell.synapses])
             ts_path = os.path.join(bcl_out, "rho_timeseries.npy")
@@ -780,7 +898,9 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
             #   ica_VDCC  : dict {global_id (int): float32 array (T,)}
             #   rho_GB    : dict {global_id (int): float32 array (T,)}
             RECORD_DT = 0.025  # ms — matches default NEURON dt; fine enough for CICR dynamics
-            t_uniform = np.arange(0.0, t[-1] + RECORD_DT, RECORD_DT, dtype=np.float32)
+            # interpolate on a float64 grid: float32 spacing is 0.06 ms at 1000 s (Ebner protocols)
+            t_uniform64 = np.arange(len(np.arange(0.0, t[-1] + RECORD_DT, RECORD_DT, dtype=np.float32))) * RECORD_DT
+            t_uniform = t_uniform64.astype(np.float32)
 
             def _interp_dict(vec_dict, syn_order, gids, t_raw, t_uni):
                 """Interpolate NEURON Vector recordings onto a uniform grid, keyed by global_id."""
@@ -791,16 +911,18 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                 return out
 
             syn_order = list(cell.synapses.keys())
-            traces_pkl = {
-                "t":         t_uniform,
-                "cai_CR":    _interp_dict(cai_vecs,      syn_order, global_ids, t, t_uniform),
-                "shaft_cai": _interp_dict(shaft_vecs,    syn_order, global_ids, t, t_uniform),
-                "ica_NMDA":  _interp_dict(ica_nmda_vecs, syn_order, global_ids, t, t_uniform),
-                "ica_VDCC":  _interp_dict(ica_vdcc_vecs, syn_order, global_ids, t, t_uniform),
-                "rho_GB":    _interp_dict(rho_vecs,      syn_order, global_ids, t, t_uniform),
+            traces_pkl = {"t": t_uniform}
+            for name, vecs in (("cai_CR", cai_vecs), ("shaft_cai", shaft_vecs),
+                               ("ica_NMDA", ica_nmda_vecs), ("ica_VDCC", ica_vdcc_vecs),
+                               ("rho_GB", rho_vecs)):
+                if trace_vars is None or name in trace_vars:
+                    traces_pkl[name] = _interp_dict(vecs, syn_order, global_ids, t, t_uniform64)
+            if vseg_vecs:
+                traces_pkl["v_seg"] = _interp_dict(vseg_vecs, syn_order, global_ids, t, t_uniform64)
+            traces_pkl.update({
                 "prespikes": np.array(pre_spikes, dtype=np.float32),
                 "global_ids": global_ids,
-            }
+            })
 
             # Determine output path for simulation_traces.pkl.
             # If traces_output_dir is given, write to:
@@ -838,19 +960,99 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         # Expected count is derived from the config rather than hard-coded, so it
         # follows nspikes / nreps / T if the protocol changes: each "pulse" input
         # fires duration_ms * frequency_Hz / 1000 times.
+        # Depolarising steps (simwriter `post_type: step`, inputs named "step<i>": one long pulse per
+        # repetition, Sjostrom 2007) fire a rate-calibrated number of APs, not one per pulse. They are left
+        # out of the per-pulse count; instead every step repetition must fire >= 1 AP within
+        # [onset, onset + width + 5 ms], and the per-repetition AP counts are stored (step_spikes_per_rep).
+        _steps = {k: _inp for k, _inp in cfg.get("inputs", {}).items()
+                  if _inp.get("module") == "pulse" and k.startswith("step")}
+        step_counts = None
+        if _steps:
+            step_counts = []
+            for _inp in _steps.values():
+                n_rep = int(round(_inp["duration"] * _inp["frequency"] / 1000.0))
+                for _t0 in _inp["delay"] + np.arange(n_rep) * 1000.0 / _inp["frequency"]:
+                    step_counts.append(int(np.sum((post_spikes >= _t0) &
+                                                  (post_spikes <= _t0 + _inp["width"] + 5.0))))
+            _logger.info("induction: %d steps, APs per step min %d / mean %.1f / max %d",
+                         len(step_counts), min(step_counts), np.mean(step_counts), max(step_counts))
         n_expected = 0
-        for _inp in cfg.get("inputs", {}).values():
-            if _inp.get("module") == "pulse":
+        for _k, _inp in cfg.get("inputs", {}).items():
+            if _inp.get("module") == "pulse" and _k not in _steps and not _k.startswith("substep"):
                 n_expected += int(round(_inp["duration"] * _inp["frequency"] / 1000.0))
         n_post = int(len(post_spikes))
+        # allow_late_spikes (Letzkus 2006 bursts, calibrated with simwriter's burst_window_search):
+        # count the pulses followed by an AP within [onset, onset + width + 3 ms] (5 ms = the 200 Hz ISI
+        # for 2 ms pulses) and pass if every pulse fired, so the Ca2+-spike driven spikes after a 200 Hz
+        # burst (1-5 extra per repetition in the delta emodels) do not trip the guardrail. Off by default.
+        # Stored as n_post_spikes_in_window (= number of pulses that fired).
+        n_in_window = None
+        if allow_late_spikes and n_expected and n_post != n_expected:
+            n_in_window = 0
+            for _inp in cfg.get("inputs", {}).values():
+                if _inp.get("module") == "pulse":
+                    n_rep = int(round(_inp["duration"] * _inp["frequency"] / 1000.0))
+                    for _t0 in _inp["delay"] + np.arange(n_rep) * 1000.0 / _inp["frequency"]:
+                        n_in_window += int(np.any((post_spikes >= _t0) &
+                                                  (post_spikes <= _t0 + _inp["width"] + 3.0)))
+            if n_in_window == n_expected:
+                _logger.info("induction: all %d pulses fired, %d extra (late) post spikes allowed",
+                             n_expected, n_post - n_expected)
+        # PLASTYFIRE_DOUBLET_TOLERANT=1 (opt-in, default off): a pulse may answer with 1 AP or a <= 6 ms doublet
+        # (simulator.DOUBLET_MAX_ISI_MS), the rule the calibration fallback used; no AP outside the pulses.
+        # Applies only where the strict count fails; the run is marked doublet_tolerant_pass in the results.
+        doublet_pass = False
+        if doublet_tolerant() and n_expected and n_post != n_expected and n_in_window != n_expected \
+                and not _steps:
+            counts, assigned, ok = [], 0, True
+            for _k, _inp in cfg.get("inputs", {}).items():
+                if _inp.get("module") == "pulse" and not _k.startswith("substep"):
+                    n_rep = int(round(_inp["duration"] * _inp["frequency"] / 1000.0))
+                    t0s = _inp["delay"] + np.arange(n_rep) * 1000.0 / _inp["frequency"]
+                    c, _, o = pulse_spike_counts(post_spikes, t0s, _inp["width"], 1000.0 / _inp["frequency"])
+                    counts += c
+                    ok = ok and o
+            doublet_pass = ok and all(c in (1, 2) for c in counts) and sum(counts) == n_post
+            if any_firing():
+                # PLASTYFIRE_DOUBLET_TOLERANT=2: the cell's own firing (doublets, bursts) is kept as it is; logged only
+                doublet_pass = True
+                _logger.warning("induction (any firing): %d APs for %d pulses, per-pulse counts %s",
+                                n_post, n_expected, counts)
+            elif doublet_pass:
+                n_in_window = n_expected
+                _logger.warning("induction (doublet-tolerant): %d APs for %d pulses, %d doublets",
+                                n_post, n_expected, sum(c == 2 for c in counts))
+            if doublet_pass:
+                n_in_window = n_expected
+        guardrail_bad = bool(n_expected and n_post != n_expected and n_in_window != n_expected)
+        if _steps:
+            # step protocols (simwriter writes no pulse train next to steps): expected = number of step
+            # repetitions, in_window = repetitions with >= 1 AP; n_post_spikes stays the total AP count
+            n_expected = len(step_counts)
+            n_in_window = int(np.sum(np.asarray(step_counts) > 0))
+            guardrail_bad = n_in_window != n_expected
+        # Subthreshold steps (simwriter `step_below_nA`, inputs "substep<i>", Sjostrom 2004 dLTD): the post cell
+        # must fire NO AP in [onset, onset + width + 5 ms]; n_post_spikes_exp stays 0 (no APs are expected)
+        _subs = [_inp for _k, _inp in cfg.get("inputs", {}).items()
+                 if _inp.get("module") == "pulse" and _k.startswith("substep")]
+        if _subs:
+            n_sub = 0
+            for _inp in _subs:
+                n_rep = int(round(_inp["duration"] * _inp["frequency"] / 1000.0))
+                for _t0 in _inp["delay"] + np.arange(n_rep) * 1000.0 / _inp["frequency"]:
+                    n_sub += int(np.sum((post_spikes >= _t0) & (post_spikes <= _t0 + _inp["width"] + 5.0)))
+            _logger.info("induction: subthreshold steps, %d APs inside the steps", n_sub)
+            guardrail_bad = guardrail_bad or n_sub > 0
         guardrail_forced = False
-        if n_expected and n_post != n_expected:
+        if guardrail_bad:
             msg = ("induction delivered %d post spikes, expected %d (%.0f%%) — "
-                   "pair %d->%d, Vm peak %.1f mV. The calibrated pulse amplitude no "
+                   "pair %s->%d, Vm peak %.1f mV. The calibrated pulse amplitude no "
                    "longer fires this cell as calibrated during the pairing train, so "
-                   "any rho change from this run is suspect."
-                   % (n_post, n_expected, 100.0 * n_post / n_expected,
-                      pre_gid, post_gid, float(v.max()) if v.size else float("nan")))
+                   "any rho change from this run is suspect.%s"
+                   % (n_post, n_expected, 100.0 * n_post / max(n_expected, 1),
+                      pre_gid, post_gid, float(v.max()) if v.size else float("nan"),
+                      "" if n_in_window is None else " (%d %s followed by an AP)"
+                      % (n_in_window, "steps" if _steps else "pulses")))
             if not force:
                 raise RuntimeError(msg)
             # force=True: keep the run, but mark it. `guardrail_forced` lands in the
@@ -867,11 +1069,21 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
             "n_post_spikes":     n_post,
             "n_post_spikes_exp": n_expected,
             "guardrail_forced":  guardrail_forced,
+            "doublet_tolerant_pass": doublet_pass,
+            "n_post_spikes_in_window": n_in_window,
             "global_ids":  global_ids,
             "initial_rho": initial_rho,
             "final_rho":   final_rho,
         }
-        if not lean:
+        if _steps:
+            results["step_spikes_per_rep"] = step_counts
+        if full_protocol:
+            results.update(_measure_full_protocol_epsps(t, v, pre_spikes, cfg, _logger))
+            results["postspikes"] = post_spikes
+            if fastforward is not None and fastforward < t_end:
+                results["rho_at_fastforward"] = rho_at_ff
+                results["snapped_rho"] = snapped_rho
+        elif not lean:
             # t/v/spike trains are ~500 kB per workdir; rho alone is ~1 kB.
             results.update({"t": t, "v": v,
                             "prespikes": pre_spikes, "postspikes": post_spikes})
@@ -948,7 +1160,7 @@ def _cpre_cpost_only_process(conn, workdir, fit_params, node_pop, edge_pop, fixh
             _snap_tmp.close()
             try:
                 _snap = Simulation(_snap_tmp.name)
-                pre_gid  = int(_snap.node_sets.content["precell"]["node_id"][0])
+                pre_gid  = _precell(_snap.node_sets.content)
                 post_gid = int(_snap.node_sets.content["postcell"]["node_id"][0])
             finally:
                 os.unlink(_snap_tmp.name)
@@ -964,7 +1176,9 @@ def _cpre_cpost_only_process(conn, workdir, fit_params, node_pop, edge_pop, fixh
                        "n_post_spikes": _attrs.get("n_post_spikes"),
                        "n_syn": _attrs.get("n_syn"),
                        "n_syn_at_floor": _attrs.get("n_syn_at_floor"),
-                       "pulse_amp": _attrs.get("pulse_amp")})
+                       "pulse_amp": _attrs.get("pulse_amp"),
+                       "pulse_width": _attrs.get("pulse_width"),
+                       "post_spike_times_ms": _attrs.get("post_spike_times_ms")})
         finally:
             try:
                 os.unlink(sim_config_eff)
@@ -1036,9 +1250,16 @@ def runconnectedpair_prefire_from_edges(workdir, fit_params=None,
                                         bcl_subdir="bluecellulab_results",
                                         extracellular_calcium=None,
                                         lean=False,
-                                        force=False):
+                                        force=False,
+                                        full_protocol=False,
+                                        trace_vars=None,
+                                        allow_late_spikes=False):
     """
     Run the prefire STDP induction simulation using dhuruva_modified_edges.h5.
+
+    full_protocol=True runs simulation_config.json instead (C01 + induction + C02,
+    520 s) and returns the measured EPSP amplitudes/ratio; see
+    _measure_full_protocol_epsps. Pair with fastforward (e.g. 280000).
 
     Uses prefire_simulation_config.json (pairing protocol only, no test pulses).
     theta_d_GB / theta_p_GB injected from edges.h5; all other synapse params
@@ -1060,7 +1281,8 @@ def runconnectedpair_prefire_from_edges(workdir, fit_params=None,
     out of 50, where the EPSP summates with the calibrated pulse at short |dt|),
     not to paper over a cell that never fired.
     """
-    sim_config = os.path.join(workdir, "prefire_simulation_config.json")
+    sim_config = os.path.join(workdir, "simulation_config.json" if full_protocol
+                              else "prefire_simulation_config.json")
     # Patch hardcoded paths (config may reference old/moved locations)
     with open(sim_config) as f:
         _cfg_snap = json.load(f)
@@ -1076,7 +1298,7 @@ def runconnectedpair_prefire_from_edges(workdir, fit_params=None,
     _snap_tmp.close()
     try:
         snap = Simulation(_snap_tmp.name)
-        pre_gid  = snap.node_sets.content["precell"]["node_id"][0]
+        pre_gid  = _precell(snap.node_sets.content)
         post_gid = snap.node_sets.content["postcell"]["node_id"][0]
         t_end    = snap.config["run"]["tstop"]
     finally:
@@ -1091,7 +1313,8 @@ def runconnectedpair_prefire_from_edges(workdir, fit_params=None,
               traces_output_dir, bluecellulab_output_dir, cpre_cpost_cache),
         kwargs={"circuit_config": circuit_config, "bcl_subdir": bcl_subdir,
                 "extracellular_calcium": extracellular_calcium, "lean": lean,
-                "force": force},
+                "force": force, "full_protocol": full_protocol,
+                "trace_vars": trace_vars, "allow_late_spikes": allow_late_spikes},
     )
     proc.start()
     child_conn.close()

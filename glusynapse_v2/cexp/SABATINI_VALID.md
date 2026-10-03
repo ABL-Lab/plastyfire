@@ -31,3 +31,14 @@ Summary: the same env with `MERGE=1 sbatch --dependency=afterok:<array> --mem=2G
 | Sabatini 2002 | 0.7 ± 0.4 | | | 1.7 ± 0.6 | | |
 | ljp0 | | | | | | |
 | ljp25 (E1) | | | | | | |
+
+## Measured results (merges 22199568 ljp0 / 22199569 ljp25; 24 L5->L5 pairs, 191 syn, 101 Sabatini-accepted basal, 10 trials at 0.2 Hz)
+| quantity (accepted pool) | ljp0 (current) | ljp25 (E1) | Chindemi model | Sabatini 2002 |
+|---|---|---|---|---|
+| synaptic, all trials, < 150 um | 0.70 +- 1.17 uM (n 85) | 1.04 +- 2.04 (n 85) | 0.67 +- 0.44 | 0.7 +- 0.4 |
+| synaptic, successes, < 150 um | 0.91 +- 1.21 (n 84) | 1.24 +- 2.12 (n 84) | | |
+| synaptic, all trials, < 60 um | 0.30 +- 0.14 (n 18) | 0.30 +- 0.14 (n 18) | | |
+| **bAP, < 60 um** | **0.79 +- 0.57 (n 18): FAIL** | **1.22 +- 0.46 (n 18): PASS** | 1.4 +- 0.6 | 1.7 +- 0.6 |
+| bAP, all basal < 60 um | 0.90 +- 0.55 (n 28) | 1.31 +- 0.44 (n 28) | | |
+
+Verdict: synaptic Ca matches in both settings (mean on Chindemi's 0.67-0.7; our SD is larger, from distal shared-branch synapses). bAP Ca fails with the current globals (0.79 uM, about half of Chindemi's 1.4) and passes with E1 (1.22-1.31 uM). So the current model does NOT reproduce Chindemi's spine-Ca validation; E1 does. Arrays at the 2G limit (2.09 GB) -> 2.7G next time.

@@ -3,14 +3,14 @@
 Create dhuruva_modified_edges.h5 from the original SONATA edges.h5.
 
 For each of the four (pre_mtype, post_mtype) combinations below, finds ALL
-excitatory synapses in the full circuit between nodes of those mtypes, pools
-their conductance values, computes ONE global percentile threshold per combination
-(default: 50th = median → 50:50 split), and assigns rho0_GB / Use_d_TM /
-Use_p_TM / gmax_d_AMPA / gmax_p_AMPA using the same rule as
-epg_dhuruva._get_ltpltd_params:
+excitatory synapses in the full circuit between nodes of those mtypes, and for
+EACH connection (pre_gid, post_gid) computes a percentile threshold over that
+connection's own synapses (default: 50th = median, same as
+epg_dhuruva.ParamsGenerator.generate_params), then assigns rho0_GB / Use_d_TM /
+Use_p_TM / gmax_d_AMPA / gmax_p_AMPA using epg_dhuruva._get_ltpltd_params:
 
-    rho0 = 1 if conductance >= percentile(cond, 100*(1-pot_fraction))  else 0
-    # pot_fraction=0.5 → 50:50, 0.4 → 40% pot, 0.6 → 60% pot
+    rho0 = 1 if conductance >= percentile(cond_conn, 100*(1-pot_fraction))  else 0
+    # cond_conn = conductances of the synapses of that single connection
     Use_d_TM  = u_syn^(1/k_u)  if rho0==1  else u_syn
     Use_p_TM  = u_syn           if rho0==1  else u_syn^k_u
     gmax_d_AMPA = conductance/k_gsyn  if rho0==1  else conductance
@@ -25,7 +25,7 @@ Processed mtype combinations (iterated in order):
 Uses bluepysnap to look up node mtypes and the SONATA target_to_source index
 for fast per-post-gid edge lookups (avoids scanning all 407 M edges).
 
-The output edges.h5 stores only the 5 modified fields locally (gzip-compressed);
+The output edges.h5 stores only the 5 modified fields locally (uncompressed);
 all other datasets are HDF5 ExternalLinks to the original file.  Any existing
 output file is deleted before writing.
 
@@ -40,6 +40,7 @@ Usage:
 """
 
 import os
+import re
 import json
 import argparse
 import numpy as np
@@ -47,23 +48,22 @@ import h5py
 from bluepysnap import Circuit
 
 # ── Circuit defaults ──────────────────────────────────────────────────────────
-CIRCUIT_BASE   = "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker"
+CIRCUIT_BASE   = "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker"
 EDGES_FILE     = os.path.join(CIRCUIT_BASE,
                     "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5")
-CIRCUIT_CONFIG = os.path.join(CIRCUIT_BASE, "circuit_config.json")
+# Dataset's own circuit_config.json has a stale ctb-emuller $BASE_DIR (read-only), so use ours.
+CIRCUIT_CONFIG = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
+                  "dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json")
 
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 
-DEFAULT_OUTPUT = ("/project/ctb-emuller/dhuruva/plastyfire/data/"
+DEFAULT_OUTPUT = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
                   "dhuruva_modified_edges.h5")
-DEFAULT_CIRCUIT_OUT = ("/project/ctb-emuller/dhuruva/plastyfire/data/"
+DEFAULT_CIRCUIT_OUT = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
                        "dhuruva_circuit_config.json")
-DEFAULT_PAIRS_FILE = ("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
-                      "data/pairs_n100.txt")
-
-DEFAULT_SIMS_DIR = ("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
-                    "refitting_results/fitting/n100/seed19091997/"
-                    "L5TTPC_L5TTPC_STDP/simulations")
+DEFAULT_SIMS_DIR = ("/project/rrg-emuller/dhuruva/plastyfire/"
+                    "refitting_results/fitting/n120/seed20262009/"
+                    "Sabrina_L5TTPC_L5TTPC_STDP/simulations")
 
 # Fields to store locally (patched); all others become ExternalLinks
 MODIFIED_FIELDS = {"rho0_GB", "Use_d_TM", "Use_p_TM", "gmax_d_AMPA", "gmax_p_AMPA"}
@@ -94,7 +94,7 @@ def _plasticity_params(u: np.ndarray, cond: np.ndarray,
     return use_d, use_p, gmax_d, gmax_p
 
 
-# ── mtype-aware lookup: one pooled median per (pre_mtype, post_mtype) combo ───
+# ── mtype-aware lookup: per-connection median within each (pre, post) mtype combo ─
 def find_and_compute_by_mtype(
     edges_file: str, circuit_config: str, k_u: float, k_gsyn: float,
     pot_fraction: float = 0.5,
@@ -104,10 +104,10 @@ def find_and_compute_by_mtype(
       1. Uses bluepysnap to identify all pre_gids and post_gids of those mtypes.
       2. Uses the SONATA target_to_source index to find all excitatory synapses
          from pre_gids to post_gids, iterating post_gids one at a time.
-      3. Pools ALL conductances across the entire combo into one array.
-      4. Computes a threshold = percentile(cond, 100*(1-pot_fraction)).
-         pot_fraction=0.5 → 50:50, 0.4 → 40% potentiated, 0.6 → 60% potentiated.
-      5. Assigns rho0=1 if conductance >= threshold, else rho0=0.
+      3. Groups synapses by connection (pre_gid, post_gid).
+      4. Per connection, threshold = percentile(cond, 100*(1-pot_fraction)) over
+         that connection's synapses only (pot_fraction=0.5 → median).
+      5. Assigns rho0=1 if conductance >= its connection's threshold, else rho0=0.
       6. Derives Use_d/p_TM and gmax_d/p_AMPA from rho0.
 
     Returns:
@@ -151,10 +151,11 @@ def find_and_compute_by_mtype(
             pre_set  = mtype_to_gids[pre_mtype]
             post_gids = sorted(mtype_to_gids[post_mtype])
 
-            # Pass 1: collect all edge indices and conductances for this combo
             combo_idx  = []
             combo_cond = []
             combo_usyn = []
+            combo_rho0 = []
+            n_conn = 0
 
             for post_gid in post_gids:
                 if post_gid >= len(n2r):
@@ -163,6 +164,7 @@ def find_and_compute_by_mtype(
                 if r_start == r_end:
                     continue
                 edge_ranges = r2e[r_start:r_end]
+                post_idx, post_src, post_cond, post_usyn = [], [], [], []
                 for e_start, e_end in edge_ranges:
                     e_start, e_end = int(e_start), int(e_end)
                     src   = src_ds[e_start:e_end]
@@ -170,10 +172,30 @@ def find_and_compute_by_mtype(
                     mask  = np.isin(src, list(pre_set)) & (stype >= EXC_TYPE_MIN)
                     where = np.where(mask)[0]
                     if len(where):
-                        abs_idx = where + e_start
-                        combo_idx.append(abs_idx)
-                        combo_cond.append(cond_ds[e_start:e_end][where].astype(np.float64))
-                        combo_usyn.append(usyn_ds[e_start:e_end][where].astype(np.float64))
+                        post_idx.append(where + e_start)
+                        post_src.append(src[where])
+                        post_cond.append(cond_ds[e_start:e_end][where].astype(np.float64))
+                        post_usyn.append(usyn_ds[e_start:e_end][where].astype(np.float64))
+
+                if not post_idx:
+                    continue
+                p_src  = np.concatenate(post_src)
+                p_cond = np.concatenate(post_cond)
+
+                # Per-connection split (matches epg_dhuruva.ParamsGenerator.generate_params):
+                # threshold over this (pre_gid, post_gid) connection's own synapses only.
+                p_rho0 = np.empty(len(p_cond), dtype=np.int64)
+                _, conn_inv = np.unique(p_src, return_inverse=True)
+                for c_id in range(conn_inv.max() + 1):
+                    m = conn_inv == c_id
+                    thr = np.percentile(p_cond[m], 100.0 * (1.0 - pot_fraction))
+                    p_rho0[m] = p_cond[m] >= thr
+                n_conn += conn_inv.max() + 1
+
+                combo_idx.append(np.concatenate(post_idx))
+                combo_cond.append(p_cond)
+                combo_usyn.append(np.concatenate(post_usyn))
+                combo_rho0.append(p_rho0)
 
             if not combo_idx:
                 print(f"    WARNING: no synapses found for {pre_mtype} → {post_mtype}")
@@ -182,14 +204,11 @@ def find_and_compute_by_mtype(
             idx  = np.concatenate(combo_idx)
             cond = np.concatenate(combo_cond)
             usyn = np.concatenate(combo_usyn)
-
-            # One pooled threshold across all synapses of this combo
-            combo_threshold = np.percentile(cond, 100.0 * (1.0 - pot_fraction))
-            rho0 = (cond >= combo_threshold).astype(np.int64)
+            rho0 = np.concatenate(combo_rho0)
             use_d, use_p, gmax_d, gmax_p = _plasticity_params(usyn, cond, rho0, k_u, k_gsyn)
 
             n_pot = int(rho0.sum())
-            print(f"    {len(idx):,} synapses | threshold conductance = {combo_threshold:.4f} nS | "
+            print(f"    {len(idx):,} synapses in {n_conn:,} connections | "
                   f"rho0=1: {n_pot:,} ({100*rho0.mean():.1f}%)")
 
             all_edge_idx.append(idx)
@@ -214,7 +233,8 @@ def find_and_compute_by_mtype(
 
 # ── Targeted per-pair lookup using SONATA index ───────────────────────────────
 def find_and_compute_pairs(
-    edges_file: str, pairs: list[tuple[int, int]], k_u: float, k_gsyn: float
+    edges_file: str, pairs: list[tuple[int, int]], k_u: float, k_gsyn: float,
+    pot_fraction: float = 0.5,
 ) -> tuple[np.ndarray, dict[str, np.ndarray], dict]:
     """
     For each (pre_gid, post_gid) pair, uses the SONATA target_to_source index
@@ -277,8 +297,8 @@ def find_and_compute_pairs(
             usyn  = np.concatenate(pair_usyn)
             n_syn = len(idx)
 
-            # Conductance median split (same as epg_dhuruva)
-            rho0 = (cond >= np.median(cond)).astype(np.int64)
+            # Per-connection split (pot_fraction=0.5 → median, same as epg_dhuruva)
+            rho0 = (cond >= np.percentile(cond, 100.0 * (1.0 - pot_fraction))).astype(np.int64)
             use_d, use_p, gmax_d, gmax_p = _plasticity_params(usyn, cond, rho0, k_u, k_gsyn)
 
             print(f"  pair {pre_gid}→{post_gid}: {n_syn} synapses, "
@@ -365,8 +385,8 @@ def write_modified_edges(
             hdf_chunks = (min(chunk_size, n_tot),)
             for field, arr in patched.items():
                 print(f"    Writing {field} ...")
-                grp0.create_dataset(field, data=arr, chunks=hdf_chunks,
-                                    compression="gzip", compression_opts=4, shuffle=True)
+                # No compression: libsonata's bundled static HDF5 has no deflate filter.
+                grp0.create_dataset(field, data=arr, chunks=hdf_chunks)
 
 
 # ── Patch simulation_config.json files with rho0 metadata ────────────────────
@@ -435,25 +455,32 @@ def write_circuit_config(original_config: str, new_edges_path: str, output: str)
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="Create dhuruva_modified_edges.h5 with mtype-combo pooled-median rho0",
+        description="Create dhuruva_modified_edges.h5 with per-connection median-split rho0",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--k-u",    type=float, default=0.2)
     parser.add_argument("--k-gsyn", type=float, default=2.0)
     parser.add_argument("--pot-fraction", type=float, default=0.5,
-                        help="Fraction of synapses to initialise as potentiated (rho0=1). "
+                        help="Per-connection fraction of synapses to initialise as potentiated (rho0=1). "
                              "0.5=50:50 (default), 0.4=40%% pot / 60%% dep, 0.6=60%% pot / 40%% dep")
     parser.add_argument("--output", default=None,
                         help="Output edges file. If omitted, auto-named as "
                              "dhuruva_modified_edges_<pot>pot.h5 (e.g. _50pot for default)")
     parser.add_argument("--circuit-out", default=DEFAULT_CIRCUIT_OUT)
     parser.add_argument("--no-circuit-config", action="store_true")
-    # Legacy pairs-file / sim patching (kept for downstream STDP simulations)
-    parser.add_argument("--pairs-file", default=DEFAULT_PAIRS_FILE,
-                        help="Two-column text file of (pre_gid post_gid) pairs "
-                             "(used only for patching simulation_config.json sidecars)")
+    parser.add_argument("--pairs-file", default=None,
+                        help="Two-column text file of (pre_gid post_gid) pairs. "
+                             "If omitted, pairs are read from {pre_gid}-{post_gid} subdirs of --sims-dir")
     parser.add_argument("--sims-dir", default=DEFAULT_SIMS_DIR,
                         help="Base simulations directory containing {pre_gid}-{post_gid} subdirs")
+    parser.add_argument("--extra-sims-dir", action="append", default=[],
+                        help="Additional simulations dir(s) whose {pre_gid}-{post_gid} pairs are added to the "
+                             "pair list (repeatable; default none = unchanged behaviour)")
+    parser.add_argument("--extra-combos", default=None,
+                        help="Extra mtype combos for --all-mtype-synapses, e.g. "
+                             "'L2_TPC:A>L5_TPC:A,L2_TPC:A>L5_TPC:B' (default none)")
+    parser.add_argument("--all-mtype-synapses", action="store_true",
+                        help="Modify every synapse of the MTYPE_COMBOS pathways instead of only the pairs")
     parser.add_argument("--no-patch-configs", action="store_true",
                         help="Skip patching simulation_config.json files with rho0 metadata")
     parser.add_argument("--dry-run", action="store_true",
@@ -463,11 +490,14 @@ def main():
     # Auto-generate output filename from pot_fraction if not explicitly given
     if args.output is None:
         pot_pct = int(round(args.pot_fraction * 100))
-        data_dir = "/project/ctb-emuller/dhuruva/plastyfire/data"
-        args.output = f"{data_dir}/dhuruva_modified_edges_{pot_pct}pot.h5"
+        data_dir = "/project/rrg-emuller/dhuruva/plastyfire/data"
+        if pot_pct == 50:
+            args.output = f"{data_dir}/dhuruva_modified_edges.h5"
+        else:
+            args.output = f"{data_dir}/dhuruva_modified_edges_{pot_pct}pot.h5"
 
     print("=" * 65)
-    print("create_dhuruva_edges.py  (mtype-combo pooled-percentile mode)")
+    print("create_dhuruva_edges.py  (per-connection percentile mode)")
     print(f"  mtype combos  = {MTYPE_COMBOS}")
     print(f"  k_u           = {args.k_u}")
     print(f"  k_gsyn        = {args.k_gsyn}")
@@ -475,10 +505,28 @@ def main():
     print(f"  output        = {args.output}")
     print("=" * 65)
 
-    print("\n[1/2] Finding synapses for each mtype combo via SONATA index ...")
-    edge_idx, modifications, per_pair_data = find_and_compute_by_mtype(
-        EDGES_FILE, CIRCUIT_CONFIG, args.k_u, args.k_gsyn, args.pot_fraction
-    )
+    if args.extra_combos:
+        MTYPE_COMBOS.extend(tuple(c.split(">")) for c in args.extra_combos.split(","))
+    if args.all_mtype_synapses:
+        print("\n[1/2] Finding synapses for each mtype combo via SONATA index ...")
+        edge_idx, modifications, per_pair_data = find_and_compute_by_mtype(
+            EDGES_FILE, CIRCUIT_CONFIG, args.k_u, args.k_gsyn, args.pot_fraction
+        )
+    else:
+        if args.pairs_file:
+            pairs = [tuple(int(x) for x in line.split()[:2])
+                     for line in open(args.pairs_file) if line.strip()]
+        else:
+            pairs = sorted(tuple(int(x) for x in d.split("-"))
+                           for d in os.listdir(args.sims_dir)
+                           if re.fullmatch(r"\d+-\d+", d))
+        for extra in args.extra_sims_dir:
+            pairs = sorted(set(pairs) | {tuple(int(x) for x in d.split("-"))
+                                         for d in os.listdir(extra) if re.fullmatch(r"\d+-\d+", d)})
+        print(f"\n[1/2] Finding synapses for {len(pairs)} pairs via SONATA index ...")
+        edge_idx, modifications, per_pair_data = find_and_compute_pairs(
+            EDGES_FILE, pairs, args.k_u, args.k_gsyn, args.pot_fraction
+        )
 
     # Legacy: patch per-pair sim config sidecars if a pairs file is present
     if not args.no_patch_configs and per_pair_data:
@@ -502,7 +550,7 @@ def main():
         write_circuit_config(CIRCUIT_CONFIG, args.output, args.circuit_out)
 
     print("\n" + "=" * 65)
-    print(f"Modified {len(modifications['rho0_GB']):,} synapses across {len(MTYPE_COMBOS)} mtype combos.")
+    print(f"Modified {len(modifications['rho0_GB']):,} synapses.")
     print("=" * 65)
 
 

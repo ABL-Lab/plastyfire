@@ -91,10 +91,11 @@ def _worker(args):
 def main():
     # _worker reads these as module globals; on fork they are inherited by the
     # pool, so assigning here before submitting is what makes the flags take effect.
-    global PARAM_HASH, BASIS_DIR
+    global PARAM_HASH, BASIS_DIR, RESULTS_DIR
     _default_hash, _default_basis = PARAM_HASH, BASIS_DIR
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--results-dir", default=RESULTS_DIR)
     parser.add_argument("--out", default="stdp_ic_best.png")
     parser.add_argument("--param-hash", default=_default_hash,
                         help=f"param hash naming the pkl to read "
@@ -110,6 +111,8 @@ def main():
 
     PARAM_HASH = args.param_hash
     BASIS_DIR  = args.basis_dir
+    RESULTS_DIR = os.path.abspath(args.results_dir)
+    print(f"results    : {RESULTS_DIR}")
     print(f"param_hash : {PARAM_HASH}")
     print(f"basis_dir  : {BASIS_DIR}")
 
@@ -188,8 +191,11 @@ def main():
     ax.set_ylabel("EPSP ratio")
     # Headroom above the +5/+10 ms peak so the top-right legend does not sit on
     # the data; without it the in-vitro label crosses the peak error bars.
-    _top = max(summary["mean"] + summary["sem"]) 
-    ax.set_ylim(top=_top + 0.30 * (_top - min(summary["mean"] - summary["sem"])))
+    _top = max(max(summary["mean"] + summary["sem"]),
+               max(np.add(INVITRO_MEAN, INVITRO_SEM)))
+    _bot = min(min(summary["mean"] - summary["sem"]),
+               min(np.subtract(INVITRO_MEAN, INVITRO_SEM)))
+    ax.set_ylim(top=_top + 0.30 * (_top - _bot))
     ax.legend(loc="upper right", handlelength=1.2, borderaxespad=0.2,
               labelspacing=0.3, handletextpad=0.4)
 

@@ -8,6 +8,12 @@ dhuruva_circuit_config.json -> dhuruva_modified_edges.h5).  No ParamsGenerator s
 For each rho configuration (all-depressed, each singleton-potentiated, all-potentiated),
 runs N_TRIALS test-pulse trials and records the mean EPSP amplitude.
 
+Three EPSP measures per test pulse, each relative to v at the pre spike time:
+  mean / std          peak: raw maximum within EPSP_WINDOW_MS (what the analytical fit uses)
+  mean_pavg / std_pavg  peak averaged over +-1.5 ms around the peak (Tazerart lab measure)
+  mean_area / std_area  area under the EPSP over EPSP_WINDOW_MS (mV ms, Tazerart lab measure)
+--waveforms NPZ also saves each config's mean aligned EPSP (trial 0) for plotting.
+
 Usage (from the simulation workdir or with --sim-config):
     python run_basis_pair_edges.py \\
         --pre-gid 180164 --post-gid 197248 \\
@@ -36,11 +42,14 @@ logger = logging.getLogger(__name__)
 
 NODE_POP        = "S1nonbarrel_neurons"
 EDGE_POP        = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
-MECHANISMS_PATH = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
+MECHANISMS_PATH = "/project/rrg-emuller/dhuruva/DEES_cell_packages/"
 C01_DURATION_MS = 2.0 * 60.0 * 1000.0   # 2 min in ms
 N_EPSP          = 30
 EPSP_WINDOW_MS  = 100.0
 SPIKE_THR_MV    = -30.0
+PEAK_AVG_MS     = 1.5       # +- window around the peak (Tazerart lab)
+DT_RESAMPLE     = 0.025     # uniform grid for the cvode trace (ms)
+WAVE_T          = np.arange(-5.0, EPSP_WINDOW_MS + 1e-9, 0.1)   # saved waveform grid (ms from pre spike)
 
 
 # ---------------------------------------------------------------------------
@@ -80,32 +89,39 @@ def _strip_synapse_reports(sim_config_path, circuit_config=None):
 
 
 def _get_epsp_vector(t, v, spikes):
-    epsps = np.zeros(len(spikes))
+    """-> (peak, peak_avg, area, waveforms) per pre spike; the cvode trace is resampled to DT_RESAMPLE."""
+    n = len(spikes)
+    peak, pavg, area = np.zeros(n), np.zeros(n), np.zeros(n)
+    waves = np.zeros((n, len(WAVE_T)))
+    tw = np.arange(0.0, EPSP_WINDOW_MS + 1e-9, DT_RESAMPLE)
+    k = int(round(PEAK_AVG_MS / DT_RESAMPLE))
     for i, t_spike in enumerate(spikes):
-        w0 = np.searchsorted(t, t_spike)
-        w1 = np.searchsorted(t, t_spike + EPSP_WINDOW_MS)
-        if w0 >= len(v) or w1 <= w0:
+        if t_spike + EPSP_WINDOW_MS > t[-1]:
             continue
-        peak = np.max(v[w0:w1])
-        if peak > SPIKE_THR_MV:
+        vw = np.interp(t_spike + tw, t, v)
+        if vw.max() > SPIKE_THR_MV:
             raise RuntimeError(f"Postsynaptic spike at t={t_spike:.0f} ms")
-        epsps[i] = peak - v[w0]
-    return epsps
+        d = vw - vw[0]
+        j = int(np.argmax(d))
+        peak[i] = d[j]
+        pavg[i] = d[max(0, j - k):j + k + 1].mean()
+        area[i] = np.trapz(d, tw)
+        waves[i] = np.interp(t_spike + WAVE_T, t, v) - vw[0]
+    return peak, pavg, area, waves
 
 
 def _measure_epsp(t, v, pre_spikes):
-    """Mean EPSP over the last N_EPSP spikes within C01_DURATION_MS."""
-    if len(pre_spikes) == 0:
-        return 0.0
+    """Mean of each measure over the last N_EPSP spikes within C01_DURATION_MS.
+    -> dict(epsp, epsp_pavg, epsp_area, wave)"""
     t = np.asarray(t, dtype=np.float64)
     v = np.asarray(v, dtype=np.float64)
     spikes = np.asarray(pre_spikes, dtype=np.float64)
-    spikes = spikes[spikes <= t[-1]]
-    spikes = spikes[spikes <= C01_DURATION_MS]
+    spikes = spikes[(spikes <= t[-1]) & (spikes <= C01_DURATION_MS)]
     if len(spikes) == 0:
-        return 0.0
-    epsps = _get_epsp_vector(t, v, spikes)
-    return float(np.mean(epsps[-N_EPSP:]))
+        return dict(epsp=0.0, epsp_pavg=0.0, epsp_area=0.0, wave=np.zeros(len(WAVE_T)))
+    peak, pavg, area, waves = _get_epsp_vector(t, v, spikes)
+    return dict(epsp=float(np.mean(peak[-N_EPSP:])), epsp_pavg=float(np.mean(pavg[-N_EPSP:])),
+                epsp_area=float(np.mean(area[-N_EPSP:])), wave=waves[-N_EPSP:].mean(0))
 
 
 def _generate_configs(n):
@@ -168,14 +184,15 @@ def _run_trial(args):
 
         t = np.array(sim.get_time())
         v = np.array(sim.get_voltage_trace((NODE_POP, post_gid)))
-        epsp = _measure_epsp(t, v, pre_spikes)
+        m = _measure_epsp(t, v, pre_spikes)
         del sim
-        return (rho_config_str, trial, epsp)
+        return dict(config=rho_config_str, trial=trial, **m)
 
     except Exception as e:
         logger.error("Trial %d config %s failed: %s", trial, rho_config_str, e)
         traceback.print_exc()
-        return (rho_config_str, trial, float("nan"))
+        return dict(config=rho_config_str, trial=trial, epsp=float("nan"), epsp_pavg=float("nan"),
+                    epsp_area=float("nan"), wave=None)
 
 
 # ---------------------------------------------------------------------------
@@ -214,6 +231,9 @@ def main():
     parser.add_argument("--workers",     type=int, default=None)
     parser.add_argument("--circuit-config", default=None,
                         help="Override the 'network' field in sim_config (e.g. for new ion channels)")
+    parser.add_argument("--waveforms", default=None, help="npz for each config's mean EPSP waveform (trial 0)")
+    parser.add_argument("--configs", default="all", choices=["all", "ends"],
+                        help="'ends' = only all-0 and all-1 (quick measure comparisons)")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -229,6 +249,8 @@ def main():
         logger.info("Pair %d->%d: %d synapses", args.pre_gid, args.post_gid, n_syn)
 
         configs = _generate_configs(n_syn)
+        if args.configs == "ends":
+            configs = [configs[0], configs[-1]]
         logger.info("%d rho configurations × %d trials = %d tasks",
                     len(configs), args.num_trials, len(configs) * args.num_trials)
 
@@ -242,7 +264,7 @@ def main():
         with multiprocessing.Pool(n_workers) as pool:
             results = pool.map(_run_trial, tasks)
 
-        df = pd.DataFrame(results, columns=["config", "trial", "epsp"])
+        df = pd.DataFrame([{k: v for k, v in r.items() if k != "wave"} for r in results])
 
         n_total = len(df)
         n_nan   = df["epsp"].isna().sum()
@@ -252,9 +274,16 @@ def main():
             logger.error("All trials failed (all NaN) — not writing CSV. Check errors above.")
             raise SystemExit(1)
 
-        stats = (df.groupby("config")["epsp"]
-                   .agg(["mean", "std", "count"])
-                   .reset_index())
+        # mean/std/count stay the raw-peak columns PairBasis reads; the Tazerart measures are extra
+        g = df.groupby("config", sort=False)
+        stats = g["epsp"].agg(["mean", "std", "count"])
+        for m in ("pavg", "area"):
+            stats[f"mean_{m}"] = g[f"epsp_{m}"].mean()
+            stats[f"std_{m}"] = g[f"epsp_{m}"].std()
+        stats = stats.reset_index()
+        if args.waveforms:
+            w = {r["config"]: r["wave"] for r in results if r["trial"] == 0 and r["wave"] is not None}
+            np.savez(args.waveforms, t=WAVE_T, configs=np.array(list(w)), waves=np.array(list(w.values())))
         stats["pre_gid"]  = args.pre_gid
         stats["post_gid"] = args.post_gid
 

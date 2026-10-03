@@ -32,7 +32,7 @@ default    theta = a*c_pre + b*c_post, 4 a-params (apical tied to basal).
 """
 import argparse, multiprocessing as mp, os, time
 import numpy as np
-from constants import INVITRO, TIED_IC4, GAMMA_D_GB, GAMMA_P_GB
+from constants import INVITRO, TIED_IC4, GAMMA_D_GB, GAMMA_P_GB, TAU_EFFCA_GB
 from batch import Batch
 
 FIT_DT  = [-10, 5, 10]
@@ -203,6 +203,9 @@ if __name__ == "__main__":
                          "a00/a10 (+ gammas) are free")
     ap.add_argument("--sign", action="store_true",
                     help="penalise wrong-sign plasticity (-10 must be <1, +5/+10 >1)")
+    ap.add_argument("--save-json", default=None,
+                    help="write the best params (all ten, apical written out, plus "
+                         "tau_effca) here; run_de_fit2_pool.py --params-json reads it")
     args = ap.parse_args()
 
     # keep BLAS single-threaded: parallelism is across candidates, and nested
@@ -343,3 +346,18 @@ if __name__ == "__main__":
     for dt in sorted(summ.dt):
         tgt = f"{INVITRO[dt][0]:.4f}" if dt in INVITRO else "-"
         print(f"  {dt:>5} {summ[summ.dt==dt]['mean'].values[0]:>9.4f} {tgt:>9}")
+
+    if args.save_json:
+        import json
+        # apical written out explicitly: simulator_edges reads a missing a-key as 1.0
+        params = {"gamma_d_GB_GluSynapse": float(gd), "gamma_p_GB_GluSynapse": float(gp),
+                  **{k: float(a[k]) for k in ("a00", "a01", "a10", "a11")},
+                  "a20": float(a["a00"]), "a21": float(a["a01"]),
+                  "a30": float(a["a10"]), "a31": float(a["a11"]),
+                  "tau_effca_GB_GluSynapse": TAU_EFFCA_GB}
+        with open(args.save_json, "w") as f:
+            json.dump({"params": params, "weighted_err": float(eb), "evaluations": int(nev),
+                       "offline_curve": {int(dt): float(summ[summ.dt == dt]["mean"].values[0])
+                                         for dt in summ.dt},
+                       "extracted": _B.src, "argv": os.sys.argv}, f, indent=2)
+        print(f"\n  params -> {args.save_json}")

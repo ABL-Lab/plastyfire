@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=w2_joint
-# KERNEL (env, default gpu_v7_rho.py; gpu_v8_rho.py = gate_src options, A14).
+# KERNEL (env, default gpu_v7_rho.py; gpu_v8_rho.py = gate_src options, A14; gpu_v10_rho.py = lic_src / ecb_src / no_mode options, their parameters freeable via FREE).
 # WAVE 2 joint fit (A9): copy of run_fit_v7.sh; env (L5DIRS L5GROUPS L23DIRS EXTRA JOINT FITGAMMA DROPT SET FREE) is passed by submit_joint_w2.sh. Outputs results/v7_W2_<tag>.json (TAG=W2_*).
 # MEASURED (3g, 3 models, 66 targets): rescore 22159363 6:45 61.76 GB, 22159364 6:58 50.23 GB -> fits 78G 0:30 (MaxRSS 61.8+25%). Rescores exit 1 on REPRO DIFF (target set differs from seed) -> do not chain refits with afterok.
 # MEASURED fits: 22161286 16:17 39.69 GB, 22161287 17:23 50.37 GB (78G ok; next 63G 0:30)

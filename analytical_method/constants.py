@@ -29,3 +29,10 @@ A_KEYS = ["a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"]
 TIED_IC4 = dict(a00=1.002, a01=2.254638, a10=1.209857, a11=2.396290,
                 a20=1.002, a21=2.254638, a30=1.209857, a31=2.396290)
 TIED_IC4_HASH = "cdf3a1e1db98"
+
+# DE fit #2 (run_de_fit2_pool.py, hash b8c7ff3ecf0a) -- the BCL run on the
+# n120 Sabrina set that the refit bootstraps from
+DEFIT2 = dict(a00=1.003498, a01=2.902478, a10=1.644558, a11=2.764812,
+              a20=1.003498, a21=2.902478, a30=1.644558, a31=2.764812)
+DEFIT2_GAMMA = (77.7558, 299.9121)
+DEFIT2_HASH  = "b8c7ff3ecf0a"

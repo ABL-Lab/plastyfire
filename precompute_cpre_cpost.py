@@ -79,6 +79,16 @@ PARAM_PRESETS = {
         "a20": 1.9727, "a21": 8.3983,
         "a30": 6.0229, "a31": 1.4087,
     },
+    "defit2": {
+        # DE fit #2 (run_de_fit2_pool.py, hash b8c7ff3ecf0a); apical tied to basal
+        "tau_effca_GB_GluSynapse": 278.3177658387,
+        "gamma_d_GB_GluSynapse":    77.7558,
+        "gamma_p_GB_GluSynapse":   299.9121,
+        "a00": 1.003498, "a01": 2.902478,
+        "a10": 1.644558, "a11": 2.764812,
+        "a20": 1.003498, "a21": 2.902478,
+        "a30": 1.644558, "a31": 2.764812,
+    },
     "ga_best": {
         # Best-fit parameters from GA optimizer (DEAP, gen 28, fitness=0.3942)
         "tau_effca_GB_GluSynapse": 278.3177658387,
@@ -94,9 +104,10 @@ PARAM_PRESETS = {
 log = logging.getLogger(__name__)
 
 
-def find_workdirs(results_dir):
-    """Find all valid simulation workdirs under results_dir."""
-    pattern = os.path.join(
+def find_workdirs(results_dir, sims_dir=None):
+    """Find all valid simulation workdirs under results_dir (or, with `sims_dir`, all
+    <sims_dir>/<pre>-<post>/<protocol> workdirs, for yaml protocol ids like sjostrom_50hz_dt+10ms)."""
+    pattern = os.path.join(sims_dir, "*-*", "*") if sims_dir else os.path.join(
         results_dir, "fitting", "*", "seed*", "*_STDP",
         "simulations", "*-*", "*Hz_*ms",
     )
@@ -218,8 +229,8 @@ def _pool_worker(args):
         # Extract gids from workdir name as fallback
         pair_str = os.path.basename(os.path.dirname(workdir))
         parts = pair_str.split("-")
-        pre = int(parts[0]) if len(parts) == 2 else -1
-        post = int(parts[1]) if len(parts) == 2 else -1
+        pre = int(parts[0]) if len(parts) == 2 and parts[0].isdigit() else -1  # pip<k>: pipette group
+        post = int(parts[1]) if len(parts) == 2 and parts[1].isdigit() else -1
         # A threshold-search failure ("could not fire post cell ...") is the
         # explicit no-spike case; keep it separable from other crashes.
         _msg = str(e)
@@ -274,18 +285,28 @@ def main():
                              "calcium-dependent (cao_CR sets Pf_NMDA and Eca_syn in "
                              "GluSynapse.mod), so a cache is only valid at the Ca it was "
                              "built at. Default: whatever the workdir config carries (2.0).")
+    parser.add_argument("--glusyn-globals", default=None,
+                        help="JSON dict of extra GluSynapse GLOBALs for the mini-sims (glusynapse_v2 "
+                             "spine-VDCC variant); c_pre/c_post depend on them, so write a new --output.")
+    parser.add_argument("--pairs", default=None, help="comma-separated pre-post pairs; default all")
+    parser.add_argument("--sims-dir", default=None,
+                        help="Scan <sims-dir>/<pre>-<post>/<protocol> instead of the *_STDP tree of --results-dir")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
 
     fit_params = dict(PARAM_PRESETS[args.params])
+    if args.glusyn_globals:
+        g = {k: float(v) for k, v in json.loads(args.glusyn_globals).items()}
+        assert all(k.endswith("_GluSynapse") for k in g), g
+        fit_params.update(g)
     fixhp = not args.no_fixhp
     output = args.output or os.path.join(args.results_dir, f"cpre_cpost_{args.params}.pkl")
 
     # Find all workdirs and collect unique (pre_gid, post_gid) → one representative workdir
     log.info("Scanning workdirs under: %s", args.results_dir)
-    workdirs = find_workdirs(args.results_dir)
+    workdirs = find_workdirs(args.results_dir, args.sims_dir)
     log.info("Found %d workdirs total", len(workdirs))
 
     # Load existing cache if resuming
@@ -309,8 +330,9 @@ def main():
                 pass
 
     log.info("Unique pairs: %d", len(pair_to_workdir))
+    keep = None if not args.pairs else {tuple(int(x) for x in p.split("-")) for p in args.pairs.split(",")}
     todo = [((pre, post), wd) for (pre, post), wd in pair_to_workdir.items()
-            if (pre, post) not in cache]
+            if (pre, post) not in cache and (keep is None or (pre, post) in keep)]
     log.info("Pairs needing computation: %d (already cached: %d)",
              len(todo), len(cache))
 

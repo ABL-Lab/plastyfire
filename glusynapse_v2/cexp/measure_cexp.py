@@ -29,6 +29,13 @@ PATHS = {
     "L23L23": dict(name="L23L23", sims=f"{SR}/Zilberter2009_L23PC_L23PC/simulations", circuit=f"{ROOT}/data/dhuruva_split1_l23l23_circuit_config.json",
                    cache=f"{S1}/cache/zilberter_l23l23_split1_rs.pkl"),
 }
+# optional per-path overrides (defaults above unchanged): CEXP_SIMS_<P>, CEXP_CIRCUIT_<P>, CEXP_CACHE_<P> with P in L5, L23L5, L23L23
+# (e.g. the split2 tree /scratch/dhuruva/s2g0321 and data/dhuruva_delta-split2_circuit_config.json)
+for _p, _d in PATHS.items():
+    for _k in ("sims", "circuit", "cache"):
+        _v = os.environ.get(f"CEXP_{_k.upper()}_{_p}")
+        if _v:
+            _d[_k] = _v
 NODE_POP = "S1nonbarrel_neurons"
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 DEES = "/project/rrg-emuller/dhuruva/DEES_cell_packages/"
@@ -39,6 +46,9 @@ if os.environ.get("GLUSYN_GLOBALS"):  # optional: JSON file (e.g. spine/delta_lj
     FIT.update(_g); print("GLUSYN_GLOBALS", os.environ["GLUSYN_GLOBALS"], _g, flush=True)
 T_STIM, T_END, T_INT, DT_FAST = 1000.0, 1500.0, 990.0, 0.1
 DIAG = os.environ.get("CEXP_DIAG") == "1"  # opt-in (A17): extra columns <cond>_vrest/_vpk (synapse segment v, mV), _cai0 (cai_CR at 989 ms, uM), _eff0 (effcai at 999 ms)
+# opt-in CEXP_SHAFT=1 (T35 GATE_RELATIVE G9A): post condition also records the shaft cai (segment carrying the synapse); adds columns
+# cpost_sh (uM, peak over [990 ms, end] minus the shaft cai at 999 ms) and shaft_rest (uM, shaft cai at 999 ms). Unset: output unchanged.
+SHAFT = os.environ.get("CEXP_SHAFT") == "1"
 CONDS = ("pre", "apv", "mg0", "post")
 # opt-in CEXP_SABATINI=1 (SABATINI_VALID.md): Chindemi 2022 Supp Fig 2 protocol. Conditions "syn" (SAB_N pre spikes at 0.2 Hz,
 # stochastic release with the circuit's own Use/Nrrp/rho0, i.e. no full-RRP override) and "post" (one bAP). Per synapse and trial:
@@ -144,6 +154,8 @@ def _child(conn, workdir, circuit, cond, stim):
                 geo.setdefault(gid, {}).update(secname=sec.name(), diam_um=float(seg.diam), branch_order=bo)
             if DIAG:
                 v["v"] = h.Vector(); v["v"].record(seg._ref_v, DT_FAST)
+            if SHAFT and cond == "post":
+                v["sh"] = h.Vector(); v["sh"].record(seg._ref_cai, DT_FAST)
             rec[gid] = (v, extra[gid]["loc"], dist, float(hs.gmax_NMDA), float(hs.mg))
         sim.run(t_end, cvode=True)
         i1 = int(round(T_INT / 1.0)); i2 = int(round(T_INT / DT_FAST))
@@ -164,6 +176,9 @@ def _child(conn, workdir, circuit, cond, stim):
                 vv = np.array(v["v"])
                 out[gid].update(vrest=float(vv[i2 - 10]), vpk=float(vv[i2:].max()), cai0=float(cai[i2 - 10] * 1e3),
                                 eff0=float(eff[int(T_STIM) - 1]))
+            if SHAFT and cond == "post":
+                sh = np.array(v["sh"]); r0 = float(sh[int(round((T_STIM - 1.0) / DT_FAST))])
+                out[gid].update(sh_dca=float((sh[i2:].max() - r0) * 1e3), sh_rest=r0 * 1e3)
             if SAB:
                 c0 = float(cai[int(round((T_STIM - 1.0) / DT_FAST))] * 1e3)
                 out[gid].update(geo[gid], dca=float(cai[i2:].max() * 1e3 - c0), cai0_sab=c0)
@@ -221,6 +236,8 @@ def measure_pair(path, pair, wd):
         r["gmax_NMDA_nS"] = a["gmax_NMDA"]
         r["stim_nA"], r["stim_ms"] = R["post"]["stim"] if "post" in R else (np.nan, np.nan)
         r["error"] = ",".join(err)
+        if SHAFT:
+            r["cpost_sh"] = g("post", gid).get("sh_dca", np.nan); r["shaft_rest"] = g("post", gid).get("sh_rest", np.nan)
         rows.append(r)
     return pd.DataFrame(rows)
 

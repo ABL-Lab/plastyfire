@@ -1,6 +1,6 @@
 # Fit-procedure fixes: code spec (user-approved 2026-10-02, FIT_META_DIAG.md section 6)
 
-Status: part 1 done (driver-only parts and the scorecard). Part 2 (the fitter edits) is specified below and is not yet written.
+Status: part 1 and part 2 written (fit_v7.py, fit_launch.py, 2026-10-02); tests 22307548 (fit_v6 reference) vs the fit_v7 REPRO job, and the all-flags smoke.
 Files: `scorecard.sh` (fix 1), `run_stage3_fit.sh` FIXANC block (fix 3), `run_stage4_fit.sh` (fixes 2, 3, 5, 6 driver
 side, plus DEMOTE=1 and the a00 > 1 seeds), this file (fixes 2 and 4 fitter side).
 

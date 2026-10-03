@@ -18,9 +18,9 @@ from conntility.io.synapse_report import get_presyn_mapping
 
 bluecellulab.set_verbose(2)
 bluecellulab.neuron.h.cvode.atolscale("v", .1)
-bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+bluecellulab.neuron.load_mechanisms("/project/rrg-emuller/dhuruva/DEES_cell_packages/")
 SPIKE_THRESHOLD = -30  # mV
-EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
+EXTRA_RECIPE_PATH = "/project/rrg-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
 logger = logging.getLogger(__name__)  # configure logger
 EPG_MODULES = {
@@ -100,14 +100,75 @@ def runsinglecell(sim_config, post_gid, stimulus, node_pop, fixhp):
     return dict(results)
 
 
+# Doublet-tolerant fallback (opt-in, PLASTYFIRE_DOUBLET_TOLERANT=1; default off = unchanged): a pulse may answer
+# with 1 AP or a doublet with ISI <= DOUBLET_MAX_ISI_MS, the rule of ion_fitter's dendfit2/stages/doublet_tol.py.
+# Callers try the strict search first and use this only when it fails, so cells that pass today are unchanged.
+DOUBLET_MAX_ISI_MS = 6.0
+# Many low-kBK cells answer the threshold pulse with a slow (> 6 ms) doublet or a burst but fire one clean AP to a
+# stronger pulse, so the fallback scans up from threshold. Induction-train grids are widened to the c_post range.
+TOLERANT_MAX_AMP_NA = 5.0
+TOLERANT_AMP_STEP_NA = 0.1
+TOLERANT_SCAN_STEPS = 25  # at most ~this many sims for the upward scan (stride), plus the refinement in the last stride
+
+
+def doublet_tolerant():
+    return os.environ.get("PLASTYFIRE_DOUBLET_TOLERANT", "0") in ("1", "2")
+
+
+def any_firing():
+    """PLASTYFIRE_DOUBLET_TOLERANT=2 (user 2026-10-02): the cell's own response to a pulse - 1 AP, a doublet of
+    any ISI or a burst - counts as one post event. The searches take the lowest amp at which every pulse fires,
+    c_post is the Ca of that whole event, and the induction guardrail logs extra APs instead of rejecting."""
+    return os.environ.get("PLASTYFIRE_DOUBLET_TOLERANT", "0") == "2"
+
+
+def tolerant_amp_grid(amp_min, amp_max, amp_lev):
+    """(amp_min, amp_max, amp_lev) of the tolerant fallback: up to TOLERANT_MAX_AMP_NA in TOLERANT_AMP_STEP_NA steps,
+    or the original grid if it is already finer and wider."""
+    amp_max_t = max(amp_max, TOLERANT_MAX_AMP_NA)
+    lev_t = int(round((amp_max_t - amp_min) / TOLERANT_AMP_STEP_NA)) + 1
+    return amp_min, amp_max_t, max(amp_lev, lev_t)
+
+
+def pulse_spike_counts(t_spikes, t_stim, width, period):
+    """APs per pulse: those in [t0, t0 + period) for each onset t0, plus the number before the first onset and
+    whether every pulse's first AP lies in [t0, t0 + width + 5] and any second one within DOUBLET_MAX_ISI_MS."""
+    t_spikes = np.asarray(t_spikes, float)
+    counts, ok = [], True
+    for t0 in t_stim:
+        s = t_spikes[(t_spikes >= t0) & (t_spikes < t0 + period)]
+        counts.append(len(s))
+        if len(s) and s[0] > t0 + width + 5:
+            ok = False
+        if len(s) == 2 and s[1] - s[0] > DOUBLET_MAX_ISI_MS and not any_firing():
+            ok = False
+    n_before = int(np.sum(t_spikes < t_stim[0])) if len(t_stim) else 0
+    return counts, n_before, ok
+
+
+def pulses_doublet_ok(t_spikes, t_stim, width, period):
+    """True if every pulse gave 1 AP or a <= DOUBLET_MAX_ISI_MS doublet and no AP fell outside the pulses.
+    any_firing(): every pulse fired (first AP in [t0, t0 + width + 5]) and no AP before the first pulse."""
+    counts, n_before, ok = pulse_spike_counts(t_spikes, t_stim, width, period)
+    if any_firing():
+        return ok and n_before == 0 and all(c >= 1 for c in counts)
+    return ok and n_before == 0 and all(c in (1, 2) for c in counts) and sum(counts) == len(t_spikes)
+
+
 @with_cache
 def spike_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, min_amp, max_amp, nlevels,
-                           node_pop="S1nonbarrel_neurons", fixhp=False):
+                           node_pop="S1nonbarrel_neurons", fixhp=False, doublet_ok=False):
     """
     Finds the min amplitude of stimulus current (within the range [`min_amp`, `max_amp`])
     that makes the `post_gid` fire `nspikes` APs (given `freq`, `width`, `offset`)
     using a binary search (parametrized by `nlevels`).
+    doublet_ok: search the min amplitude at which every one of the `nspikes` pulses fires, and accept it if each
+    pulse gave 1 AP or a doublet <= DOUBLET_MAX_ISI_MS (result gets "doublet": True). Callers use it only after
+    the strict search failed.
     """
+    if doublet_ok:
+        return _doublet_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, min_amp, max_amp,
+                                         nlevels, node_pop, fixhp)
     candidate_amp = np.linspace(min_amp, max_amp, nlevels)
     # find suitable amplitude (binary search, leftmost element)
     L = 0
@@ -139,6 +200,57 @@ def spike_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, m
         logger.debug("Correct spike count for stimulation amplitude = %.3f nA" % simres[L]["amp"])
         return simres[L]
     return None
+
+
+def _doublet_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, min_amp, max_amp, nlevels,
+                              node_pop, fixhp):
+    """spike_threshold_finder(doublet_ok=True): binary search on the number of pulses that fired (>= 1 AP in
+    [t0, t0 + width + 5]) instead of the total AP count, then the lowest amplitude from there up at which every
+    pulse gives 1 AP or a <= DOUBLET_MAX_ISI_MS doublet (scanned with a stride, refined inside the last stride)."""
+    candidate_amp = np.linspace(min_amp, max_amp, nlevels)
+    t_stim = 1000. / freq * np.array(range(nspikes)) + offset
+    period = 1000. / freq
+    L, R, simres = 0, nlevels, {}
+
+    def run(i):
+        if i not in simres:
+            stim = {"nspikes": nspikes, "freq": freq, "width": width, "offset": offset, "amp": candidate_amp[i]}
+            simres[i] = runsinglecell(sim_config, post_gid, stim, node_pop, fixhp)
+        return simres[i]
+
+    def n_fired(res):
+        t = np.asarray(res["t_spikes"])
+        return sum(bool(np.any((t >= t0) & (t <= t0 + width + 5))) for t0 in t_stim)
+
+    def ok(i):
+        return pulses_doublet_ok(run(i)["t_spikes"], t_stim, width, period)
+
+    while L < R:
+        m = int(np.floor((L + R) / 2.))
+        if n_fired(run(m)) < nspikes:
+            L = m + 1
+        else:
+            R = m
+    if L == nlevels:
+        logger.debug("Max stimulation intensity too weak")
+        return None
+    stride = max(1, (nlevels - L) // TOLERANT_SCAN_STEPS)
+    hit = next((i for i in range(L, nlevels, stride) if ok(i)), None)
+    if hit is None:
+        logger.debug("doublet-tolerant: no amplitude in [%.3f, %.3f] nA gives 1 AP / <= %.0f ms doublet per pulse"
+                     % (candidate_amp[L], max_amp, DOUBLET_MAX_ISI_MS))
+        return None
+    hit = next(i for i in range(max(L, hit - stride + 1), hit + 1) if ok(i))
+    res = dict(simres[hit])
+    # t_spikes = the first AP of each pulse (pairing_times reads one AP per pulse); every AP in t_spikes_all
+    t_all = np.asarray(res["t_spikes"])
+    res["t_spikes_all"] = t_all
+    res["t_spikes"] = np.array([t_all[(t_all >= t0) & (t_all < t0 + period)][0] for t0 in t_stim])
+    res["doublet"] = len(t_all) != nspikes
+    res["threshold_amp"] = float(candidate_amp[L])  # lowest amp at which every pulse fired
+    logger.warning("doublet-tolerant stimulus for gid %d: %.3f nA (threshold %.3f nA), %d APs for %d pulses "
+                   "(width %.1f ms)" % (post_gid, res["amp"], candidate_amp[L], len(t_all), nspikes, width))
+    return res
 
 
 # RANGE params in GluSynapse.mod that cannot be set as HOC globals
