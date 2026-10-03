@@ -29,7 +29,8 @@
 #           TAG = basename of LOPOJ. To rescore an old stage-3 json: FIXANC=0 DEMOTE=0 LOPOJ=$RS/s4N_u.json ... 4N u lopo.
 #   lopoagg SE_pair = sqrt((n-1)/n sum (p_i - mean p)^2) per target -> RS/<TAG>_sepair.csv (key,pathway,target,condition,
 #           n,sem,se_pair,ratio,factor). Pure awk.
-# Env: KERNEL (default RS/gpu_v10_rho.py; 3V/3W/4V force gpu_v11), DEMOTE (1), FIXANC (1), MW (Markram +10 weight, 2.0),
+# Env: KERNEL (default RS/gpu_v10_rho.py; 3V/3W/4V force gpu_v11), KERNELX (overrides the kernel after the MODEL case:
+#      gpu_v12 -> RS/gpu_v12_rho.py, or a path; S6MECH_DESIGN.md arms run on 3V/4V with KERNELX=gpu_v12 + SETX), DEMOTE (1), FIXANC (1), MW (Markram +10 weight, 2.0),
 #      POP (15), MAXITER (600, total generations: phase A = MAXITER - MAXB), MAXB (150), SIGMA (0.1), A00 (1.2; 0 = no
 #      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need FITTER=fit_v7 or fit_v8,
 #      run via fit_launch.py; left unset they add no flag and the kernel uses fit_v6).
@@ -56,6 +57,9 @@ case $M in
   4N|5N) SET="{$G8X, \"no_mode\": 3, \"tau_NO\": 6.7}"; FREE=theta_eCB,A_NO,d_NO_max; SEEDJ=$RS/s2C_s.json,/scratch/dhuruva/s1c_l23fit/s1CL_s.json ;;
   *) echo "MODEL 3C|3N|4N|5N|3V|3W|4V" >&2; exit 1 ;;
 esac
+# KERNELX: kernel override after the MODEL case (s6mech 2026-10-03; 3V/3W/4V force gpu_v11 above). gpu_v12 or gpu_v12_rho.py ->
+# $RS/gpu_v12_rho.py; a value with a / is a path (relative to the repo root, or absolute).
+if [ -n "${KERNELX:-}" ]; then case $KERNELX in */*) KERNEL=$KERNELX ;; *) KERNEL=$RS/${KERNELX%_rho.py}_rho.py ;; esac; fi
 if [ "$FIXANC" = 1 ]; then   # anchors and their sources: run_stage3_fit.sh FIXANC block (same values, same overrides)
   ANC_ECB=${ANC_ECB:-0.535}; ANC_ANO=${ANC_ANO:-190.0}; ANC_DNO=${ANC_DNO:-0.57}
   ADD="\"theta_eCB\": $ANC_ECB"
