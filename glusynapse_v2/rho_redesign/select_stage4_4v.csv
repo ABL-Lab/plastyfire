@@ -1,0 +1,8 @@
+run,hit,slope_gate,slopeL5,mk_p10,mk_m10,chi2eff,n,chi2eff_n,n_free,tied_best
+f4Vdah_u9,HIT,low,0.54,1.147,0.768,96.58,32,3.018,6,
+f4Vdah_u8,HIT,low,0.54,1.147,0.769,96.61,32,3.019,6,
+f4Ndah_u8,HIT,low,0.42,1.187,0.767,86.02,32,2.688,6,
+f3Wdah_s5,HIT,low,0.39,1.184,0.773,123.53,32,3.860,6,
+f4Vdah_u10,MISS,low,0.54,1.133,0.770,95.50,32,2.984,6,
+f4Vdah_u11,MISS,low,0.42,1.166,0.763,108.82,32,3.401,6,
+f4Vdah_s9,MISS,PASS,0.65,1.112,0.779,114.76,32,3.586,6,
