@@ -5,7 +5,8 @@
 #   Converts <ledger>/results/SWEEP/*.json into RUN_val{,_l23,_l23l23}.csv + RUN.json in /scratch/dhuruva/kimchi_select/SWEEP,
 #   links the core-set csvs and SE_pair csv there, then runs select_stage4.sh on all of them (OUT = rho_redesign/select_SWEEP.csv).
 #   Extra args are rorqual runs in rho_redesign (e.g. f4Vdah_u8) to rank alongside.
-#   Also writes basin_SWEEP.csv: per model, best de_fun and how many starts lie within 2 of it.
+#   Also writes basin_SWEEP.csv: per model, best de_fun_phaseA (smooth, basin-consistent; de_fun if missing) and best de_fun, and how many
+#   starts have de_fun_phaseA within 2 of the best.
 set -euo pipefail
 SW=$1; shift
 RS=/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/rho_redesign
@@ -25,8 +26,8 @@ for j in $LED/*.json; do
 done
 for r in "$@"; do for s in "" _l23 _l23l23; do ln -sf $RS/${r}_val$s.csv $W/; done; ln -sf $RS/$r.json $W/; runs+=($r); done
 cd $W && OUT=$RS/select_$SW.csv bash $RS/select_stage4.sh "${runs[@]}"
-# basin census per model (kimchi runs only): best de_fun and starts within 2
-for r in $(ls $LED/*.json); do jq -r '[(.run | split("_")[1]), .run, .results.de_fun // ""] | @csv' $r; done | tr -d '"' |
-  awk -F, '$3!=""{m=$1; if(!(m in b) || $3<b[m]) b[m]=$3; all[NR]=$0}
-    END{print "model,best_de_fun,n_runs,n_within2"; for(i in all){split(all[i],a,","); n[a[1]]++; if(a[3]-b[a[1]]<=2) w[a[1]]++}
-        for(m in b) printf "%s,%.2f,%d,%d\n", m, b[m], n[m], w[m]}' | sort | tee $RS/basin_$SW.csv | column -t -s,
+# basin census per model (kimchi runs only): best phase-A de_fun (fallback de_fun) and starts within 2 of it
+for r in $(ls $LED/*.json); do jq -r '[(.run | split("_")[1]), .run, (.results.de_fun_phaseA // .results.de_fun // ""), (.results.de_fun // "")] | @csv' $r; done | tr -d '"' |
+  awk -F, '$3!=""{m=$1; if(!(m in b) || $3<b[m]) b[m]=$3; if($4!="" && (!(m in bb) || $4<bb[m])) bb[m]=$4; all[NR]=$0}
+    END{print "model,best_de_fun_phaseA,best_de_fun,n_runs,n_within2"; for(i in all){split(all[i],a,","); n[a[1]]++; if(a[3]-b[a[1]]<=2) w[a[1]]++}
+        for(m in b) printf "%s,%.2f,%.2f,%d,%d\n", m, b[m], bb[m], n[m], w[m]}' | sort | tee $RS/basin_$SW.csv | column -t -s,
