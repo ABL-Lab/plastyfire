@@ -31,8 +31,9 @@
 #           n,sem,se_pair,ratio,factor). Pure awk.
 # Env: KERNEL (default RS/gpu_v10_rho.py; 3V/3W/4V force gpu_v11), DEMOTE (1), FIXANC (1), MW (Markram +10 weight, 2.0),
 #      POP (15), MAXITER (600, total generations: phase A = MAXITER - MAXB), MAXB (150), SIGMA (0.1), A00 (1.2; 0 = no
-#      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need FITTER=fit_v7,
+#      depression-band seeds), SEEDX (seed jsons), SEPAIR, HINGE, INITADM, STRATEGY, FITTER (the last four need FITTER=fit_v7 or fit_v8,
 #      run via fit_launch.py; left unset they add no flag and the kernel uses fit_v6).
+#      fit_v8 also: PHASEB (rescore default | de = v7 phase B), PHASEBK (30), POLISHK (3), POLISHN (200 evals per polished point); phase B = rescore + polish (fit_v8.py doc).
 # Name: f<MODEL>[m<MW>][d][a][g<SIGMA>][e][h]_<START>; e.g. f4Nda_s5. Phase A outputs in /scratch/dhuruva/stage4.
 # MEASURED 22307548 smoke 4N s5 (POP 15, 5+2 gen): 18:14, 57.7 GB, generation ~1.3 s (setup dominates); 600 gen adds ~13 min, so a fit is ~35 min -> 73G 1:00:00. LOPO: L5 unit 22307549 2:31 29.4 GB -> 37G 0:15; L2/3->L5 unit 22307550 5:00 38.2 GB -> 48G 0:15.
 # Sizing (MEASURED, stage 3 at popsize 8 / maxiter 300): fits 8.6-27 min, 19.5-72.9 GB; val 70.4 GB 11:15 -> 88G 0:30.
@@ -198,6 +199,7 @@ fi
 echo "weights $WEIGHTS"
 mkdir -p $SCR/seeds
 XF=(); [ -n "${HINGE:-}" ] && XF+=(--hinge "$HINGE"); [ -n "${INITADM:-}" ] && XF+=(--init-admissible "$INITADM"); [ -n "${STRATEGY:-}" ] && XF+=(--strategy "$STRATEGY")
+if [ "${FITTER:-}" = fit_v8 ]; then [ -n "${PHASEB:-}" ] && XF+=(--phaseb "$PHASEB"); [ -n "${PHASEBK:-}" ] && XF+=(--phaseb-k "$PHASEBK"); [ -n "${POLISHK:-}" ] && XF+=(--polish-k "$POLISHK"); [ -n "${POLISHN:-}" ] && XF+=(--polish-nfev "$POLISHN"); fi
 SD=${S:1}; SEEDARGS=(--seed $SD)
 if [ "${S:0:1}" = s ]; then
   SJ=$SEEDJ
