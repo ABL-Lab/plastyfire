@@ -1,6 +1,14 @@
 # GluSynapse_v2 — decisions and notes for Dhuruva
 
 Newest at the top. Each entry is one line: what I decided or found, and why.
+- 2026-10-03: s6mech P2 (gpu_v12) results.
+  - 3V B4 (C-annulment, T_m 50): chi2_eff/n 3.015/3.019, both starts agree, HIT, slope 0.55. This is the best 3V fit and equals 4V V1 without NO. 3V B3: 3.12.
+  - 4V B1 (C-licence): HIT, slope 0.72, chi2_eff/n 3.81, both starts agree.
+  - 4V graded eCB + B3: slope 0.66, 3.71.
+  - Rejected (chi2_eff/n 9-16): B2, B5, B6, and graded eCB + B5.
+  - Overall leader unchanged: w_4V_x1_u23/s22 (PASS, 3.33).
+  - Fixed a locale bug in select_stage4.sh: sort now runs under LC_ALL=C. Before, "low" sorted before "PASS", so passing runs were listed below non-passing ones.
+  - Submitted s6mech_p3, 15 runs: combinations of graded eCB, B3/B4 and B1 on 3V (5) and 4V (10). Seeds m7_3Vb4 and m7_4Vb1 come from the best B4 and B1 runs. 88G; 0:45 for 3V and 1:15 for 4V; about 15 GPU-slice h.
 - 2026-10-03: s6mech_p1c (refit without the shaft LTP licence, lic_src 0) rejected. chi2_eff/n is 5.0-7.8 against 3.0-3.3 with the licence. Only 4N lic0 s21 passes both gates (slope 0.66, chi2_eff/n 4.97). The 4V lic0 runs miss Markram +10 (1.13) or score 6.3. The shaft licence stays: it carries most of the core fit, and the slope gain at fixed parameters (P0) cannot be kept after a refit.
 - 2026-10-03: s6mech_p1b basin check confirms the graded-eCB leader. 4V + A_eCB 0.05 passes the slope gate (0.68-0.69, leave-one-out 0.625-0.644) with a Markram HIT in 5 of 6 starts. w_4V_x1_s22 lands on the w_4V_x1_u23 point (identical de_fun 233.339; a = 0.89, 3.07, 1.04, 3.34; gamma_d 124, gamma_p 598; chi2_eff/n 3.33). u24 and u26 form a second passing point (gamma_d 20.2, chi2_eff/n 3.48-3.50); u25 is between them. Only s21 (V1-like, slope 0.59) misses the gate, although its phase-A objective is the lowest (203.1 vs 207.6). Leader: w_4V_x1_u23/s22 (no longer provisional). 4N + A_eCB 0.05: HIT, slope 0.54-0.60, no pass.
 - 2026-10-03: s6mech P0 rescores (fixed parameters from the k08 seeds; kimchi marks VALJ-only runs failed, so they were scored from the attempt jsons with select_kimchi.sh LEDDIR=/scratch/dhuruva/p0_attempts). A_eCB 0 breaks Markram -10 (1.00-1.06): the eCB step is required. A_eCB 0.05 at fixed parameters: 4V HIT, slope 0.56. Dropping the shaft LTP licence (lic_src 0) lifts the slope to 0.68 (4V) and 0.69 (4N) while Markram stays HIT; chi2_eff/n is 5.3-5.4 before any refit. On 3V it breaks Markram (+10 1.43). X2 is infeasible everywhere (chi2_eff/n 21-26). Submitted s6mech_p1c_4: refits with lic_src 0 on 4V and 4N, and 4V lic_src 0 + A_eCB 0.05, s21 + u23, 6 runs, 88G 1:15 (about 7.5 GPU-slice h). This removes a mechanism and adds no parameter. s6mech_p2 (gpu_v12, 23 runs) waits on the user OK for adding KERNELX to kimchi_plugin.py KNOWN.

@@ -39,5 +39,5 @@ bs=$(awk -F, '$2=="HIT" && $3=="low" && (b==""||$4>b){b=$4} END{print b}' $TMP)
 awk -F, -v OFS=, -v bs="$bs" -v tie=$SLOPE_TIE '$2=="HIT" && $3=="low" && bs!="" && $4>=bs-tie-1e-9{$11=$9} {print}' $TMP > $TMP.2 && mv $TMP.2 $TMP
 # rank: hits first; among hits, L5 slope gate PASS (>= 0.6) first ranked by chi2eff_n, then gate-low ranked by highest slope;
 # mark ties within 10 % of the best PASS hit (ties go to fewer free params)
-sort -t, -k2,2 -k3,3 -k11,11g $TMP | cut -d, -f1-10,12 | awk -F, 'BEGIN{print "run,hit,slope_gate,slopeL5,mk_p10,mk_m10,chi2eff,n,chi2eff_n,n_free,slopeL5_loo,tied_best"}
+LC_ALL=C sort -t, -k2,2 -k3,3 -k11,11g $TMP | cut -d, -f1-10,12 | awk -F, 'BEGIN{print "run,hit,slope_gate,slopeL5,mk_p10,mk_m10,chi2eff,n,chi2eff_n,n_free,slopeL5_loo,tied_best"}
   {t=""; if($2=="HIT" && $3=="PASS"){ if(best=="") best=$9; t=($9<=1.1*best)?"TIED":"" } print $0","t}' | tee $OUT | column -t -s,
