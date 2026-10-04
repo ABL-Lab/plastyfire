@@ -8,6 +8,7 @@ per pair: EPSP ratio (ratio_hook). One synapse (the figV3/V4 synapse if it has t
   python glusynapse_v2/rho_redesign/figs_veto/figV5_traces.py
 (env as figV_traces.py). Size: figV4 22480956 (16 runs incl. 0.1 Hz) 2:20, 4.39 GB -> 5500M, 0:15.
 MEASURED 22482004 (traces + plot) 3:58, 5.36 GB -> next run 6700M, 0:15.
+MEASURED 22487045 (FREQS 5, traces only) 6:02, 6.53 GB -> next 5-freq run 8200M, 0:15.
 """
 import gc, json, os, sys, time
 import numpy as np
@@ -19,7 +20,9 @@ import figV_traces as FV                                  # noqa: E402
 
 T = FV.T
 WORK = "/scratch/dhuruva/figs_veto"
-PROTOS = {f"{f}{s}": f"sjostrom_{f}hz_dt{s}10ms" for f in ("0.1", "10", "20") for s in ("-", "+")}
+FREQS = os.environ.get("FREQS", "0.1,10,20").split(",")
+TAG = os.environ.get("FIGTAG", "figV5")
+PROTOS = {f"{f}{s}": f"sjostrom_{f}hz_dt{s}10ms" for f in FREQS for s in ("-", "+")}
 PATH = "L5"
 EBNER = "/lustre09/project/6070394/dhuruva/plastyfire/ebner/ebner_targets.csv"
 
@@ -79,10 +82,10 @@ def main():
         print(f"{k} {q}: ratio {x.mean():.3f} (n {len(x)}; data {outs[-1]['data_mean']}) | per syn: t_dep "
               f"{z.t_dep.mean():.3f} s, t_pot {z.t_pot.mean():.3f} s, cmax/tp {(z.cmax / z.tp).median():.2f} "
               f"({time.time() - t0:.0f} s)", flush=True)
-    pd.DataFrame(zones).to_csv(os.path.join(WORK, "figV5_zones.csv"), index=False)
-    pd.DataFrame(outs).to_csv(os.path.join(WORK, "figV5_outcomes.csv"), index=False)
-    np.savez_compressed(os.path.join(WORK, "figV5.npz"), **pkt)
-    json.dump(meta, open(os.path.join(WORK, "figV5_meta.json"), "w"), indent=1, default=str)
+    pd.DataFrame(zones).to_csv(os.path.join(WORK, f"{TAG}_zones.csv"), index=False)
+    pd.DataFrame(outs).to_csv(os.path.join(WORK, f"{TAG}_outcomes.csv"), index=False)
+    np.savez_compressed(os.path.join(WORK, f"{TAG}.npz"), **pkt)
+    json.dump(meta, open(os.path.join(WORK, f"{TAG}_meta.json"), "w"), indent=1, default=str)
     print(f"wrote figV5 ({time.time() - t0:.0f} s); port failures {meta['port_fail'] or 'none'}", flush=True)
 
 
