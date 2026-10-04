@@ -73,7 +73,7 @@ cp, bp, vp = oc("p10", "CHR"), oc("p10", "B4"), oc("p10", "KOV")
 CAPTXT = [
     f"1. Why eCB exists (0.1 Hz −10): one bAP 10 ms before glutamate is too little Ca for ρ to depress, so Chindemi's "
     f"rule gives no change ({c0['mean']:.2f}; data {c0.data_mean:.2f}). The data's LTD is presynaptic and CB1-dependent "
-    f"(Sjöström 2003). The bAP's Ca is still in the pool when glutamate arrives, the eCB step fires, release drops and "
+    f"(CB1 block abolishes it: Sjöström 2003 Fig 8B). The bAP's Ca is still in the pool when glutamate arrives, the eCB step fires, release drops and "
     f"B4 gives {b0['mean']:.2f} (eCB off: {e0['mean']:.2f}).",
     "2. At 0.1 Hz the pool reads the order correctly: at +10 the bAP comes after the arrival, the pool is empty when "
     "the arrival checks it, and no step fires. No veto is needed here.",
@@ -249,7 +249,7 @@ fig.text(0.012, 0.04 / H, textwrap.fill(
     f"L5→L5. Rows 1–2: one synapse that starts at ρ = 0 (pair {ch['pair']}, synapse {ch['syn']}), under B4; 0.1 Hz "
     f"columns show the first pairing, 10 Hz columns the first pairings of the train. Rows 3–5: all synapses / pairs. "
     f"B4 = best model (k_V 0.75, d_NO_max 0.14); eCB off = B4 with A_eCB 0; veto off = B4 with veto_peak_k 1e30 (no "
-    f"refit); Chindemi refit = ρ only. Data: mean ± SEM (Sjöström 2003, Markram 1997).", 165),
+    f"refit); Chindemi refit = ρ only. Data (mean ± SEM): 0.1 Hz −10 Sjöström 2001 Fig 7B; 0.1 Hz +10 Sjöström 2001 Fig 1D; 10 Hz ±10 Markram 1997.", 165),
     ha="left", va="bottom", fontsize=6.0, color="0.3", linespacing=1.25)
 out = os.path.join(HERE, "figV4_why_ecb.png")
 fig.savefig(out, dpi=300)
