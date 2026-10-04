@@ -3,6 +3,7 @@
 Row 1: c* of one synapse, Sjostrom 2001 -10 (red) vs +10 (blue) at 0.1 / 10 / 20 / 40 / 50 Hz, with theta_d / theta_p.
 Row 2: time per synapse in the depression / potentiation zones; EPSP ratio vs frequency (data vs refit).
 Row 3: every other L5 control protocol: data vs refit (CHR_s5_val.csv).
+Env FIT=CHR (default) or B4 (adds row 2 middle: release change, eCB / NO / net). FIGTAG names the outputs.
 Inputs: figV5_traces.py with FREQS=0.1,10,20,40,50 FIGTAG=figV6. Data values and sources come from the scored
 tables (CHR_s5_val.csv; sources from ebner_targets.csv, else the source string in targets.py), never typed by hand.
 
@@ -26,8 +27,14 @@ RED, BLUE, ORANGE, DEP, POT = "#e0473c", "#2f6fb5", "#f39c32", "#fbe1de", "#dff0
 WORK = "/scratch/dhuruva/figs_veto"
 HERE = os.path.dirname(os.path.abspath(__file__))
 EBNER = "/lustre09/project/6070394/dhuruva/plastyfire/ebner/ebner_targets.csv"
-VAL = "/scratch/dhuruva/latest_figs/variants/CHR_s5_val.csv"
-TAG = "figV6"
+FIT = os.environ.get("FIT", "CHR")                         # CHR = Chindemi refit, B4 = best model (u97, k_V 0.75)
+VAL = dict(CHR="/scratch/dhuruva/latest_figs/variants/CHR_s5_val.csv",
+           B4="/scratch/dhuruva/perpair/w_z14b4k75_u97_val.csv")[FIT]
+MODEL = dict(CHR="Chindemi refit", B4="B4 model")[FIT]
+FITDESC = dict(CHR="Chindemi refit CHR_s5 (/scratch/dhuruva/latest_figs/variants/chr/CHR_s5.json)",
+               B4="B4 = Chindemi rho + shaft-Ca licence + eCB step + timed veto (k_V 0.75) + NO; "
+                  "/scratch/dhuruva/perpair/w_z14b4k75_u97_fit.json")[FIT]
+TAG = os.environ.get("FIGTAG", "figV6")
 FR = ("0.1", "10", "20", "40", "50")
 z = np.load(os.path.join(WORK, f"{TAG}.npz")); Z = {k: z[k] for k in z.files}
 M = json.load(open(os.path.join(WORK, f"{TAG}_meta.json")))
@@ -95,9 +102,18 @@ OC["data_mean"] = OC.data_mean.astype(float); OC["data_sem"] = OC.data_sem.astyp
 o = {k: OC.loc[k] for k in OC.index}
 tot = {k: (ZN[ZN.proto == k].t_dep + ZN[ZN.proto == k].t_pot).mean() for k in OC.index}
 more = [f for f in FR if tot[f + "+"] >= tot[f + "-"]]
-CAPTXT = ["Chindemi's ρ reads one signal, c* (spine Ca): more pairings per second → more Ca. +10 gives at least as "
-          f"much Ca as −10 at {'every frequency' if len(more) == len(FR) else ', '.join(more) + ' Hz'} (row 2 left).",
-          "The data split by order; the refit follows frequency (row 2 right). Row 3: every other L5 protocol."]
+DREL = {k: ZN[ZN.proto == k].d_end for k in OC.index} if "d_end" in ZN else {}
+if FIT == "CHR":
+    CAPTXT = ["Chindemi's ρ reads one signal, c* (spine Ca): more pairings per second → more Ca. +10 gives at least as "
+              f"much Ca as −10 at {'every frequency' if len(more) == len(FR) else ', '.join(more) + ' Hz'} (row 2 left).",
+              "The data split by order; the refit follows frequency (row 2 right). Row 3: every other L5 protocol."]
+else:
+    neg = [f for f in FR if DREL[f + "-"].mean() < DREL[f + "+"].mean() - 0.01]
+    CAPTXT = ["B4 keeps Chindemi's ρ: c* still reads the amount of Ca, and +10 gives at least as much as −10 at "
+              f"{'every frequency' if len(more) == len(FR) else ', '.join(more) + ' Hz'} (rows 1, 2 left).",
+              "Order comes from release (row 2 middle): eCB step lowers it after post→pre, the timed veto cancels the "
+              f"step when pre→post follows, NO adds an order-blind rise. At 40/50 Hz the step also fires on +10 (release "
+              f"{DREL['40+'].mean():+.2f}), so +10 stays near 1 ({o['40+']['mean']:.2f} vs data {o['40+'].data_mean:.2f})."]
 CAPW = "\n".join(textwrap.fill(c, 140, subsequent_indent="   ") for c in CAPTXT)
 
 # ---------------------------------------------------------------- layout (inches)
@@ -113,9 +129,11 @@ y1 = H - CAP - HD1 - H1
 g1 = 0.22; cw = (W - L - R - 4 * g1) / 5
 A1 = [fig.add_axes([(L + j * (cw + g1)) / W, y1 / H, cw / W, H1 / H]) for j in range(5)]
 y2 = y1 - G - HD2 - H2
-w2 = (W - L - R - 0.8) / 2
+n2 = 2 if FIT == "CHR" else 3
+w2 = (W - L - R - 0.8 * (n2 - 1)) / n2
 A2 = fig.add_axes([L / W, y2 / H, w2 / W, H2 / H])
-A3 = fig.add_axes([(L + w2 + 0.8) / W, y2 / H, w2 / W, H2 / H])
+A3 = fig.add_axes([(L + (n2 - 1) * (w2 + 0.8)) / W, y2 / H, w2 / W, H2 / H])
+AD = fig.add_axes([(L + w2 + 0.8) / W, y2 / H, w2 / W, H2 / H]) if n2 == 3 else None
 y3 = y2 - G - HD3 - H3
 A4 = fig.add_axes([L / W, y3 / H, (W - L - R) / W, H3 / H])
 fig.text(0.012, 1 - 0.07 / H, CAPW, ha="left", va="top", fontsize=8, linespacing=1.3)
@@ -169,9 +187,27 @@ for s, col, dx in (("-", RED, -bw / 2), ("+", BLUE, bw / 2)):
     A2.bar(x + dx, pot, bw, bottom=dep, color=col, lw=0, hatch="////", edgecolor="white")
 A2.set_xticks(x); A2.set_xticklabels([f"{f} Hz" for f in FR])
 A2.set_ylabel("time per synapse (s)"); A2.set_title("time c* spends in each zone", fontsize=8)
+A2.set_ylim(0, A2.get_ylim()[1] * 1.3)
 A2.legend(handles=[Patch(color="0.5", alpha=0.45, label="depression zone"),
                    Patch(facecolor="0.3", hatch="////", edgecolor="white", label="potentiation zone")],
           loc="upper left", frameon=False, fontsize=7)
+
+# ---- row 2 middle (B4): release change per synapse at the end, eCB and NO parts, net = control lane
+if AD is not None:
+    for s, col, dx in (("-", RED, -bw / 2), ("+", BLUE, bw / 2)):
+        q = [ZN[ZN.proto == f + s] for f in FR]
+        AD.bar(x + dx, [a.d_eCB.mean() for a in q], bw, color=col, alpha=0.45, lw=0)
+        AD.bar(x + dx, [a.d_NO.mean() for a in q], bw, color=col, lw=0, hatch="////", edgecolor="white")
+        AD.errorbar(x + dx, [a.d_end.mean() for a in q], yerr=[a.d_end.std(ddof=1) / np.sqrt(len(a)) for a in q],
+                    fmt="D", color="k", ms=3, capsize=1.5, lw=0.8, zorder=3)
+    AD.axhline(0, color="0.6", lw=0.6)
+    AD.set_xticks(x); AD.set_xticklabels([f"{f} Hz" for f in FR])
+    AD.set_ylabel("release change per synapse"); AD.set_title("presynaptic release at the end", fontsize=8)
+    AD.legend(handles=[Patch(color="0.5", alpha=0.45, label="eCB step"),
+                       Patch(facecolor="0.3", hatch="////", edgecolor="white", label="NO"),
+                       Line2D([], [], ls="none", marker="D", color="k", ms=3, label="net")],
+              loc="lower left", frameon=False, fontsize=6.8, ncol=3)
+    AD.set_ylim(AD.get_ylim()[0] - 0.08, AD.get_ylim()[1])
 
 # ---- row 2 right: outcome vs frequency
 for s, col, lab in (("-", RED, "−10"), ("+", BLUE, "+10")):
@@ -179,7 +215,7 @@ for s, col, lab in (("-", RED, "−10"), ("+", BLUE, "+10")):
     mm = [o[f + s]["mean"] for f in FR]; me = [o[f + s]["sem"] for f in FR]
     A3.errorbar(x - 0.07, d, yerr=de, color=col, marker="o", ms=4.5, lw=1.4, capsize=2, label=f"data {lab}")
     A3.errorbar(x + 0.07, mm, yerr=me, color=col, marker="o", mfc="white", ms=4.5, lw=1.1, ls="--", capsize=2,
-                label=f"Chindemi refit {lab}")
+                label=f"{MODEL} {lab}")
 A3.axhline(1, color="0.8", lw=0.6, zorder=0)
 A3.set_xticks(x); A3.set_xticklabels([f"{f} Hz" for f in FR]); A3.set_xlim(-0.4, len(FR) - 0.6)
 A3.set_ylabel("EPSP ratio"); A3.set_title("outcome, Sjöström ±10", fontsize=8)
@@ -212,7 +248,7 @@ A4.axhline(1, color="0.8", lw=0.6, zorder=0)
 A4.set_xticks(xt); A4.set_xticklabels(xl, fontsize=6.6, rotation=35, ha="right", rotation_mode="anchor")
 A4.set_xlim(-0.6, xi - 0.6); A4.set_ylabel("EPSP ratio")
 A4.legend(handles=[Line2D([], [], ls="none", marker="o", color="k", ms=4.2, label="data"),
-                   Line2D([], [], ls="none", marker="o", mfc="white", mec=ORANGE, ms=4.2, label="Chindemi refit")],
+                   Line2D([], [], ls="none", marker="o", mfc="white", mec=ORANGE, ms=4.2, label=MODEL)],
           loc="upper left", frameon=False, fontsize=7, ncol=2, bbox_to_anchor=(0.0, 0.98))
 
 # ---- sources (generated)
@@ -221,11 +257,11 @@ srcs = [(p, *source(p)) for p in [f"sjostrom_{f}hz_dt{s}10ms" for f in FR for s 
 pd.DataFrame(srcs, columns=["protocol", "paper", "source"]).to_csv(os.path.join(HERE, f"{TAG}_sources.csv"),
                                                                    index=False)
 papers = list(dict.fromkeys(s[1] for s in srcs))
-foot = (f"L5→L5, Chindemi refit (CHR_s5), control. Row 1: pair {M['traces']['0.1-']['pair']}, synapse "
+foot = (f"L5→L5, {dict(CHR='Chindemi refit (CHR_s5)', B4='B4 model (u97, k_V 0.75)')[FIT]}, control. Row 1: pair {M['traces']['0.1-']['pair']}, synapse "
         f"{M['traces']['0.1-']['syn']}, its own θd/θp. Data sources per protocol (paper + figure): {TAG}_sources.csv "
         f"next to this figure. Papers: {'; '.join(papers)}.")
 fig.text(0.012, 0.04 / H, textwrap.fill(foot, 190), ha="left", va="bottom", fontsize=6.0, color="0.3", linespacing=1.25)
-out = os.path.join(HERE, f"{TAG}_chindemi_all.png")
+out = os.path.join(HERE, f"{TAG}_{'chindemi' if FIT == 'CHR' else 'b4'}_all.png")
 fig.savefig(out, dpi=300)
 
 
@@ -235,10 +271,11 @@ def fl(a, nd=5):
 
 
 src_of = {p: (pa, s) for p, pa, s in srcs}
-D = dict(figure=os.path.basename(out), fit="Chindemi refit CHR_s5 (/scratch/dhuruva/latest_figs/variants/chr/CHR_s5.json)",
+D = dict(figure=os.path.basename(out), fit=FITDESC,
          pathway="L5->L5", condition="control", caption=CAPTXT, footnote=foot,
          units=dict(t="ms from first pre spike", c="c* (low-passed spine Ca, model units)", time_in_zone="s per synapse",
-                    ratio="EPSP ratio (after/before)"),
+                    ratio="EPSP ratio (after/before)",
+                    release_change="additive change of release probability state d at the end (control lane: clip(d_eCB + d_NO))"),
          row1=dict(synapse=dict(pair=M["traces"]["0.1-"]["pair"], syn=M["traces"]["0.1-"]["syn"],
                                 rho0=M["traces"]["0.1-"]["rho0"]), traces={}),
          row2=dict(time_in_zone={}, outcome={}), row3=[])
@@ -254,10 +291,16 @@ for f in FR:
                                       t=fl(t[m], 3), c=fl(c[m]), pre=fl(pre[(pre >= lo) & (pre <= hi)], 3),
                                       post=fl(post[(post >= lo) & (post <= hi)], 3),
                                       theta_d=M["traces"][k]["td"], theta_p=M["traces"][k]["tp"])
+        if f"{k}__deCB" in Z:
+            D["row1"]["traces"][k].update(d_eCB=fl(Z[f"{k}__deCB"][m]), d_NO=fl(Z[f"{k}__dNO"][m]))
         q = ZN[ZN.proto == k]
         D["row2"]["time_in_zone"][k] = dict(dep_mean=float(q.t_dep.mean()), dep_sem=float(q.t_dep.std(ddof=1) / np.sqrt(len(q))),
                                             pot_mean=float(q.t_pot.mean()), pot_sem=float(q.t_pot.std(ddof=1) / np.sqrt(len(q))),
                                             n_syn=int(len(q)))
+        if "d_end" in q:
+            D["row2"].setdefault("release_change", {})[k] = {
+                f"{c}_{st}": float(v) for c in ("d_eCB", "d_NO", "d_end")
+                for st, v in (("mean", q[c].mean()), ("sem", q[c].std(ddof=1) / np.sqrt(len(q))))}
         r = OC.loc[k]
         D["row2"]["outcome"][k] = dict(protocol=r.target, model_mean=float(r["mean"]), model_sem=float(r["sem"]),
                                        n_pairs=int(r.n), data_mean=float(r.data_mean), data_sem=float(r.data_sem),

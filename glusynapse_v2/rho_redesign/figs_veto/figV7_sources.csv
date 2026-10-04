@@ -1,0 +1,32 @@
+protocol,paper,source
+sjostrom_0.1hz_dt-10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (0.1 Hz bar)"
+sjostrom_0.1hz_dt+10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (0.1 Hz bar); also Fig 3B squares"
+sjostrom_10hz_dt-10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (10 Hz bar)"
+sjostrom_10hz_dt+10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (10 Hz bar)"
+sjostrom_20hz_dt-10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (20 Hz bar)"
+sjostrom_20hz_dt+10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (20 Hz bar)"
+sjostrom_40hz_dt-10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (40 Hz bar)"
+sjostrom_40hz_dt+10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 6B legend (text: 'normal 40 Hz induction' 153 +- 14%, n=11)"
+sjostrom_50hz_dt-10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (50 Hz bar)"
+sjostrom_50hz_dt+10ms,"Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149","Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (50 Hz bar)"
+10Hz_-10ms,Markram 1997,Markram 1997
+10Hz_10ms,Markram 1997,Markram 1997
+2Hz_5ms,Markram 1997,Markram 1997 (mrk97_01) 2 Hz +5 ms [csv]
+5Hz_5ms,Markram 1997,Markram 1997 (mrk97_02) 5 Hz +5 ms [csv]
+10Hz_5ms,Markram 1997,Markram 1997
+20Hz_5ms,Markram 1997,Markram 1997 (mrk97_04) 20 Hz +5 ms [csv]
+30Hz_5ms,Markram 1997,Markram 1997 (mrk97_05) 30 Hz +5 ms [csv]
+40Hz_5ms,Markram 1997,Markram 1997 (mrk97_06) 40 Hz +5 ms [csv]
+sjostrom_0.1hz_dt0ms,Sjostrom 2001,"Sjostrom 2001 (sjs01_11) 0.1 Hz dt 0, 50 sweeps [csv]"
+sjostrom_20hz_dt-25ms,Sjostrom 2001,Sjostrom 2001 (sjs01_14) 20 Hz -25 ms [csv]
+sjostrom_20hz_dt0ms,Sjostrom 2001,Sjostrom 2001 (sjs01_13) 20 Hz dt 0 [csv]
+sjostrom_20hz_dt+25ms,Sjostrom 2001,Sjostrom 2001 (sjs01_12) 20 Hz +25 ms [csv]
+sjostrom_40hz_dt0ms,Sjostrom 2001,"Sjostrom 2001 (sjs01_15) 40 Hz dt 0, pooled 40/50 Hz [csv]"
+sjostrom_0.1hz_dt-25ms,Sjostrom 2003,Sjostrom 2003 Fig 9C Ctrl dt -25 ms [digitised]
+sjostrom_0.1hz_dt-120ms,Sjostrom 2003,"Sjostrom 2003 Fig 9C Ctrl dt -120/-200/-400 pooled (1.05 +- 0.07) [digitised]; SEM x sqrt2, shared with -200"
+sjostrom_0.1hz_dt-200ms,Sjostrom 2003,"Sjostrom 2003 Fig 9C Ctrl dt -120/-200/-400 pooled (1.05 +- 0.07) [digitised]; SEM x sqrt2, shared with -200 [pooled bar]"
+sjostrom_burst5x20hz_r50_dt-120ms,Sjostrom 2003,"Sjostrom 2003 Fig 9C Burst, pre 120 or 200 ms after the burst (0.79 +- 0.06) [digitised]; SEM x sqrt2, shared with -200"
+sjostrom_burst5x20hz_r50_dt-200ms,Sjostrom 2003,"Sjostrom 2003 Fig 9C Burst, pre 120 or 200 ms after the burst (0.79 +- 0.06) [digitised]; SEM x sqrt2, shared with -200 [pooled bar]"
+sjostrom07_step200ms_pair,Sjostrom 2007,"Sjostrom 2007 Results 3 + Fig 1B: paired 200 ms steps, LTP 162 +- 7% [text]"
+sjostrom07_step200ms_pre_only,Sjostrom 2007,"Sjostrom 2007 Fig 1B open circles, pre/post-only pooled n=12 [digitised; SEM assumed]; SEM x sqrt2, shared with post_only"
+sjostrom07_step200ms_post_only,Sjostrom 2007,"Sjostrom 2007 Fig 1B open circles, pre/post-only pooled n=12 [digitised; SEM assumed]; SEM x sqrt2, shared with post_only [pooled bar]"
