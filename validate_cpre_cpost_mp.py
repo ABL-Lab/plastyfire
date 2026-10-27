@@ -75,7 +75,7 @@ APICAL_SECTION_TYPE = 3
 # Published Ecker 2023 circuit — read-only, owned by emuller, untouched by this
 # project. Its circuit_config.json names the same edges.h5 the theta is read from, so
 # synapse properties and reference thresholds are one self-consistent source.
-ECKER = "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker"
+ECKER = "/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker"
 OLD_EDGES = os.path.join(
     ECKER, "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical", "edges.h5")
 OLD_CONFIG = os.path.join(ECKER, "circuit_config.json")

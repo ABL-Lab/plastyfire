@@ -10,7 +10,7 @@ for f in F:
     for s in range(0,n,50_000_000):
         diff[s:s+50_000_000]|=a[P+f][s:s+50_000_000]!=b[P+f][s:s+50_000_000]
 idx=np.where(diff)[0]; print('changed synapses',len(idx))
-E_=h5py.File('/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5')
+E_=h5py.File('/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5')
 src=E_['edges/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/source_node_id']; tgt=E_['edges/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/target_node_id']
 cond=E_[P+'conductance']
 S='refitting_results/fitting/n120/seed20262009/'

@@ -11,8 +11,8 @@ from scipy.stats import gamma as gamma_dist
 from bluepysnap import Circuit
 
 # --- Config ---
-CIRCUIT_CONFIG = '/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json'
-EDGES_FILE = ('/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/'
+CIRCUIT_CONFIG = '/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json'
+EDGES_FILE = ('/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker/'
               'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5')
 RECIPE_CSV = '/home/dhuruva/ws/plastyfire/biodata/recipe_mod.csv'
 EDGE_POP = 'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical'

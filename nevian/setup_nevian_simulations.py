@@ -44,7 +44,7 @@ sys.path.insert(0, str(PLASTYFIRE_ROOT))
 from nevian_protocols import ALL_PROTOCOLS, CONTROL_PROTOCOLS, PROTOCOLS_BY_ID, NevianProtocol
 
 # --- Paths ---
-CIRCUIT_CONFIG   = "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
+CIRCUIT_CONFIG   = "/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
 NODE_POP         = "S1nonbarrel_neurons"
 TARGET           = "hex_O1Excitatory"
 DEFAULT_PAIRS_DIR = str(PLASTYFIRE_ROOT / "refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations")

@@ -48,7 +48,7 @@ import h5py
 from bluepysnap import Circuit
 
 # ── Circuit defaults ──────────────────────────────────────────────────────────
-CIRCUIT_BASE   = "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker"
+CIRCUIT_BASE   = "/home/dhuruva/ws/datasets/SSCx_plasticity/O1_2023a_Ecker"
 EDGES_FILE     = os.path.join(CIRCUIT_BASE,
                     "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5")
 # Dataset's own circuit_config.json has a stale ctb-emuller $BASE_DIR (read-only), so use ours.
