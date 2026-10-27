@@ -24,8 +24,8 @@
    "new": "/scratch/dhuruva/understand/a2/v3new/v3_outcomes.csv"
   },
   "signals": {
-   "old": "/lustre09/project/6070394/dhuruva/plastyfire/glusynapse_v2/understand/out/sep_signals_old_l5l5.csv",
-   "new": "/lustre09/project/6070394/dhuruva/plastyfire/glusynapse_v2/understand/out/sep_signals_new_l5l5.csv"
+   "old": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/sep_signals_old_l5l5.csv",
+   "new": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/sep_signals_new_l5l5.csv"
   },
   "variant": "V3_t150_k0.6_N5",
   "readout": "V3 = CH0 x (1 + d) (rho_v4.ratio, d <= 0)",

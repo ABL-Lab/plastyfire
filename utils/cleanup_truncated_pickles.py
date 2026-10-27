@@ -12,7 +12,7 @@ import glob
 import pickle
 import argparse
 
-TRACE_RESULTS_BASE = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
+TRACE_RESULTS_BASE = "/home/dhuruva/ws/plastyfire/trace_results"
 TRACE_RESULTS_DIRS = {
     "v1": os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS"),
     "v2": os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS_V2"),

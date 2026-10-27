@@ -23,7 +23,7 @@
     "30": 1.016525145938917,
     "50": 0.8919177566271669
   },
-  "extracted": "/project/rrg-emuller/dhuruva/plastyfire/analytical_method/extracted_sabrina_n120_antic-delta_d0p25",
+  "extracted": "/home/dhuruva/ws/plastyfire/analytical_method/extracted_sabrina_n120_antic-delta_d0p25",
   "argv": [
     "fit.py",
     "--de",
@@ -36,6 +36,6 @@
     "--fit-dt=-10,5,10",
     "--anchor-tails",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/antic-delta-cooker.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/antic-delta-cooker.json"
   ]
 }

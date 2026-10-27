@@ -9,14 +9,14 @@ default code paths.
 
 ## What changed in the circuit config
 
-**Old:** `/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_circuit_config.json`
+**Old:** `/home/dhuruva/ws/plastyfire/data/dhuruva_circuit_config.json`
 ```
 "biophysical_neuron_models_dir": "$BASE_DIR/emodels_hoc"
 ```
 
-**New:** `/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json`
+**New:** `/home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json`
 ```
-"biophysical_neuron_models_dir": "/project/ctb-emuller/dhuruva/DEES_cell_packages/modified_emodels_hoc"
+"biophysical_neuron_models_dir": "/home/dhuruva/ws/DEES_cell_packages/modified_emodels_hoc"
 ```
 
 That is the **only** difference between the two configs.
@@ -126,7 +126,7 @@ python submit_edges_sims.py \
     --params chindemi \
     --freq 10Hz \
     --fastforward 280000 \
-    --circuit-config /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
+    --circuit-config /home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
     --bcl-subdir bluecellulab_results_ion_channels
 
 # Step 2: generate STDP curves from the new results

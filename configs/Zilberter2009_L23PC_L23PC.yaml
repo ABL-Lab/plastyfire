@@ -15,8 +15,8 @@ seed: 20262009
 npairs: 120
 prefire_only: false  # C01/C02 files too: the EPSP basis reads simulation_config.json + prespikes.h5
 circuit:
-    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
-    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    pre_simwriter_config: "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/home/dhuruva/ws/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
     node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
     target: "hex_O1Excitatory"
     node_pop: "S1nonbarrel_neurons"
@@ -27,11 +27,11 @@ postgid_conf:
     mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
 geom_cons:
     max_dist: [50., 50., 10.]  # [x, y, z] um, as configs/L23PC_L23PC_STDP.yaml (paper: somata ~19 um apart)
-sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+sims_dir: "/home/dhuruva/ws/plastyfire/refitting_results"
 simulator:
     account: "rrg-emuller"
-    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
-    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+    env: "/home/dhuruva/ws/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py"
 stimulus:  # defaults (pair search uses freq / nspikes / amp grid, same as the L2/3 -> L5 set)
     freq: [10.0]  # Hz
     amp: "find"  # nA

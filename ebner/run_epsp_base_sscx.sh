@@ -8,9 +8,9 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=23G
 #SBATCH --time=01:30:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/epsp_base_%A_%a.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/epsp_base_%A_%a.out
 set -euo pipefail
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 R=refitting_results/fitting/n120/seed20262009
 BASE=$ROOT/data/sscx_base_circuit_config.json   # dataset config with $BASE_DIR moved ctb-emuller -> rrg-emuller (no ctb access)

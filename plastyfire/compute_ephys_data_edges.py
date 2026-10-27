@@ -33,7 +33,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 NODE_POP        = "S1nonbarrel_neurons"
-MECHANISMS_PATH = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
+MECHANISMS_PATH = "/home/dhuruva/ws/DEES_cell_packages/"
 DISABLE_THRESH  = 1e9   # set theta_d/theta_p to this to disable plasticity
 SIM_DURATION_MS = 240000.0  # 4 min — same as compute_test_pulse_epsp_ratio.py
 

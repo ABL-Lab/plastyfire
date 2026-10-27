@@ -25,7 +25,7 @@ from plastyfire.epg_dhuruva import (
 
 
 DEFAULT_PAIRS_FILE = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/data/pairs_n100.txt"
+    "/home/dhuruva/ws/plastyfire/data/pairs_n100.txt"
 )
 
 

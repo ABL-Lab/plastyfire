@@ -52,7 +52,7 @@ import shutil
 import subprocess
 import sys
 
-PLASTYFIRE_ROOT = "/lustre06/project/6077694/dhuruva/plastyfire"
+PLASTYFIRE_ROOT = "/home/dhuruva/ws/plastyfire"
 DEFAULT_STDP_NAME = "L5TTPC_L5TTPC_STDP"
 # Reference hash to mine for the known-bad (pair, protocol) target list.
 # a-params are irrelevant to spike count (proven param-independent -- see

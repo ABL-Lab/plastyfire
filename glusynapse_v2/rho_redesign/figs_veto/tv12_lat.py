@@ -54,7 +54,7 @@ v12_rec); this is the one departure from offline_v12's asserts, which accept gat
 import argparse, gc, glob, json, os, sys, time
 import numpy as np
 
-HERE = "/lustre09/project/6070394/dhuruva/plastyfire/glusynapse_v2/bcl_validation"                 # read-only imports from bcl_validation (this copy lives on scratch)
+HERE = "/home/dhuruva/ws/plastyfire/glusynapse_v2/bcl_validation"                 # read-only imports from bcl_validation (this copy lives on scratch)
 sys.path.insert(0, HERE)
 import compare_prefire_v12 as C12                         # noqa: E402  (imports live_v12 -> s2g0321 record dirs)
 from compare_prefire_v5 import V5_DEFAULTS                # noqa: E402

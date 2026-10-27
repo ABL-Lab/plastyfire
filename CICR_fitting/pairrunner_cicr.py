@@ -11,8 +11,8 @@ import logging
 import hashlib
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-os.environ["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/libnrnmech.so"
-# os.environ["BBP_MECH_DIR"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages"
+os.environ["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/ws/DEES_cell_packages/x86_64/libnrnmech.so"
+# os.environ["BBP_MECH_DIR"] = "/home/dhuruva/ws/DEES_cell_packages"
 import simulator_cicr as sim
 
 FIT_PARAM_NAMES = [

@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 # ── Paths ────────────────────────────────────────────────────────────────────
 REPO_DIR    = os.path.dirname(os.path.abspath(__file__))
 BASIS_DIR   = os.path.join(REPO_DIR, "basis_results")
-EDGES_H5    = "/lustre06/project/6077694/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+EDGES_H5    = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP    = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 POP_BASE    = f"edges/{EDGE_POP}"
 POP_PATH    = f"edges/{EDGE_POP}/0"

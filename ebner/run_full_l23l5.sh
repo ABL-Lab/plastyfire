@@ -15,9 +15,9 @@
 #SBATCH --cpus-per-task=60
 #SBATCH --mem=265G
 #SBATCH --time=01:30:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/full_l23l5_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/full_l23l5_%j.out
 set -u
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 R=refitting_results/fitting/n120/seed20262009
 IDX=$R/index_Ebner2019_L23PC_L5TTPC.csv

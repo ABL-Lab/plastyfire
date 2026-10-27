@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 NODE_POP        = "S1nonbarrel_neurons"
 EDGE_POP        = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
-MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")
+MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/home/dhuruva/ws/DEES_cell_packages/")
 C01_DURATION_MS = 2.0 * 60.0 * 1000.0   # 2 min in ms
 N_EPSP          = 30
 EPSP_WINDOW_MS  = 100.0

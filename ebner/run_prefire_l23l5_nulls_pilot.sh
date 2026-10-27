@@ -10,9 +10,9 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=20G
 #SBATCH --time=00:15:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/prefire_nulls_pilot_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/prefire_nulls_pilot_%j.out
 set -eu
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 R=refitting_results/fitting/n120/seed20262009
 IDX=$R/index_Ebner2019_L23PC_L5TTPC_nulls.csv

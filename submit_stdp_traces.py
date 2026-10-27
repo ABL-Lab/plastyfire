@@ -24,9 +24,9 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-SIMULATIONS_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
-PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+SIMULATIONS_BASE_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997"
+OUTPUT_BASE_DIR = "/home/dhuruva/ws/plastyfire/trace_results"
+PLASTYFIRE_DIR = "/home/dhuruva/ws/plastyfire"
 
 DHURUVA_PARAMS = {
     "tau_effca_GB_GluSynapse": 111.4966,

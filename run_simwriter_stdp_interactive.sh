@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
+source /home/dhuruva/ws/plastyfire/setupenv.sh
 
 python -c "
 from plastyfire.simwriter import OptSimWriter

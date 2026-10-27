@@ -35,7 +35,7 @@ import time
 
 import pandas as pd
 
-PLASTYFIRE = "/lustre06/project/6077694/dhuruva/plastyfire"
+PLASTYFIRE = "/home/dhuruva/ws/plastyfire"
 RESULTS_DIR = os.path.join(
     PLASTYFIRE,
     "refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations")

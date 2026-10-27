@@ -1,10 +1,10 @@
 import sys, time, json, cProfile, pstats
-sys.path.insert(0, "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2")
+sys.path.insert(0, "/home/dhuruva/ws/plastyfire/glusynapse_v2")
 import numpy as np
 from batch_v2 import BatchV2
 from targets import load_targets
 import model_v2 as MV
-V2 = "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2"
+V2 = "/home/dhuruva/ws/plastyfire/glusynapse_v2"
 fit = json.load(open(f"{V2}/results/preview_fit_v22.json"))
 T = load_targets(("markram", "nevian", "ebner"))
 B = BatchV2([f"{V2}/extracted/ebner_preview", f"{V2}/extracted/markram_delta-cooker"],

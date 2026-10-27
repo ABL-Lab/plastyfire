@@ -11,11 +11,11 @@ index_label: Sjostrom2004_L5TTPC_L5TTPC
 reference: Sjostrom, Turrigiano & Nelson 2004 J Neurophysiol 92:3338 (Methods, Figs 1, 3)
 seed: 20262009
 npairs: 120
-pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/configs/Sjostrom2007_subset24_pairs.csv"
+pairs_from: "/home/dhuruva/ws/plastyfire/configs/Sjostrom2007_subset24_pairs.csv"
 prefire_only: true
 circuit:
-    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
-    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    pre_simwriter_config: "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/home/dhuruva/ws/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
     node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
     target: "hex_O1Excitatory"
     node_pop: "S1nonbarrel_neurons"
@@ -26,11 +26,11 @@ postgid_conf:
     mtype: ["L5_TPC:A", "L5_TPC:B"]
 geom_cons:
     max_dist: [50., 50., 10.]  # [x, y, z] um
-sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+sims_dir: "/home/dhuruva/ws/plastyfire/refitting_results"
 simulator:
     account: "rrg-emuller"
-    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
-    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+    env: "/home/dhuruva/ws/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py"
 stimulus:  # defaults for the protocols below
     freq: [0.1]  # Hz, repetition rate ("every 10 s"); a step has no intra-burst frequency
     amp: "find"  # nA

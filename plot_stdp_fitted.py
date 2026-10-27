@@ -27,9 +27,9 @@ PLASTYFIRE_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(PLASTYFIRE_ROOT, "new_fitting"))
 from effcai_to_epsp import fetch_epsp_ratio
 
-DEFAULT_FITTED_DIR    = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitted"
-DEFAULT_FITTING2_DIR  = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results_fitting2"
-DEFAULT_BASELINE_DIR  = "/project/ctb-emuller/dhuruva/plastyfire/bluecellulab_results"
+DEFAULT_FITTED_DIR    = "/home/dhuruva/ws/plastyfire/bluecellulab_results_fitted"
+DEFAULT_FITTING2_DIR  = "/home/dhuruva/ws/plastyfire/bluecellulab_results_fitting2"
+DEFAULT_BASELINE_DIR  = "/home/dhuruva/ws/plastyfire/bluecellulab_results"
 DEFAULT_BASIS_DIR    = os.path.join(PLASTYFIRE_ROOT, "basis_results_edges_mini")
 NODE_POP             = "S1nonbarrel_neurons"
 

@@ -4,8 +4,8 @@
 #SBATCH --time=12:00:00
 #SBATCH --mem=300G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/full_stdp_%x_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/full_stdp_%x_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/full_stdp_%x_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/full_stdp_%x_%j.err
 set -euo pipefail
 # Full-protocol STDP (C01 + induction + C02, fastforward at 280 s), EPSP ratio
 # measured from the soma voltage -- no basis. Then curate the curve.
@@ -14,8 +14,8 @@ set -euo pipefail
 #   sbatch --job-name=full_x --export=ALL,NAME=x,PARAMS_JSON=/abs/path/best.json run_full_stdp_slurm.sh
 : "${NAME:?set NAME}"
 
-cd /project/rrg-emuller/dhuruva/plastyfire
-source /project/rrg-emuller/dhuruva/plastyfire/.venv/bin/activate
+cd /home/dhuruva/ws/plastyfire
+source /home/dhuruva/ws/plastyfire/.venv/bin/activate
 
 SIMS=refitting_results/fitting/n120/seed20262009/Sabrina_L5TTPC_L5TTPC_STDP/simulations
 CACHE=${CACHE:-cpre_cpost_cache/sabrina_n120_defit2.pkl}

@@ -4,11 +4,11 @@
 #SBATCH --time=06:00:00
 #SBATCH --mem=200G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/basis_sabrina_n120_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/basis_sabrina_n120_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/basis_sabrina_n120_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/basis_sabrina_n120_%j.err
 
-cd /project/rrg-emuller/dhuruva/plastyfire
-source /project/rrg-emuller/dhuruva/plastyfire/.venv/bin/activate
+cd /home/dhuruva/ws/plastyfire
+source /home/dhuruva/ws/plastyfire/.venv/bin/activate
 
 # 5 pairs at a time x 12 trial processes each = 60 cores
 python -u submit_basis_edges.py --execution-mode cpu --workers 5 \

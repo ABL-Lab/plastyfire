@@ -23,9 +23,9 @@
     "30": 0.9743419141910044,
     "50": 0.8670899596676441
   },
-  "extracted": "/project/rrg-emuller/dhuruva/plastyfire/analytical_method/extracted_sabrina_n120_delta_d0p25",
+  "extracted": "/home/dhuruva/ws/plastyfire/analytical_method/extracted_sabrina_n120_delta_d0p25",
   "note": "delta-cooker: best member of the DE population at generation ~101 (seed 1, popsize 8, unchanged since gen 79), read from the live fit process; run stopped there = cap at ~100 epochs. fit.py --de --workers 60 --stride 1 --fit-dt=-10,5,10 --anchor-tails, gammas fixed at constants.py.",
   "emodel": "DEES_cell_packages/SSCx-AAD-delta-emodels",
-  "basis": "/project/rrg-emuller/dhuruva/plastyfire/basis_results_edges_sabrina_n120_delta",
+  "basis": "/home/dhuruva/ws/plastyfire/basis_results_edges_sabrina_n120_delta",
   "cache": "cpre_cpost_cache/sabrina_n120_delta.pkl"
 }

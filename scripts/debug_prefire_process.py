@@ -16,12 +16,12 @@ logger = logging.getLogger("debug_prefire")
 
 # Directories to debug
 directories = [
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_5ms",
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_10ms"
+    "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_5ms",
+    "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_10ms"
 ]
 
 # Constants (from simulator.py or inferred)
-EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+EXTRA_RECIPE_PATH = "/home/dhuruva/ws/plastyfire/biodata/recipe.csv"
 # Assuming default populations if not specified, but better to check config or use defaults
 # simulator.py defaults: node_pop="S1nonbarrel_neurons", edge_pop="S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 NODE_POP = "S1nonbarrel_neurons"
@@ -153,7 +153,7 @@ def run_debug(workdir):
         try:
             # We need to load mechanisms first (just in case)
             if not hasattr(bluecellulab.neuron.h, "CaDynamics_DC0"):
-                bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+                bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
                 
             sim = bluecellulab.CircuitSimulation(dst_config)
             sim.instantiate_gids([(NODE_POP, post_gid)], add_synapses=True, 

@@ -14,7 +14,7 @@ from plastyfire.evaluator import compute_epsp_prefire
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-RESULTS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/evaluation_results/Chindemi_params/sim_results"
+RESULTS_DIR = "/home/dhuruva/ws/plastyfire/evaluation_results/Chindemi_params/sim_results"
 PROTOCOL = "mrk97_08"
 
 def get_epsp_ratio(sim_file):

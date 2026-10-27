@@ -1,7 +1,7 @@
 """Quick diagnostic: how big are the traces?"""
 import pickle, numpy as np, os
 
-trace_dir = '/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/Chindemi_params'
+trace_dir = '/home/dhuruva/ws/plastyfire/trace_results/Chindemi_params'
 dirs = sorted(os.listdir(trace_dir))[:3]
 for d in dirs:
     for proto in ['2Hz_5ms', '10Hz_10ms', '50Hz_10ms']:

@@ -11,7 +11,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESULTS_DIR="$SCRIPT_DIR/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
 PAIRRUNNER="$SCRIPT_DIR/plastyfire/pairrunner_edges.py"
-CACHE="/project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/ga_best.pkl"
+CACHE="/home/dhuruva/ws/plastyfire/cpre_cpost_cache/ga_best.pkl"
 # No --circuit-config: use default from prefire_simulation_config.json (same as optimizer)
 BCL_SUBDIR="bluecellulab_results_ga_best"
 PROTOCOLS=("10Hz_10ms" "10Hz_-10ms")
@@ -42,7 +42,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 '
 
 submitted=0

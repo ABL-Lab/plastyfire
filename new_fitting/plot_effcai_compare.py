@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-TRACE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/Chindemi_params"
+TRACE_DIR = "/home/dhuruva/ws/plastyfire/trace_results/Chindemi_params"
 PAIR = "180164-197248"
 
 protos = ["10Hz_10ms", "10Hz_-10ms"]

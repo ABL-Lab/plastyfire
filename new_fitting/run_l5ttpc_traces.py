@@ -30,8 +30,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Base directories
-SIMULATIONS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
+SIMULATIONS_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
+OUTPUT_BASE_DIR = "/home/dhuruva/ws/plastyfire/trace_results"
 
 # Chindemi parameters (from evaluate_best_solution.py)
 CHINDEMI_PARAMS = {
@@ -71,7 +71,7 @@ def run_single_simulation(args):
     
     try:
         # Build pairrunner command with Chindemi parameters
-        script_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+        script_path = "/home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py"
         
         param_args = [f"--{name}={value}" for name, value in CHINDEMI_PARAMS.items()]
         

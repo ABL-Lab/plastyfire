@@ -115,11 +115,11 @@ def compute_rho_euler(effcai_trace, t, theta_d, theta_p, params, rho0=0.0):
 
 if __name__ == "__main__":
     # Load data
-    data_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/Chindemi_params/180164-197248/10Hz_5ms/simulation_traces.pkl"
+    data_path = "/home/dhuruva/ws/plastyfire/trace_results/Chindemi_params/180164-197248/10Hz_5ms/simulation_traces.pkl"
     if not os.path.exists(data_path):
         print(f"Error: Data file not found at {data_path}")
         # Try to find recent pickle if specific one fails, or just list dir
-        base_dir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/Chindemi_params"
+        base_dir = "/home/dhuruva/ws/plastyfire/trace_results/Chindemi_params"
         print(f"Checking {base_dir}...")
         try:
              # Find a valid file if hardcoded one doesn't exist

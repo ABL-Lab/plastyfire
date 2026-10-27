@@ -26,7 +26,7 @@ GID = int(sys.argv[2]) if len(sys.argv) > 2 else 205995
 PAIR = sys.argv[3] if len(sys.argv) > 3 else "13255-205995"
 PRE_GID = int(PAIR.split("-")[0])
 
-BASE = ("/lustre06/project/6077694/dhuruva/plastyfire/refitting_results/"
+BASE = ("/home/dhuruva/ws/plastyfire/refitting_results/"
         "fitting/n100/seed19091997/L23PC_L5TTPC_STDP/simulations")
 PROD = os.path.join(BASE, PAIR, "10Hz_5ms", "prefire_simulation_config.json")
 NODE_POP = "S1nonbarrel_neurons"

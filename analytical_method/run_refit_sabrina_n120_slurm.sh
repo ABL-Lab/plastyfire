@@ -4,11 +4,11 @@
 #SBATCH --time=06:00:00
 #SBATCH --mem=200G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/refit_sabrina_n120_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/refit_sabrina_n120_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/refit_sabrina_n120_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/refit_sabrina_n120_%j.err
 set -euo pipefail
 
-PF=/project/rrg-emuller/dhuruva/plastyfire
+PF=/home/dhuruva/ws/plastyfire
 cd $PF/analytical_method
 source $PF/.venv/bin/activate
 export PYTHONPATH=$PF

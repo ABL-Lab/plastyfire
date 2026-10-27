@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=26G
 #SBATCH --time=01:00:00
-#SBATCH --chdir=/lustre06/project/6077694/dhuruva/plastyfire/analytical_method
-#SBATCH --output=/lustre06/project/6077694/dhuruva/plastyfire/analytical_method/fit_cpreonly_s1_%j.log
+#SBATCH --chdir=/home/dhuruva/ws/plastyfire/analytical_method
+#SBATCH --output=/home/dhuruva/ws/plastyfire/analytical_method/fit_cpreonly_s1_%j.log
 
 unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
 unset LIBRARY_PATH JPKGDIR NEURODAMUS_DIR HOC_LIBRARY_PATH
@@ -21,7 +21,7 @@ export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python
 export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 
 # stride 1 = the full 0.25 ms grid, no decimation. Coarser strides
 # over-credit potentiation (a brief excursion above theta_p is credited for a

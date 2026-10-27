@@ -101,7 +101,7 @@ DEFAULT_PARAMS = {
 }
 DEFAULT_X0 = np.array([DEFAULT_PARAMS[name] for name in PARAM_NAMES])
 
-BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+BASE_DIR = "/home/dhuruva/ws/plastyfire"
 L5_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/Chindemi_params")
 L23_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/L23PC_Chindemi_params")
 L5_BASIS_DIR = os.path.join(BASE_DIR, "basis_results")

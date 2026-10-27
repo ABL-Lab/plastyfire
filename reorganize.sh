@@ -4,7 +4,7 @@
 # Generated: 2026-02-27
 #
 # Run from the plastyfire project root:
-#   cd /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire
+#   cd /home/dhuruva/ws/plastyfire
 #   bash reorganize.sh
 #
 # The script is idempotent — safe to rerun.

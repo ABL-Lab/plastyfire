@@ -14,7 +14,7 @@ from concurrent.futures import ProcessPoolExecutor
 from constants import (MIN_CA_CR, RHO_STAR_GB, TAU_IND_GB,
                        GAMMA_D_GB, GAMMA_P_GB, TIED_IC4)
 
-ROOT = "/lustre06/project/6077694/dhuruva/plastyfire"
+ROOT = "/home/dhuruva/ws/plastyfire"
 SIMS = f"{ROOT}/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
 RHO_DT_MS = 2.0
 TAUS = [100, 150, 200, 225, 250, 278.3177658387, 300, 350, 400, 500]

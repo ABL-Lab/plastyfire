@@ -10,9 +10,9 @@
 #SBATCH --cpus-per-task=48
 #SBATCH --mem=740G
 #SBATCH --time=12:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/ebner_prefire_%A_%a.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/ebner_prefire_%A_%a.out
 set -u
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 IDX=refitting_results/fitting/n120/seed20262009/index_Ebner2019_L5TTPC_L5TTPC.csv
 S=refitting_results/fitting/n120/seed20262009/Sabrina_L5TTPC_L5TTPC_STDP/simulations

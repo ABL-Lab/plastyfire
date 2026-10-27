@@ -7,9 +7,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=30G
 #SBATCH --time=01:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/eval_cooker_l23l5_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/eval_cooker_l23l5_%j.out
 set -euo pipefail
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 ls basis_results_edges_ebner_l23l5_delta/basis_*.csv | wc -l
 python -u ebner/eval_cooker_l23l5.py

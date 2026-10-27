@@ -36,7 +36,7 @@ import tv12_lat as T                                      # noqa: E402
 
 import importlib.util                                     # noqa: E402
 _sp = importlib.util.spec_from_file_location(
-    "am_constants", "/lustre09/project/6070394/dhuruva/plastyfire/analytical_method/constants.py")
+    "am_constants", "/home/dhuruva/ws/plastyfire/analytical_method/constants.py")
 _am = importlib.util.module_from_spec(_sp); _sp.loader.exec_module(_am)
 MIN_CA_CR, TAU_EFFCA_GB = float(_am.MIN_CA_CR), float(_am.TAU_EFFCA_GB)   # 70e-6 mM, 278.3177658387 ms
 

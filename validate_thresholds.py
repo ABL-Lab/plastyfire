@@ -38,9 +38,9 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-PLASTYFIRE_DIR   = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
-CIRCUIT_CONFIG   = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_circuit_config.json"
-EDGES_H5         = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+PLASTYFIRE_DIR   = "/home/dhuruva/ws/plastyfire"
+CIRCUIT_CONFIG   = "/home/dhuruva/ws/plastyfire/data/dhuruva_circuit_config.json"
+EDGES_H5         = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
 THRESHOLDS_DIR   = os.path.join(PLASTYFIRE_DIR, "data", "thresholds_n100")
 SINGLE_CELLS_DIR = os.path.join(
     PLASTYFIRE_DIR,
@@ -301,7 +301,7 @@ def main():
     sys.path.insert(0, PLASTYFIRE_DIR)
     import bluecellulab
     bluecellulab.set_verbose(0)
-    bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+    bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
     bluecellulab.neuron.h.cvode.atolscale("v", 0.1)
 
     from plastyfire.simulator import c_pre_finder, c_post_finder

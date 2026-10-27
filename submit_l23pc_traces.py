@@ -32,9 +32,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Base directories
-SIMULATIONS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L23PC_L5TTPC/simulations"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
-PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+SIMULATIONS_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L23PC_L5TTPC/simulations"
+OUTPUT_BASE_DIR = "/home/dhuruva/ws/plastyfire/trace_results"
+PLASTYFIRE_DIR = "/home/dhuruva/ws/plastyfire"
 
 # Chindemi parameters (from evaluate_best_solution.py)
 CHINDEMI_PARAMS = {

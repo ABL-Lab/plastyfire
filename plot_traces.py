@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Output directory
-RESULTS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/DHURUVA_PARAMS_V7"
-FIGURES_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/figures/plastyfire/traces"
+RESULTS_DIR = "/home/dhuruva/ws/plastyfire/trace_results/DHURUVA_PARAMS_V7"
+FIGURES_DIR = "/home/dhuruva/ws/figures/plastyfire/traces"
 
 
 def plot_single_simulation(pkl_path, output_dir=None, max_synapses=10, show_legend=True):

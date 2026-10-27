@@ -18,8 +18,8 @@ if [[ ! -f "$SIM_CFG" ]]; then
     exit 1
 fi
 
-DEES_SPECIAL="/project/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/special"
-DEES_LIB="/project/ctb-emuller/dhuruva/DEES_cell_packages/x86_64"
+DEES_SPECIAL="/home/dhuruva/ws/DEES_cell_packages/x86_64/special"
+DEES_LIB="/home/dhuruva/ws/DEES_cell_packages/x86_64"
 
 # Try JPKGDIR candidates in order — DEES special was compiled against 20.03.2025
 JPKGDIR_CANDIDATES=(

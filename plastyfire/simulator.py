@@ -18,11 +18,11 @@ from conntility.io.synapse_report import get_presyn_mapping
 
 bluecellulab.set_verbose(2)
 bluecellulab.neuron.h.cvode.atolscale("v", .1)
-MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # one setting for all og stages
+MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/home/dhuruva/ws/DEES_cell_packages/")  # one setting for all og stages
 bluecellulab.neuron.load_mechanisms(MECHANISMS_PATH)
 logging.getLogger(__name__).warning("mechanisms %s (Kv7m loaded: %s)", MECHANISMS_PATH, hasattr(bluecellulab.neuron.h, "Kv7m"))
 SPIKE_THRESHOLD = -30  # mV
-EXTRA_RECIPE_PATH = "/project/rrg-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
+EXTRA_RECIPE_PATH = "/home/dhuruva/ws/plastyfire/biodata/recipe_andras.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
 logger = logging.getLogger(__name__)  # configure logger
 EPG_MODULES = {

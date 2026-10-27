@@ -6,13 +6,13 @@ import pickle
 import plastyfire.simulator as sim
 
 # Configuration
-workdir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180164-197248/10Hz_-10ms"
+workdir = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/180164-197248/10Hz_-10ms"
 fastforward = 280000.0
-recipe_orig = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
-recipe_mod = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe_mod.csv"
+recipe_orig = "/home/dhuruva/ws/plastyfire/biodata/recipe.csv"
+recipe_mod = "/home/dhuruva/ws/plastyfire/biodata/recipe_mod.csv"
 
-existing_orig_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/evaluation_results/Chindemi_params/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
-existing_mod_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/evaluation_results/Chindemi_params_mod/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
+existing_orig_path = "/home/dhuruva/ws/plastyfire/evaluation_results/Chindemi_params/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
+existing_mod_path = "/home/dhuruva/ws/plastyfire/evaluation_results/Chindemi_params_mod/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
 
 fit_params = {
     "gamma_d_GB_GluSynapse": 101.5,

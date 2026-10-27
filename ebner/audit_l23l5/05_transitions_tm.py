@@ -2,7 +2,7 @@
 (b) per-pair rho0 split; (c) mean-field Tsodyks-Markram release of a 5-spike 50 Hz train for the edge parameters of the
 two pathways (release per spike relative to c_pre's Use=1 reference), i.e. how much pre-driven Ca per c_pre the release dynamics give."""
 import numpy as np, pandas as pd
-R = "/project/rrg-emuller/dhuruva/plastyfire"; O = R + "/ebner/audit_l23l5"
+R = "/home/dhuruva/ws/plastyfire"; O = R + "/ebner/audit_l23l5"
 m = pd.read_csv(O + "/syn_table_merged.csv")
 m["r0"] = m.rho0 > .5; m["pot"] = m.rho_f > .5
 print("(a) transitions  P(0->1), P(1->0), frac potentiated before/after")

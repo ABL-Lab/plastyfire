@@ -29,7 +29,7 @@ MIN2MS = 60 * 1000.0
 FITTED_TAU = 278.3177658387  # previously optimized time constant of Ca*
 # could use `SingletonWeightObjective`s, but it's easier to just multiply the (ordered) errors with the values below...
 # WEIGHT_REDUCE will be set dynamically based on number of protocols in __init__
-CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
+CONFIGS_DIR = "/home/dhuruva/ws/plastyfire/configs"
 FIT_PARAM_NAMES = [
     "tau_effca_GB_GluSynapse",
     "gamma_d_GB_GluSynapse",
@@ -538,7 +538,7 @@ class Evaluator(Evaluator):
 
         with open(task_list_path, "w") as f:
             for sim_dict in all_sims:
-                cmd = f"cd {sim_dict['workdir']} && python /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py {param_args} --fastforward={float(sim_dict['fastforward'])} --param_hash={param_hash}"
+                cmd = f"cd {sim_dict['workdir']} && python /home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py {param_args} --fastforward={float(sim_dict['fastforward'])} --param_hash={param_hash}"
                 f.write(cmd + "\n")
 
         return task_list_path, param_hash
@@ -579,7 +579,7 @@ class Evaluator(Evaluator):
             "mem_per_node": mem_per_node,
             "cpu_time": "01:50:00",
             "log_file": os.path.join(self.glost_dir, f"glost_{param_hash}.log"),
-            "env": "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh",
+            "env": "/home/dhuruva/ws/plastyfire/setupenv.sh",
             "task_list": task_list_path,
         }
 

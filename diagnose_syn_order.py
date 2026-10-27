@@ -10,10 +10,10 @@ import h5py
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, "/lustre06/project/6077694/dhuruva/plastyfire")
+sys.path.insert(0, "/home/dhuruva/ws/plastyfire")
 import bluecellulab
 
-MECHANISMS_PATH = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
+MECHANISMS_PATH = "/home/dhuruva/ws/DEES_cell_packages/"
 bluecellulab.neuron.load_mechanisms(MECHANISMS_PATH)
 
 PAIR         = "180164-197248"
@@ -22,10 +22,10 @@ PRE_GID      = 180164
 POST_GID     = 197248
 NODE_POP     = "S1nonbarrel_neurons"
 EDGE_POP     = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
-EDGES_H5     = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
-WORKDIR      = (f"/lustre06/project/6077694/dhuruva/plastyfire/refitting_results/"
+EDGES_H5     = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
+WORKDIR      = (f"/home/dhuruva/ws/plastyfire/refitting_results/"
                 f"fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/{PAIR}/{DT}")
-BASIS_CSV    = (f"/lustre06/project/6077694/dhuruva/plastyfire/"
+BASIS_CSV    = (f"/home/dhuruva/ws/plastyfire/"
                 f"basis_results_edges_mini/basis_180164_197248.csv")
 
 # ── 1. Load BCL cell ──────────────────────────────────────────────────────────

@@ -24,11 +24,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
-CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
-BESTSOL_PKL = "/lustre06/project/6077694/dhuruva/plastyfire/bestsol.pkl"
+CSVF_NAME = "/home/dhuruva/ws/plastyfire/biodata/paired_recordings.csv"
+CONFIGS_DIR = "/home/dhuruva/ws/plastyfire/configs"
+BESTSOL_PKL = "/home/dhuruva/ws/plastyfire/bestsol.pkl"
 CHECKPOINT_PKL = (
-    "/lustre06/project/6077694/dhuruva/plastyfire/plastyfire/checkpoint_full.pkl"
+    "/home/dhuruva/ws/plastyfire/plastyfire/checkpoint_full.pkl"
 )
 
 FIT_PARAM_NAMES = [
@@ -153,7 +153,7 @@ def main():
 
     # Try to load results from cache first
     cache_key = hashlib.md5(str(param_values).encode()).hexdigest()
-    cache_file = os.path.join("/lustre06/project/6077694/dhuruva/plastyfire/plastyfire/.cache", f"{cache_key}.pkl")
+    cache_file = os.path.join("/home/dhuruva/ws/plastyfire/plastyfire/.cache", f"{cache_key}.pkl")
 
     if os.path.exists(cache_file):
         logger.info(f"Loading EPSP ratios from cache: {cache_file}")

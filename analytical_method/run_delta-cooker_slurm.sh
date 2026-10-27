@@ -4,14 +4,14 @@
 #SBATCH --time=04:00:00
 #SBATCH --mem=300G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/delta-cooker_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/delta-cooker_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/delta-cooker_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/delta-cooker_%j.err
 set -euo pipefail
 # delta-cooker: cooker refit on the delta emodel (SSCx-AAD-delta-emodels), end to end:
 #   c_pre/c_post cache -> BCL prefire (traces) -> extract -> [wait for basis]
 #   -> cooker fit -> submit full-protocol validation of the fit.
 # The basis runs separately (one sbatch per pair, basis_results_edges_sabrina_n120_delta).
-PF=/project/rrg-emuller/dhuruva/plastyfire
+PF=/home/dhuruva/ws/plastyfire
 cd $PF
 source $PF/.venv/bin/activate
 export PYTHONPATH=$PF

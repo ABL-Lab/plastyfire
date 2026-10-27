@@ -12,7 +12,7 @@ from plastyfire.evaluator import compute_epsp_prefire
 target_before = 1.5654242228629773
 target_after = 17.960802743181993
 
-ephys_dir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/ephys_data"
+ephys_dir = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/ephys_data"
 
 # Get all ephys files
 ephys_files = [f for f in os.listdir(ephys_dir) if f.endswith('.pkl')]

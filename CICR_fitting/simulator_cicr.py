@@ -10,13 +10,13 @@ import multiprocessing  # Keeping just in case other modules expect it, though u
 import numpy as np
 import pandas as pd
 from functools import lru_cache
-# os.environ["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/libnrnmech.so"
-# os.environ["BBP_MECH_DIR"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages"
+# os.environ["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/ws/DEES_cell_packages/x86_64/libnrnmech.so"
+# os.environ["BBP_MECH_DIR"] = "/home/dhuruva/ws/DEES_cell_packages"
 
 from plastyfire.epg_dhuruva import ParamsGenerator
 
 SPIKE_THRESHOLD = -30  # mV
-EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+EXTRA_RECIPE_PATH = "/home/dhuruva/ws/plastyfire/biodata/recipe.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
 logger = logging.getLogger(__name__)  # configure logger
 # DEBUG flag will be set by modelfitter.py when --debug is used

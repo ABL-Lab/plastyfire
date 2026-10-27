@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-PLASTYFIRE_ROOT = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+PLASTYFIRE_ROOT = "/home/dhuruva/ws/plastyfire"
 
 # Add new_fitting to path to import effcai_to_epsp
 sys.path.append(os.path.join(PLASTYFIRE_ROOT, "new_fitting"))

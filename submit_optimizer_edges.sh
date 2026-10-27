@@ -26,9 +26,9 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 echo "=== GA optimizer: sample_size=30, pop_size=16, gen=100, seeded with chindemi ==="
 python plastyfire/modelfitter_edges.py \
@@ -36,7 +36,7 @@ python plastyfire/modelfitter_edges.py \
     --pop_size    16  \
     --gen         100 \
     --max-workers 62  \
-    --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
+    --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
     --basis-dir   basis_results_edges_mini/ \
     --seed        1234 \
     --seed-individual "101.5,216.2,1.002,1.954,1.159,2.483,1.127,2.456,5.236,1.782" \

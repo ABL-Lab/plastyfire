@@ -3,7 +3,7 @@
 Fit the Graupner-Brunel a-params to Markram 1997 in-vitro STDP for L5TTPC→L5TTPC
 pairs, using an offline analytical model instead of a simulation-in-the-loop GA.
 
-Repo root `$PF = /project/ctb-emuller/dhuruva/plastyfire`. **Run everything on a
+Repo root `$PF = /home/dhuruva/ws/plastyfire`. **Run everything on a
 compute node**, never the login node.
 
 **Result (DE fit #2 — current best):**

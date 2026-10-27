@@ -8,12 +8,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 PKL_PATH = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
+    "/home/dhuruva/ws/plastyfire/"
     "full_trace_results/CHINDEMI_PARAMS_custom_ratio_50_50/"
     "180164-197248/10Hz_-10ms/simulation_traces.pkl"
 )
 H5_PATH = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
+    "/home/dhuruva/ws/plastyfire/"
     "refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/"
     "simulations/180164-197248/10Hz_-10ms/out/rho.h5"
 )

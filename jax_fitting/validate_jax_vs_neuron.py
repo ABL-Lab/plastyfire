@@ -20,7 +20,7 @@ CHINDEMI_PARAMS = {
     "a20": 1.127, "a21": 2.456, "a30": 5.236, "a31": 1.782,
 }
 
-BASE_DIR = "/project/rrg-emuller/dhuruva/plastyfitting"
+BASE_DIR = "/home/dhuruva/ws/plastyfitting"
 TRACE_DIR = os.path.join(BASE_DIR, "trace_results/Chindemi_params")
 CAI_REST = 70e-6
 

@@ -15,16 +15,16 @@ import matplotlib.pyplot as plt
 
 # ── defaults ─────────────────────────────────────────────────────────────────
 FULL_PKL = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
+    "/home/dhuruva/ws/plastyfire/"
     "trace_results/CHINDEMI_PARAMS/180164-197248/10Hz_5ms/simulation_traces.pkl"
 )
 PREFIRE_PKL = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
+    "/home/dhuruva/ws/plastyfire/"
     "refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/"
     "simulations/180164-197248/10Hz_5ms/simulation_traces_prefire.pkl"
 )
 OUT_PNG = (
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/"
+    "/home/dhuruva/ws/plastyfire/"
     "compare_prefire_vs_full_10Hz_5ms.png"
 )
 

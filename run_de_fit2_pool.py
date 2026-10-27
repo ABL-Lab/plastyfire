@@ -33,7 +33,7 @@ import subprocess
 import sys
 import time
 
-PLASTYFIRE_ROOT = "/project/rrg-emuller/dhuruva/plastyfire"
+PLASTYFIRE_ROOT = "/home/dhuruva/ws/plastyfire"
 DEFAULT_STDP_NAME = "L5TTPC_L5TTPC_STDP"
 
 def results_dir_for(stdp_name):

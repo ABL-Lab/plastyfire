@@ -80,6 +80,6 @@
     "--proto-map",
     "{\"sjh06_02\":{\"extracted\":\"/scratch/dhuruva/ogk_kb2/l23l5/extracted\",\"basis\":\"/scratch/dhuruva/ogk_kb2/l23l5/basis\"}}",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-joint_s3.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-joint_s3.json"
   ]
 }

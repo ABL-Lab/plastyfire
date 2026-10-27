@@ -14,7 +14,7 @@ postgid_conf:
     mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
 geom_cons:
     max_dist: [50.0, 50.0, 10.0]  # [x, y, z] um
-sims_dir: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results"
+sims_dir: "/home/dhuruva/ws/plastyfire/refitting_results"
 stimulus:
     freq: [2.0, 5.0, 10.0, 20.0]  # Hz
     amp: "find"  # nA
@@ -30,5 +30,5 @@ stimulus:
     C01_duration: 10  # min
     C02_duration: 10  # min
 simulator:
-    env: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh"
-    run: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+    env: "/home/dhuruva/ws/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py"

@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # bluecellulab.set_verbose(2)
-# bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+# bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
 DEBUG = False  # Default to False, will be overridden by modelfitter
 SYNPROPS = ["Cpre", "Cpost", "loc", "Use0_TM", "Dep_TM", "Fac_TM", "Nrrp_TM", "gmax0_AMPA", "gmax_NMDA",
             "volume_CR", "synapseID", "theta_d_GB", "theta_p_GB"]
@@ -113,7 +113,7 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
     import importlib
     #importlib.reload(bluecellulab)
     bluecellulab.set_verbose(2)
-    bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+    bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
     bluecellulab.neuron.h.cao_CR_GluSynapse = 2.0
     bluecellulab.neuron.h.minis_single_vesicle_GluSynapse = 0.0
     bluecellulab.neuron.h.init_depleted_GluSynapse = 0.0
@@ -163,7 +163,7 @@ def get_epsp_value(sim_config_path, pre_gid, post_gid, rho_config, node_pop, tri
     bluepysnap_sim = BluePySnapSimulation(sim_config_path)
     
     # Use custom recipe path if provided, otherwise use default
-    recipe_file = recipe_path if recipe_path else "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+    recipe_file = recipe_path if recipe_path else "/home/dhuruva/ws/plastyfire/biodata/recipe.csv"
     
     edge_pop = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
     epg_variant = os.environ.get("PLASTYFIRE_EPG_VARIANT", "epg_dhuruva")

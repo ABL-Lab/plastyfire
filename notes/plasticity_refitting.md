@@ -6,7 +6,7 @@ python plot_stdp_ic_best.py --param-hash 283d79c04294 \
 ```
 
 ```livescript
-cd /lustre06/project/6077694/dhuruva/plastyfire/analytical_method
+cd /home/dhuruva/ws/plastyfire/analytical_method
 
 python fit.py --cpre-only --fit-gamma --de \
               --workers 60 --maxiter 600 --stride 1 --fit-dt=-10,5,10 --anchor-tails
@@ -20,7 +20,7 @@ python fit.py --cpre-only --fit-gamma --de \
 These are the `bluecellulab_results_ion_channels/` folders inside every workdir:
 
 ```bash
-find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
+find /home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
     -type d -name "bluecellulab_results_ion_channels" \
     -exec rm -rf {} + 2>/dev/null || true
 ```
@@ -28,7 +28,7 @@ find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed
 Also delete all the hash-based BCL pkl files:
 
 ```bash
-find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
+find /home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
     -name "simulation_edges_*.pkl" -o -name "simulation_edges.pkl" \
     | xargs rm -f
 ```
@@ -36,7 +36,7 @@ find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed
 ## Step 2: Delete old Neurodamus results (`out_ic/`)
 
 ```bash
-find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
+find /home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations \
     -type d -name "out_ic" \
     -exec rm -rf {} + 2>/dev/null || true
 ```
@@ -44,13 +44,13 @@ find /project/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed
 ## Step 3: Delete old basis results and recompute
 
 ```bash
-rm -rf /project/ctb-emuller/dhuruva/plastyfire/basis_results_edges_ion_channels/
+rm -rf /home/dhuruva/ws/plastyfire/basis_results_edges_ion_channels/
 ```
 
 Then rerun the basis (uses `--circuit-config` pointing to the ion channels config, which picks up the updated hoc):
 
 ```bash
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 python submit_basis_edges.py \
     --output-dir basis_results_edges_ion_channels \
@@ -61,7 +61,7 @@ python submit_basis_edges.py \
 ## Step 4: Recompute thresholds from cache (no new BCL needed)
 
 ```livescript
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 # Rebuild the IC cache against the CURRENT hoc. --circuit-config is required:
 # without it the mini-sims read whatever network is baked into each workdir config.
@@ -69,7 +69,7 @@ rm -f cpre_cpost_cache/ion_channels_tau278.pkl
 
 python precompute_cpre_cpost.py \
     --params chindemi_aparams \
-    --results-dir /project/ctb-emuller/dhuruva/plastyfire/refitting_results \
+    --results-dir /home/dhuruva/ws/plastyfire/refitting_results \
     --circuit-config data/dhuruva_modified_ion_channels_circuit_config.json \
     --output cpre_cpost_cache/ion_channels_tau278.pkl \
     --workers 60
@@ -79,7 +79,7 @@ python precompute_cpre_cpost.py \
 The thresholds use `compute_thresholds_from_cache.py` which reads the existing cpre/cpost cache — the hoc change doesn't affect c_pre/c_post since those are driven by the GluSynapse dynamics (not the cell ion channels). So you can re-inject with the same a-params:
 
 ```bash
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 python compute_thresholds_from_cache.py \
     --cache cpre_cpost_cache/ion_channels_tau278.pkl \
@@ -98,7 +98,7 @@ python inject_thresholds.py \
 ## Step 5: Re-run BCL STDP simulations
 
 ```bash
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 bash submit_ic_best_700.sh
 
@@ -148,7 +148,7 @@ the cicr prams arent matching, the mod file changed the cai_CR behavoiur need to
 ```livescript
 python plastyfire/modelfitter_edges.py \
     --basis-dir basis_results_edges_mini/ \
-    --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
+    --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
     --max-workers 62 \
     --pop_size 16 \
     --gen 100 \
@@ -163,8 +163,8 @@ For new ion channel
 ```python
 	python plastyfire/modelfitter_edges.py \
 	    --basis-dir basis_results_edges_ion_channels_cached/ \
-	    --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
-	    --circuit-config /project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
+	    --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
+	    --circuit-config /home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
 	    --max-workers 60 \
 	    --pop_size 16 \
 	    --gen 100 \
@@ -179,8 +179,8 @@ with same params
 ```livescript
 python plastyfire/modelfitter_edges.py \
     --basis-dir basis_results_edges_ion_channels/ \
-    --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
-    --circuit-config /project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
+    --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
+    --circuit-config /home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
     --max-workers 62 \
     --pop_size 16 \
     --gen 100 \
@@ -191,7 +191,7 @@ python plastyfire/modelfitter_edges.py \
 ```
 
 ```livescript
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 python plot_edges_fitness.py \
     --checkpoint checkpoint_edges.pkl \
@@ -202,8 +202,8 @@ python plot_edges_fitness.py \
 ```livescript
 python plastyfire/modelfitter_edges.py \
     --basis-dir basis_results_edges_ion_channels_cached/ \
-    --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
-    --circuit-config /project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
+    --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/ion_channels_tau278.pkl \
+    --circuit-config /home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json \
     --max-workers 20 \
     --pop_size 16 \
     --gen 100 \
@@ -217,26 +217,26 @@ python plastyfire/modelfitter_edges.py \
 Cmd to delete and start afresh
 
 ```livescript
-rm -f /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/checkpoint_edges.pkl* \
-      /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache.pkl* \
-      /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/logs/tagged_*.csv
+rm -f /home/dhuruva/ws/plastyfire/checkpoint_edges.pkl* \
+      /home/dhuruva/ws/plastyfire/cpre_cpost_cache.pkl* \
+      /home/dhuruva/ws/plastyfire/logs/tagged_*.csv
 
-find /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting \
+find /home/dhuruva/ws/plastyfire/refitting_results/fitting \
     -name "simulation_edges_*.pkl" -delete
 
-rm -rf /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/.cache
+rm -rf /home/dhuruva/ws/plastyfire/.cache
 
 ```
 
 this is precomputing cpre_cpost cache
 
 ```livescript
-rm /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl
+rm /home/dhuruva/ws/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl
 
 python precompute_cpre_cpost.py \
     --params chindemi_aparams \
-    --results-dir /project/ctb-emuller/dhuruva/plastyfire/refitting_results \
-    --output /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
+    --results-dir /home/dhuruva/ws/plastyfire/refitting_results \
+    --output /home/dhuruva/ws/plastyfire/cpre_cpost_cache/chindemi_tau278.pkl \
     --workers 60
 ```
 
@@ -257,7 +257,7 @@ thiscmd is for validating cpore cpost:
 This code is for running BCL prefire simulation inorder to validate with neurodamus
 
 ```python
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 BCL_SUBDIR_OVERRIDE=bluecellulab_results_edges_chindemi_params_prefire bash submit_bcl_prefire_chindemi.sh
 
 ```
@@ -265,16 +265,16 @@ BCL_SUBDIR_OVERRIDE=bluecellulab_results_edges_chindemi_params_prefire bash subm
 For new ion channles:
 
 ```livescript
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 python submit_basis_edges.py \
     --output-dir basis_results_edges_ion_channels \
-    --circuit-config /project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json
+    --circuit-config /home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config.json
 
 ```
 
 ```livescript
-cd /project/ctb-emuller/dhuruva/plastyfire/optimizer_ion_channels
+cd /home/dhuruva/ws/plastyfire/optimizer_ion_channels
 
 python ../plot_edges_fitness.py \
     --checkpoint checkpoint_edges.pkl \
@@ -293,10 +293,10 @@ python plot_stdp_ic_best.py
 
 ## Commands to rewrite `dees_edges.h5` for cell 186168
 
-Run these from `/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/cpre_cpost` on a compute node (per your usual practice, not the login node):
+Run these from `/home/dhuruva/ws/DEES_cell_packages/cpre_cpost` on a compute node (per your usual practice, not the login node):
 
 ```bash
-cd /home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/cpre_cpost
+cd /home/dhuruva/ws/DEES_cell_packages/cpre_cpost
 
 # 1. Clear the stale CPre cache — run_cpre_parallel.py skips synapses already in this CSV
 rm -f dees_cpre_values_csv_DEES_gmax_rho_50_50/dees_cpre_values_186168.csv
@@ -324,8 +324,8 @@ Notes:
 - It edits `DEES_gmax_rho_50_50/186168/dees_edges.h5` **in place** (`r+` mode) — make a backup first if you want to be able to diff/revert:
     
     ```bash
-    cp /home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/DEES_gmax_rho_50_50/186168/dees_edges.h5 \
-       /home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/DEES_gmax_rho_50_50/186168/dees_edges.h5.bak_pre_ionchannel_update
+    cp /home/dhuruva/ws/DEES_cell_packages/DEES_gmax_rho_50_50/186168/dees_edges.h5 \
+       /home/dhuruva/ws/DEES_cell_packages/DEES_gmax_rho_50_50/186168/dees_edges.h5.bak_pre_ionchannel_update
     ```
     
 - After this, `submit_job_loc.py` will pick up the new thresholds automatically since it reads `dees_edges.h5` live via `SSim`/`instantiate_gids`.

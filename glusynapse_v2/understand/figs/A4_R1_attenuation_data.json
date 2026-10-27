@@ -23663,9 +23663,9 @@
 }
 },
 "sources": {
-"table": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/out/vsyn_old.csv",
+"table": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/vsyn_old.csv",
 "made_by": "understand/a4_dend/measure_v.py",
-"geometry": "/project/rrg-emuller/dhuruva/plastyfire/ebner/pair_geometry_L23PC_L5TTPC.csv",
+"geometry": "/home/dhuruva/ws/plastyfire/ebner/pair_geometry_L23PC_L5TTPC.csv",
 "traces": "/scratch/dhuruva/s2g0321/refitting_results/fitting/n120/seed20262009/{Sabrina_L5TTPC_L5TTPC_STDP,Ebner2019_L23PC_L5TTPC}/simulations/<pair>/<proto>/bluecellulab_results_<hash>/simulation_traces.pkl",
 "sjostrom2001_soma": "Sjostrom, Turrigiano & Nelson 2001 Neuron, Fig 5D (somatic residual depolarisation)"
 }

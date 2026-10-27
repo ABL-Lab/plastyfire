@@ -27,7 +27,7 @@ TAG = os.environ.get("FIGTAG", "figV5")
 FIT = os.environ.get("FIT", "CHR")                         # CHR = Chindemi refit, B4 = best model (u97, k_V 0.75)
 PROTOS = {f"{f}{s}": f"sjostrom_{f}hz_dt{s}10ms" for f in FREQS for s in ("-", "+")}
 PATH = "L5"
-EBNER = "/lustre09/project/6070394/dhuruva/plastyfire/ebner/ebner_targets.csv"
+EBNER = "/home/dhuruva/ws/plastyfire/ebner/ebner_targets.csv"
 
 
 def main():

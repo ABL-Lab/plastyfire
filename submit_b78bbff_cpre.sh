@@ -15,8 +15,8 @@
 #SBATCH --cpus-per-task=48
 #SBATCH --mem=192G
 #SBATCH --time=06:00:00
-#SBATCH --chdir=/lustre06/project/6077694/dhuruva/plastyfire
-#SBATCH --output=/lustre06/project/6077694/dhuruva/plastyfire/logs/b78_cpre_%j.log
+#SBATCH --chdir=/home/dhuruva/ws/plastyfire
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/b78_cpre_%j.log
 
 unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
 unset LIBRARY_PATH JPKGDIR NEURODAMUS_DIR HOC_LIBRARY_PATH
@@ -34,14 +34,14 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
 python precompute_cpre_cpost.py \
     --params chindemi_aparams \
-    --results-dir /project/ctb-emuller/dhuruva/plastyfire/refitting_results \
+    --results-dir /home/dhuruva/ws/plastyfire/refitting_results \
     --circuit-config data/dhuruva_b78bbff_circuit_config.json \
     --output cpre_cpost_cache/b78bbff_tau278.pkl \
     --workers 48

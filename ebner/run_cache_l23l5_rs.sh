@@ -7,9 +7,9 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=22G
 #SBATCH --time=00:15:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/cache_l23l5_rs_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/cache_l23l5_rs_%j.out
 set -euo pipefail
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 python -u precompute_cpre_cpost.py --params defit2 --results-dir refitting_results \
     --sims-dir refitting_results/fitting/n120/seed20262009/Ebner2019_L23PC_L5TTPC/simulations \

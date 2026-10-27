@@ -47,8 +47,8 @@ from submit_l5ttpc_traces import (
 )
 
 # Default output dirs — mirrors plot_stdp_curves.py but points at full_trace_results
-FULL_TRACE_RESULTS_BASE = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/full_trace_results"
-TRACE_RESULTS_BASE      = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
+FULL_TRACE_RESULTS_BASE = "/home/dhuruva/ws/plastyfire/full_trace_results"
+TRACE_RESULTS_BASE      = "/home/dhuruva/ws/plastyfire/trace_results"
  
 TRACE_RESULTS_DIRS = {
     "v1":       os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS"),

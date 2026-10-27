@@ -20,7 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-sys.path.append("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/new_fitting")
+sys.path.append("/home/dhuruva/ws/plastyfire/new_fitting")
 from effcai_to_epsp import fetch_epsp_ratio
 from submit_l5ttpc_traces import (
     CHINDEMI_PARAMS, DHURUVA_PARAMS, DHURUVA_PARAMS_V2, DHURUVA_PARAMS_V3, DHURUVA_PARAMS_V4,
@@ -30,7 +30,7 @@ from submit_l5ttpc_traces import (
     DHURUVA_PARAMS_V17, DHURUVA_PARAMS_V18, DHURUVA_PARAMS_V19
 )
 
-TRACE_RESULTS_BASE = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
+TRACE_RESULTS_BASE = "/home/dhuruva/ws/plastyfire/trace_results"
 TRACE_RESULTS_DIRS = {
     "v1":  os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS"),
     "v2":  os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS_V2"),
@@ -53,7 +53,7 @@ TRACE_RESULTS_DIRS = {
     "v19": os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS_V19"),
     "chindemi": os.path.join(TRACE_RESULTS_BASE, "CHINDEMI_PARAMS"),
 }
-BASIS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results"
+BASIS_DIR = "/home/dhuruva/ws/plastyfire/basis_results"
 
 # ---------------------------------------------------------------------------
 # In vitro reference data — Sjöström et al. 2001 (approximate digitised values)

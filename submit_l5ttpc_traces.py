@@ -34,10 +34,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Base directories
-SIMULATIONS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
-SIMULATIONS_DIR_STDP = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/full_trace_results"
-PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+SIMULATIONS_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
+SIMULATIONS_DIR_STDP = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
+OUTPUT_BASE_DIR = "/home/dhuruva/ws/plastyfire/full_trace_results"
+PLASTYFIRE_DIR = "/home/dhuruva/ws/plastyfire"
 DEFAULT_EPG_FULL_PAIRS_FILE = os.path.join(PLASTYFIRE_DIR, "data", "pairs_n100.txt")
 
 # Chindemi parameters (from evaluate_best_solution.py)

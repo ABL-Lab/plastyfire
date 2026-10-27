@@ -18,7 +18,7 @@ import bluecellulab
 from libsonata import SpikeReader
 
 # Load compiled NMODL mechanisms (CaDynamics_DC0, SK_E2, GluSynapse, etc.)
-bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
 
 # ── Config ──────────────────────────────────────────────────────────────────
 WORKDIR    = os.path.dirname(os.path.abspath(__file__))

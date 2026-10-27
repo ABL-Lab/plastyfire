@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Load data
-# data_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params.csv"
-data_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params_L23PC_L5TTPC.csv"
+# data_path = "/home/dhuruva/ws/plastyfire/validation/synaptic_params.csv"
+data_path = "/home/dhuruva/ws/plastyfire/validation/synaptic_params_L23PC_L5TTPC.csv"
 df = pd.read_csv(data_path)
 
 # Rename columns for plotting
@@ -110,7 +110,7 @@ g.map_diag(plot_diag)
 plt.subplots_adjust(hspace=0.1, wspace=0.1)
 
 # Save
-# output_plot = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params_plot.png"
-output_plot = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params_plot_L23PC_L5TTPC.png"
+# output_plot = "/home/dhuruva/ws/plastyfire/validation/synaptic_params_plot.png"
+output_plot = "/home/dhuruva/ws/plastyfire/validation/synaptic_params_plot_L23PC_L5TTPC.png"
 g.savefig(output_plot, dpi=300)
 print(f"Saved plot to {output_plot}")

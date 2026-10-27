@@ -4,7 +4,7 @@ from bluepysnap import Circuit
 from collections import Counter
 
 # Configuration
-SIM_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
+SIM_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
 CIRCUIT_CONFIG = "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
 NODE_POP = "S1nonbarrel_neurons"
 

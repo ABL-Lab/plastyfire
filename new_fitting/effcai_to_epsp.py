@@ -46,7 +46,7 @@ DEFAULT_PARAMS = {
 }
 
 # Where per-pair basis CSVs live  (basis_{pre}_{post}.csv)
-#BASIS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/basis_results_new"
+#BASIS_DIR = "/home/dhuruva/ws/plastyfire/basis_results_new"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

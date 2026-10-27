@@ -78,17 +78,17 @@
     "--targets",
     "mrk97_01,mrk97_02,mrk97_07,mrk97_08,sjh06_02",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpLw4_s1.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfpLw4_s1.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpw4_s2.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfpw4_s2.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpw10_s2.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfpw10_s2.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s3.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jointuafp_s3.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s4.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jointuafp_s4.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointua2_s2.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jointua2_s2.json",
     "--popsize",
     "16",
     "--untie-apical",
@@ -97,6 +97,6 @@
     "--proto-map",
     "/scratch/dhuruva/ogk_kb2/proto_map_jointfp_w4.json",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpSw4_s1.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfpSw4_s1.json"
   ]
 }

@@ -41,7 +41,7 @@ EXPERIMENTAL_ERRORS = {
     "50Hz_10ms":  0.09,
 }
 
-BASE_DIR = "/project/rrg-emuller/dhuruva/plastyfitting"
+BASE_DIR = "/home/dhuruva/ws/plastyfitting"
 L5_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/Chindemi_params")
 L23_TRACE_DIR = os.path.join(BASE_DIR, "trace_results/L23PC_Chindemi_params")
 L5_BASIS_DIR = os.path.join(BASE_DIR, "basis_results")

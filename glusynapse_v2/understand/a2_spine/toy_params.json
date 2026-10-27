@@ -112,7 +112,7 @@
   "sjostrom07_step200ms_pair": -0.12092324966571155
  },
  "sources": {
-  "npz": "/lustre09/project/6070394/dhuruva/plastyfire/glusynapse_v2/understand/a2_spine/vseg_templates.npz",
+  "npz": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/a2_spine/vseg_templates.npz",
   "ca_freq_diag": "/scratch/dhuruva/basics/bio/ca_freq_diag/ca_freq_diag.csv",
   "vdend": "/scratch/dhuruva/basics/bio/vdend_freq/vdend_freq.csv",
   "cexp": "/scratch/dhuruva/s2g0321/cexp/L5L5.csv",

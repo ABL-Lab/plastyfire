@@ -91,6 +91,6 @@
     "--proto-map",
     "/scratch/dhuruva/ogk_kb2/proto_map_jointfp.json",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfp6gw1_s2.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfp6gw1_s2.json"
   ]
 }

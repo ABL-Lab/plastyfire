@@ -34,16 +34,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
-CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
+CSVF_NAME = "/home/dhuruva/ws/plastyfire/biodata/paired_recordings.csv"
+CONFIGS_DIR = "/home/dhuruva/ws/plastyfire/configs"
 EVAL_PROTOCOLS = ["mrk97_08"]  # Evaluation protocols
 # Note: tau_effca_GB_GluSynapse is hardcoded in pairrunner.py, not fitted
 
 # Best solution file path
-BESTSOL_PKL = "/lustre06/project/6077694/dhuruva/plastyfire/bestsol.pkl"
+BESTSOL_PKL = "/home/dhuruva/ws/plastyfire/bestsol.pkl"
 # Alternative: use checkpoint.pkl if bestsol.pkl doesn't exist
 CHECKPOINT_PKL = (
-    "/lustre06/project/6077694/dhuruva/plastyfire/plastyfire/checkpoint.pkl"
+    "/home/dhuruva/ws/plastyfire/plastyfire/checkpoint.pkl"
 )
 
 # Param names from modelfitter.py
@@ -567,7 +567,7 @@ def main():
         logger.info(f"Parameter hash: {param_hash}")
 
         # Define results directory for this parameter set
-        results_base_dir = f"/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/{param_set_name}/sim_results"
+        results_base_dir = f"/home/dhuruva/ws/plastyfire/evaluation_results/{param_set_name}/sim_results"
         os.makedirs(results_base_dir, exist_ok=True)
         logger.info(f"Results directory: {results_base_dir}")
 
@@ -695,7 +695,7 @@ def main():
         all_comparisons[param_set_name] = comparison
 
         # Save results for this parameter set
-        output_dir = f"/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/{param_set_name}"
+        output_dir = f"/home/dhuruva/ws/plastyfire/evaluation_results/{param_set_name}"
         os.makedirs(output_dir, exist_ok=True)
 
         results_df.to_csv(os.path.join(output_dir, "detailed_results.csv"), index=False)
@@ -736,7 +736,7 @@ def main():
         logger.info("\n" + pivot_comparison["error"].to_string())
 
         # Save combined comparison
-        combined_output_dir = "/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results"
+        combined_output_dir = "/home/dhuruva/ws/plastyfire/evaluation_results"
         combined_comparison.to_csv(
             os.path.join(combined_output_dir, "combined_comparison.csv"), index=False
         )
@@ -801,7 +801,7 @@ def main():
             plt.suptitle(f"Parameter Set: {param_set_name}", fontsize=14, fontweight="bold")
             plt.tight_layout()
 
-            param_output_dir = f"/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/{param_set_name}"
+            param_output_dir = f"/home/dhuruva/ws/plastyfire/evaluation_results/{param_set_name}"
             plt.savefig(
                 os.path.join(param_output_dir, "evaluation_comparison.png"),
                 dpi=150,
@@ -860,7 +860,7 @@ def main():
             plt.suptitle("Comparison Across All Parameter Sets", fontsize=14, fontweight="bold")
             plt.tight_layout()
 
-            combined_output_dir = "/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results"
+            combined_output_dir = "/home/dhuruva/ws/plastyfire/evaluation_results"
             plt.savefig(
                 os.path.join(combined_output_dir, "combined_comparison.png"),
                 dpi=150,

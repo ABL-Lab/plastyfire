@@ -34,12 +34,12 @@ logger = logging.getLogger(__name__)
 import json
 
 # Base directories
-SIMULATIONS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
-OUTPUT_BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results_CICR"
-PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
+SIMULATIONS_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
+OUTPUT_BASE_DIR = "/home/dhuruva/ws/plastyfire/trace_results_CICR"
+PLASTYFIRE_DIR = "/home/dhuruva/ws/plastyfire"
 
 # Primed Junctional parameters
-PARAM_FILE = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/jax_fitting/best_params_primed_junctional.json"
+PARAM_FILE = "/home/dhuruva/ws/plastyfire/jax_fitting/best_params_primed_junctional.json"
 with open(PARAM_FILE, "r") as f:
     CHINDEMI_PARAMS = json.load(f)
 
@@ -124,8 +124,8 @@ def _cpu_worker(args):
     env = os.environ.copy()
     current_paths = ":".join(sys.path)
     env["PYTHONPATH"] = f"{current_paths}:{env.get('PYTHONPATH', '')}:{PLASTYFIRE_DIR}"
-    # env["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/libnrnmech.so"
-    # env["BBP_MECH_DIR"] = "/home/dhuruva/projects/ctb-emuller/dhuruva/DEES_cell_packages"
+    # env["BLUECELLULAB_MOD_LIBRARY_PATH"] = "/home/dhuruva/ws/DEES_cell_packages/x86_64/libnrnmech.so"
+    # env["BBP_MECH_DIR"] = "/home/dhuruva/ws/DEES_cell_packages"
 
     cmd = [sys.executable, f"{PLASTYFIRE_DIR}/CICR_fitting/pairrunner_cicr.py"] + param_args
     

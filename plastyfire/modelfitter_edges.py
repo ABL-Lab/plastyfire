@@ -33,7 +33,7 @@ import plastyfire.simulator_edges as sim_mod
 
 logger = logging.getLogger("modelfitter_edges")
 
-CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
+CSVF_NAME = "/home/dhuruva/ws/plastyfire/biodata/paired_recordings.csv"
 # Only protocols with frequency_train=10 Hz are covered by the STDP simulation index
 # (index_L5TTPC_L5TTPC_STDP.csv contains only frequency=10.0).
 PROTOCOL_IDX = [

@@ -32,9 +32,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-PLASTYFIRE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire"
-EDGES_H5       = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
-CIRCUIT_CONFIG = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_circuit_config.json"
+PLASTYFIRE_DIR = "/home/dhuruva/ws/plastyfire"
+EDGES_H5       = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
+CIRCUIT_CONFIG = "/home/dhuruva/ws/plastyfire/data/dhuruva_circuit_config.json"
 NODES_H5       = "/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/S1nonbarrel_neurons/nodes.h5"
 NODE_POP       = "S1nonbarrel_neurons"
 EDGE_POP       = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
@@ -69,7 +69,7 @@ C_POST_WIDTH_MS = 3.0
 C_POST_TSTOP_MS = 3000.0
 
 SINGLE_CELLS_DIRS = [
-    "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/single_cells",
+    "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/single_cells",
 ]
 
 
@@ -191,7 +191,7 @@ def _worker(pre_gid, post_gid, output_dir, traces_dir=None):
         json.dump(sim_cfg, fh)
 
     bluecellulab.set_verbose(0)
-    bluecellulab.neuron.load_mechanisms("/project/ctb-emuller/dhuruva/DEES_cell_packages/")
+    bluecellulab.neuron.load_mechanisms("/home/dhuruva/ws/DEES_cell_packages/")
     bluecellulab.neuron.h.cvode.atolscale("v", 0.1)
 
     intersect_list = [(NODE_POP, int(pre_gid))]
@@ -383,7 +383,7 @@ def main():
     parser.add_argument("--traces-dir", default=None,
                         help="Directory for threshold-traces pkl files "
                              "(default: same as --output-dir). "
-                             "Use e.g. /project/rrg-emuller/dhuruva/plastyfitting/"
+                             "Use e.g. /home/dhuruva/ws/plastyfitting/"
                              "trace_results/CHINDEMI_PARAMS/cpre_cpost_traces "
                              "to match cicr_common.py's canonical lookup path.")
     parser.add_argument("--workers", type=int, default=0,

@@ -4,8 +4,8 @@
 #SBATCH --time=03:00:00
 #SBATCH --mem=200G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/fit_%x_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/fit_%x_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/fit_%x_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/fit_%x_%j.err
 set -euo pipefail
 # Analytical fit, then submit the full-protocol BCL validation of its best params
 # the moment the fit finishes (run_full_stdp_slurm.sh, no basis).
@@ -18,7 +18,7 @@ set -euo pipefail
 : "${NAME:?set NAME}"
 FIT_FLAGS="${FIT_FLAGS:-}"
 
-PF=/project/rrg-emuller/dhuruva/plastyfire
+PF=/home/dhuruva/ws/plastyfire
 cd $PF/analytical_method
 source $PF/.venv/bin/activate
 export PYTHONPATH=$PF

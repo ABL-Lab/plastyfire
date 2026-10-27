@@ -7,7 +7,7 @@ This script reproduces the same two paths used by:
 
 Example:
   python validate_basis_vs_full_epsp.py \
-      --sim-path /project/ctb-emuller/dhuruva/plastyfire/full_trace_results/CHINDEMI_PARAMS/180164-197248/10Hz_5ms/simulation_traces.pkl \
+      --sim-path /home/dhuruva/ws/plastyfire/full_trace_results/CHINDEMI_PARAMS/180164-197248/10Hz_5ms/simulation_traces.pkl \
       --params chindemi
 """
 

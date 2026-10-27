@@ -19,7 +19,7 @@ cd "$(dirname "$0")"
 mkdir -p logs
 
 # Ensure environment is loaded
-source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
+source /home/dhuruva/ws/plastyfire/setupenv.sh
 
 python modelfitter.py \
     --use-slurm \

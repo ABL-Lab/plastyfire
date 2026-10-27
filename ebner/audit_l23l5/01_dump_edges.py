@@ -1,7 +1,7 @@
 """Dump all edge properties (shared edges h5, read-only) for the 794 L23->L5 synapses and the Sabrina L5->L5 synapses
 (cache keys of sabrina_n120_delta.pkl) to edges_l23l5.csv / edges_l5l5.csv, with pre/post mtype and path distance."""
 import os, pickle, numpy as np, pandas as pd, h5py
-R = "/project/rrg-emuller/dhuruva/plastyfire"; O = os.path.join(R, "ebner/audit_l23l5")
+R = "/home/dhuruva/ws/plastyfire"; O = os.path.join(R, "ebner/audit_l23l5")
 E = os.path.join(R, "data/dhuruva_modified_edges.h5"); P = "edges/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/0"
 for tag, pk in (("l23l5", "ebner_l23l5_delta"), ("l5l5", "sabrina_n120_delta")):
     d = pickle.load(open(f"{R}/cpre_cpost_cache/{pk}.pkl", "rb"))

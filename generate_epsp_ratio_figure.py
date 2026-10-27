@@ -37,14 +37,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-CSVF_NAME = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/paired_recordings.csv"
-CONFIGS_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/configs"
+CSVF_NAME = "/home/dhuruva/ws/plastyfire/biodata/paired_recordings.csv"
+CONFIGS_DIR = "/home/dhuruva/ws/plastyfire/configs"
 
 EVAL_PROTOCOLS = ["sjh06_02", "mrk97_01", "mrk97_02", "mrk97_07", "mrk97_08"]
 
 # Best solution file path
-BESTSOL_PKL = "/lustre06/project/6077694/dhuruva/plastyfire/bestsol.pkl"
-CHECKPOINT_PKL = "/lustre06/project/6077694/dhuruva/plastyfire/plastyfire/checkpoint.pkl"
+BESTSOL_PKL = "/home/dhuruva/ws/plastyfire/bestsol.pkl"
+CHECKPOINT_PKL = "/home/dhuruva/ws/plastyfire/plastyfire/checkpoint.pkl"
 
 # Param names from modelfitter.py
 FIT_PARAM_NAMES = [
@@ -338,7 +338,7 @@ def main():
     param_values = [params[name] for name in FIT_PARAM_NAMES]
     param_hash = hashlib.md5(str(param_values).encode()).hexdigest()[:12]
     
-    results_base_dir = f"/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/figure_gen_{args.param_set}/sim_results"
+    results_base_dir = f"/home/dhuruva/ws/plastyfire/evaluation_results/figure_gen_{args.param_set}/sim_results"
     os.makedirs(results_base_dir, exist_ok=True)
 
     invitro_db = pd.read_csv(CSVF_NAME)

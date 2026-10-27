@@ -4,10 +4,10 @@
 #SBATCH --time=04:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=32
-#SBATCH --output=/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/logs/simwriter_%j.out
-#SBATCH --error=/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/logs/simwriter_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/trace_results/logs/simwriter_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/trace_results/logs/simwriter_%j.err
 
-source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
+source /home/dhuruva/ws/plastyfire/setupenv.sh
 
 python -c "
 from plastyfire.simwriter import OptSimWriter

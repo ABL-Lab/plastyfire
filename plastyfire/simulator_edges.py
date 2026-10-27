@@ -33,10 +33,10 @@ from plastyfire.simulator import (
 
 logger = logging.getLogger(__name__)
 
-EDGES_H5_DEFAULT  = "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+EDGES_H5_DEFAULT  = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP_DEFAULT  = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 NODE_POP_DEFAULT  = "S1nonbarrel_neurons"
-MECHANISMS_PATH   = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # K_b_2: DEES_cell_packages/other_mods/modified_mechanisms_kv7
+MECHANISMS_PATH   = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/home/dhuruva/ws/DEES_cell_packages/")  # K_b_2: DEES_cell_packages/other_mods/modified_mechanisms_kv7
 
 # Keys that trigger per-synapse theta override via c_pre/c_post computation
 _A_PARAM_KEYS = {"a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"}

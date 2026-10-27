@@ -8,9 +8,9 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=6G
 #SBATCH --time=01:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/simwriter_l23l5_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/simwriter_l23l5_%j.err
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/simwriter_l23l5_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/simwriter_l23l5_%j.err
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT/plastyfire && source $ROOT/.venv/bin/activate && export PYTHONPATH=$ROOT
 python -u simwriter.py --config $ROOT/configs/Ebner2019_L23PC_L5TTPC.yaml \
     --pairs-from $ROOT/refitting_results/fitting/n120/seed20262009/index_Ebner2019_L23PC_L5TTPC.csv

@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=3G
 #SBATCH --time=00:15:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/epsp_bvd_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/epsp_bvd_%j.out
 set -euo pipefail
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate
 python -u ebner/epsp_base_vs_delta_hist.py

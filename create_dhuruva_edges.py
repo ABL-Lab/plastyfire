@@ -52,16 +52,16 @@ CIRCUIT_BASE   = "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker"
 EDGES_FILE     = os.path.join(CIRCUIT_BASE,
                     "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5")
 # Dataset's own circuit_config.json has a stale ctb-emuller $BASE_DIR (read-only), so use ours.
-CIRCUIT_CONFIG = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
+CIRCUIT_CONFIG = ("/home/dhuruva/ws/plastyfire/data/"
                   "dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json")
 
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 
-DEFAULT_OUTPUT = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
+DEFAULT_OUTPUT = ("/home/dhuruva/ws/plastyfire/data/"
                   "dhuruva_modified_edges.h5")
-DEFAULT_CIRCUIT_OUT = ("/project/rrg-emuller/dhuruva/plastyfire/data/"
+DEFAULT_CIRCUIT_OUT = ("/home/dhuruva/ws/plastyfire/data/"
                        "dhuruva_circuit_config.json")
-DEFAULT_SIMS_DIR = ("/project/rrg-emuller/dhuruva/plastyfire/"
+DEFAULT_SIMS_DIR = ("/home/dhuruva/ws/plastyfire/"
                     "refitting_results/fitting/n120/seed20262009/"
                     "Sabrina_L5TTPC_L5TTPC_STDP/simulations")
 
@@ -490,7 +490,7 @@ def main():
     # Auto-generate output filename from pot_fraction if not explicitly given
     if args.output is None:
         pot_pct = int(round(args.pot_fraction * 100))
-        data_dir = "/project/rrg-emuller/dhuruva/plastyfire/data"
+        data_dir = "/home/dhuruva/ws/plastyfire/data"
         if pot_pct == 50:
             args.output = f"{data_dir}/dhuruva_modified_edges.h5"
         else:

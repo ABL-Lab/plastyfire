@@ -21,7 +21,7 @@ from plastyfire.simulator import spike_threshold_finder
 GID = int(sys.argv[1]) if len(sys.argv) > 1 else 205995
 PAIR = sys.argv[2] if len(sys.argv) > 2 else "13255-205995"
 
-BASE = ("/lustre06/project/6077694/dhuruva/plastyfire/refitting_results/"
+BASE = ("/home/dhuruva/ws/plastyfire/refitting_results/"
         "fitting/n100/seed19091997/L23PC_L5TTPC_STDP/simulations")
 CALIB = os.path.join(BASE, "single_cells", "simulation_config.json")
 PROD = os.path.join(BASE, PAIR, "10Hz_5ms", "prefire_simulation_config.json")

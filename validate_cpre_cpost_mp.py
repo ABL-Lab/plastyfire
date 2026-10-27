@@ -69,7 +69,7 @@ from precompute_cpre_cpost import (  # noqa: E402
 
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 NODE_POP = "S1nonbarrel_neurons"
-RESULTS_DIR = "/project/ctb-emuller/dhuruva/plastyfire/refitting_results"
+RESULTS_DIR = "/home/dhuruva/ws/plastyfire/refitting_results"
 APICAL_SECTION_TYPE = 3
 
 # Published Ecker 2023 circuit — read-only, owned by emuller, untouched by this

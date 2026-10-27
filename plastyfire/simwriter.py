@@ -26,12 +26,12 @@ from plastyfire.config import OptConfig, Config
 from plastyfire.simulator import spike_threshold_finder, runsinglecell, doublet_tolerant, tolerant_amp_grid, any_firing
 from plastyfire.pipette import afferent_table, rank_pre_gids, measure_epsp, calibrate_group
 
-MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # same as simulator_edges
+MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/home/dhuruva/ws/DEES_cell_packages/")  # same as simulator_edges
 
 MIN2MS = 60 * 1000.
 OPT_CPU_TIME = 2.  # heuristics: it takes ~2x compute time (w/ CVode w/ reporting w/o fastforward) as biological time
 CPU_TIME = 1.  # heuristics: c_pre and c_post for a single connection takes <1 minute to simulate/calculate
-FIGS_DIR = "/project/rrg-emuller/dhuruva/figures/plastyfire"
+FIGS_DIR = "/home/dhuruva/ws/figures/plastyfire"
 
 # Single-AP threshold search (for c_post), mirroring thresholdfinder.py::run()
 # and simulator_edges.C_POST_*. Distinct from the induction-train search, which

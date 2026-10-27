@@ -1,6 +1,6 @@
 """T29 step 1 check: new edges vs old (L5-L5 identical) and L23->L5 rho0 stats before/after."""
 import h5py, numpy as np, pandas as pd, os
-R='/project/rrg-emuller/dhuruva/plastyfire'
+R='/home/dhuruva/ws/plastyfire'
 P='edges/S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/0/'
 F=['rho0_GB','Use_d_TM','Use_p_TM','gmax_d_AMPA','gmax_p_AMPA']
 a=h5py.File(f'{R}/data/dhuruva_modified_edges.h5'); b=h5py.File(f'{R}/data/dhuruva_modified_edges_l23l5.h5')

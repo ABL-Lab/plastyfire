@@ -8,7 +8,7 @@ the same axes with a different color per ratio.
 
 Example:
     python plot_custom_ratio_stdp_curves.py \
-        --results-base-dir /project/ctb-emuller/dhuruva/plastyfire/full_trace_results \
+        --results-base-dir /home/dhuruva/ws/plastyfire/full_trace_results \
         --workers 40 \
         --output stdp_curve_custom_ratio_stack.png
 """

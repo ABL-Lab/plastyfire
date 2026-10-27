@@ -18,7 +18,7 @@ from scipy.signal import lfilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from constants import MIN_CA_CR, TAU_EFFCA_GB, PROTOCOLS
 
-ROOT     = "/project/rrg-emuller/dhuruva/plastyfire"
+ROOT     = "/home/dhuruva/ws/plastyfire"
 SIMS     = os.path.join(ROOT, "refitting_results/fitting/n100/seed19091997/"
                               "L5TTPC_L5TTPC_STDP/simulations")
 CACHE    = os.path.join(ROOT, "cpre_cpost_cache/ion_channels_tau278.pkl")

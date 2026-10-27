@@ -9,7 +9,7 @@
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 
-cd /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 source setupenv.sh
 
 echo "=== validate_fix.py ==="

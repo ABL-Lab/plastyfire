@@ -28,7 +28,7 @@ def epsp(row):
     with open(tmp, "w") as f:
         json.dump(cfg, f)
     try:
-        r = measure_epsp(tmp, row.postgid, [row.pregid], NODE_POP, st, "/project/rrg-emuller/dhuruva/DEES_cell_packages/")
+        r = measure_epsp(tmp, row.postgid, [row.pregid], NODE_POP, st, "/home/dhuruva/ws/DEES_cell_packages/")
     except RuntimeError as e:
         print("fail %i-%i: %s" % (row.pregid, row.postgid, str(e).splitlines()[0]), flush=True)
         return {"pregid": row.pregid, "postgid": row.postgid}

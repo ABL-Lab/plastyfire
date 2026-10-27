@@ -43,7 +43,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 '
 
 FIT_ARGS="--gamma_d_GB_GluSynapse=99.18727050237078 --gamma_p_GB_GluSynapse=207.72948705417807 \

@@ -92,7 +92,7 @@ The delta-cooker run's 15,659 inodes break down as:
 
 ## 3. Candidates
 
-**How to submit.** `cd /project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2` and then:
+**How to submit.** `cd /home/dhuruva/ws/plastyfire/glusynapse_v2` and then:
 
 ```
 sbatch -J q_<ITEM> --export=ALL,ITEM=<ITEM>,MODE=<MODE> [--time=H:MM:00] run_quota_action.sh
@@ -100,7 +100,7 @@ sbatch -J q_<ITEM> --export=ALL,ITEM=<ITEM>,MODE=<MODE> [--time=H:MM:00] run_quo
 
 - Defaults: 1 CPU, 1G, 0:15, `--account=def-emuller`. Output goes to `/scratch/dhuruva/quota_scan/actions/`.
 - **Always run `MODE=dryrun` first.** It writes the item list and its inode count to /scratch and changes nothing.
-- **Tars:** `MODE=tar` writes one `$D/archive_tars/<ITEM>.tar`, with paths relative to $D (restore: `tar -xf <tar> -C /project/rrg-emuller/dhuruva`). `MODE=delete` refuses unless the tar entry count equals the inode count.
+- **Tars:** `MODE=tar` writes one `$D/archive_tars/<ITEM>.tar`, with paths relative to $D (restore: `tar -xf <tar> -C /home/dhuruva/ws`). `MODE=delete` refuses unless the tar entry count equals the inode count.
 
 **Sizing.** No tar job has been measured yet. Memory is estimated at well under 1G, from scan 22127461 (818 MB, most of it awk tables). Time is estimated as 2 × bytes / 300 MB/s, covering the write plus the verify read. **Run `cooker` first as the pilot**, record its `seff` in the script, and rescale the other times from it.
 
@@ -132,7 +132,7 @@ sbatch -J q_<ITEM> --export=ALL,ITEM=<ITEM>,MODE=<MODE> [--time=H:MM:00] run_quo
 
 | item | path | inodes freed | why | job |
 |---|---|---|---|---|
-| R1 `mmcr_venv` | MMCR_CL/.venv (7.1 GB) | 55,910 | a re-creatable venv. /home has room: 261K of 500K inodes, 27 of 50 GB. Copying avoids needing network access on a compute node | step 1: `ITEM=mmcr_venv MODE=copy --time=0:30:00 --mem=1G` copies it to `$HOME/venvs/mmcr_cl` and prints src/dst inode counts. Step 2, after approval and when no MMCR job is running: a 0:15 job with `--wrap "rm -rf /project/rrg-emuller/dhuruva/MMCR_CL/.venv && ln -s $HOME/venvs/mmcr_cl /project/rrg-emuller/dhuruva/MMCR_CL/.venv"`. The symlink keeps shebangs and `uv run` working. Check with the MMCR_CL session first; the project is active |
+| R1 `mmcr_venv` | MMCR_CL/.venv (7.1 GB) | 55,910 | a re-creatable venv. /home has room: 261K of 500K inodes, 27 of 50 GB. Copying avoids needing network access on a compute node | step 1: `ITEM=mmcr_venv MODE=copy --time=0:30:00 --mem=1G` copies it to `$HOME/venvs/mmcr_cl` and prints src/dst inode counts. Step 2, after approval and when no MMCR job is running: a 0:15 job with `--wrap "rm -rf /home/dhuruva/ws/MMCR_CL/.venv && ln -s $HOME/venvs/mmcr_cl /home/dhuruva/ws/MMCR_CL/.venv"`. The symlink keeps shebangs and `uv run` working. Check with the MMCR_CL session first; the project is active |
 
 ### Category (c): keep
 

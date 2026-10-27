@@ -5176,7 +5176,7 @@ true
 }
 ],
 "r_rise_vs_path_mean": 0.7043928816840445,
-"table": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/out/a4_letzkus_r2.csv"
+"table": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/a4_letzkus_r2.csv"
 },
 "spine_toy": {
 "provenance": "PROVISIONAL (A2 calibration pending at the time of writing): toy_params.json calib_A + template",
@@ -6909,12 +6909,12 @@ true
 }
 },
 "sources": {
-"vsyn": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/out/vsyn_old.csv",
-"r1_params": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/figs/A4_R1_attenuation_data.json",
-"geometry": "/project/rrg-emuller/dhuruva/plastyfire/ebner/pair_geometry_L23PC_L5TTPC.csv",
+"vsyn": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/vsyn_old.csv",
+"r1_params": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/figs/A4_R1_attenuation_data.json",
+"geometry": "/home/dhuruva/ws/plastyfire/ebner/pair_geometry_L23PC_L5TTPC.csv",
 "cexp": "/scratch/dhuruva/s2g0321/cexp/L23L5.csv",
 "fit": "/scratch/dhuruva/perpair/w_z14b4k75_u97_fit.json",
-"toy_params": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/a2_spine/toy_params.json",
+"toy_params": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/a2_spine/toy_params.json",
 "letzkus": "Letzkus, Kampa & Stuart 2006 J Neurosci 26:10420, Fig 1C/1F/2/4/6D via a5_lit/ANCHORS.md R2 Q3"
 }
 }

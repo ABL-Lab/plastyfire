@@ -4,7 +4,7 @@ One command (details in the header of `run_new_emodel_chain.sh`):
 
     EMODEL_NAME=<name> EMODEL_DIR=<dir> [CFG_L5L5/CFG_L23L5/CFG_L23L23] [PATHWAYS=l5l5,l23l5,l23l23] [PILOT=1] [SKIPFIT=1] [DRYRUN=1] [DECISIONS_LOGGED=1] bash glusynapse_v2/run_new_emodel_chain.sh
 
-Prerequisite: the new mechanisms (new .mod, new SUFFIX) must be compiled into `/project/rrg-emuller/dhuruva/DEES_cell_packages/x86_64/libnrnmech`
+Prerequisite: the new mechanisms (new .mod, new SUFFIX) must be compiled into `/home/dhuruva/ws/DEES_cell_packages/x86_64/libnrnmech`
 (path hard-coded in `plastyfire/simwriter.py:28` and `simulator_edges.py:37`). Raw output goes to `/scratch/dhuruva/<name>/`, npz to
 `extracted/<dataset>_delta-<name>-prefire-{vca|vseg-rs}/`. og-delta outputs are never touched (reserved names and the og dir are refused).
 

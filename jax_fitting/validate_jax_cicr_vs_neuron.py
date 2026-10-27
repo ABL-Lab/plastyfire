@@ -35,7 +35,7 @@ DHURUVA_PARAMS_V3 = {
     "tau_eff": 100.7488,
 }
 
-BASE_DIR = "/project/rrg-emuller/dhuruva/plastyfitting"
+BASE_DIR = "/home/dhuruva/ws/plastyfitting"
 CAI_REST = 70e-6
 
 

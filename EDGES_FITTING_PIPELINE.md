@@ -1,7 +1,7 @@
 # Edges-Based Fitting Pipeline
 
 **Created:** 2026-06-04  
-**Repo:** `/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire`
+**Repo:** `/home/dhuruva/ws/plastyfire`
 
 ---
 
@@ -80,7 +80,7 @@ Mirror of `modelfitter.py` using `EvaluatorEdges`.
 **Example run:**
 ```bash
 python plastyfire/modelfitter_edges.py \
-    --edges-h5 /project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5 \
+    --edges-h5 /home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5 \
     --basis-dir basis_results_edges_mini \
     --cpre-cpost-cache /path/to/cpre_cpost_cache.pkl \
     --sample_size 100 --pop_size 128 --gen 30 \

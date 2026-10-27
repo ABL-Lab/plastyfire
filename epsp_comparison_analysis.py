@@ -67,7 +67,7 @@ def create_epsp_comparison_csv():
     """Create comprehensive EPSP ratio comparison CSV for both connection types and cell pairs"""
     
     # Base paths
-    base_path = Path("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire")
+    base_path = Path("/home/dhuruva/ws/plastyfire")
     simulation_df_path = base_path / "plastyfire" / "simulation_epsp_df.csv"
     paired_recordings_path = base_path / "biodata" / "paired_recordings.csv"
     refitting_base = base_path / "refitting_results" / "fitting" / "n1" / "seed19091997"

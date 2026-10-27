@@ -14,10 +14,10 @@ from bluepysnap import Circuit
 CIRCUIT_CONFIG = '/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json'
 EDGES_FILE = ('/project/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/'
               'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical/edges.h5')
-RECIPE_CSV = '/project/ctb-emuller/dhuruva/plastyfire/biodata/recipe_mod.csv'
+RECIPE_CSV = '/home/dhuruva/ws/plastyfire/biodata/recipe_mod.csv'
 EDGE_POP = 'S1nonbarrel_neurons__S1nonbarrel_neurons__chemical'
 NODE_POP = 'S1nonbarrel_neurons'
-OUTPUT_FIG = '/lustre06/project/6077694/dhuruva/plastyfire/conductance_validation.png'
+OUTPUT_FIG = '/home/dhuruva/ws/plastyfire/conductance_validation.png'
 
 MAX_POST_GIDS = 200
 PATHWAYS = [

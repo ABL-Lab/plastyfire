@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 import os
 
-pkl_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/DHURUVA_PARAMS_V12/180164-197248/10Hz_10ms/simulation_traces.pkl"
+pkl_path = "/home/dhuruva/ws/plastyfire/trace_results/DHURUVA_PARAMS_V12/180164-197248/10Hz_10ms/simulation_traces.pkl"
 try:
     with open(pkl_path, "rb") as f:
         d = pickle.load(f)

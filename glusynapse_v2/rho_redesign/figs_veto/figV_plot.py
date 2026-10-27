@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-plt.style.use("/lustre09/project/6070394/dhuruva/plastyfire/onerule.mplstyle")
+plt.style.use("/home/dhuruva/ws/plastyfire/onerule.mplstyle")
 plt.rcParams["font.sans-serif"] = ["Helvetica Neue", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"]
 plt.rcParams.update({"font.size": 6.5, "axes.titlesize": 6.8, "axes.labelsize": 6.3, "xtick.labelsize": 5.8,
                      "ytick.labelsize": 5.8, "legend.fontsize": 5.6})

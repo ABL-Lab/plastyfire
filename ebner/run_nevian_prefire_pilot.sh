@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=03:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/nevian_prefire_pilot_%j.out
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/nevian_prefire_pilot_%j.out
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 python -u run_de_fit2_pool.py --cooker --param-hash delta-prefire \
  --results-dir refitting_results/fitting/n120/seed20262009/Ebner2019_L23PC_L23PC_basal/simulations \

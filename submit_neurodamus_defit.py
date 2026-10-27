@@ -68,8 +68,8 @@ DE_FIT_PARAMS = {
     "tau_effca_GB": 278.3177658387,
 }
 
-DEES_SPECIAL = "/project/ctb-emuller/dhuruva/DEES_cell_packages/x86_64/special"
-DEES_LIB     = "/project/ctb-emuller/dhuruva/DEES_cell_packages/x86_64"
+DEES_SPECIAL = "/home/dhuruva/ws/DEES_cell_packages/x86_64/special"
+DEES_LIB     = "/home/dhuruva/ws/DEES_cell_packages/x86_64"
 
 SBATCH_TMPL = """\
 #!/bin/bash
@@ -104,7 +104,7 @@ DEES_NRNIV=/project/def-emuller/opt/jupyterhub-pkgs/build-20.03.2025-py311/lib
 export LD_LIBRARY_PATH={dees_lib}:$DEES_NRNIV:$LD_LIBRARY_PATH
 # SonataReport is not compiled into DEES special — load it from a minimal lib
 # (standard libnrnmech.so conflicts because it re-defines CaDynamics_DC0 already in DEES special)
-export NRNMECH_LIB_PATH=/project/ctb-emuller/dhuruva/sonata_mods/x86_64/libnrnmech.so
+export NRNMECH_LIB_PATH=/home/dhuruva/ws/sonata_mods/x86_64/libnrnmech.so
 
 BASE_DIR=`pwd`
 SIM_CFG=$BASE_DIR/{sim_cfg_name}

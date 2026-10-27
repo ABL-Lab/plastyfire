@@ -2,7 +2,7 @@ import pickle
 import os
 import glob
 
-workdir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_5ms"
+workdir = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_5ms"
 pkl_files = glob.glob(os.path.join(workdir, "*.pkl"))
 
 if pkl_files:

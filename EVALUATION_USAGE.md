@@ -66,7 +66,7 @@ CUSTOM_PARAM_SETS = {
 
 ## Output Structure
 
-Results are saved to `/lustre06/project/6077694/dhuruva/plastyfire/evaluation_results/`:
+Results are saved to `/home/dhuruva/ws/plastyfire/evaluation_results/`:
 
 ### Single Parameter Set Evaluation
 ```

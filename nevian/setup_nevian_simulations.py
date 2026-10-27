@@ -3,7 +3,7 @@
 Setup Nevian & Sakmann 2006 simulation folders.
 ================================================
 Creates workdir folders for each Nevian protocol under:
-  /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/nevian/simulations/
+  /home/dhuruva/ws/plastyfire/nevian/simulations/
 
 Each workdir is structured exactly as the existing L5TTPC simulations so that
 the existing `pairrunner.py` + `simulator.runconnectedpair()` can run them

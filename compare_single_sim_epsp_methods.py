@@ -6,7 +6,7 @@ This validator isolates the difference between the two STDP curve paths:
   - full method: measure EPSP ratio directly from the recorded voltage trace
 
 Example:
-  python compare_single_sim_epsp_methods.py       --sim-path /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/full_trace_results/CHINDEMI_PARAMS/184033-189853/10Hz_10ms/simulation_traces.pkl       --params chindemi
+  python compare_single_sim_epsp_methods.py       --sim-path /home/dhuruva/ws/plastyfire/full_trace_results/CHINDEMI_PARAMS/184033-189853/10Hz_10ms/simulation_traces.pkl       --params chindemi
 """
 
 import argparse

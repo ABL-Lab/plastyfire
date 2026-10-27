@@ -3,7 +3,7 @@
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-F = "/project/rrg-emuller/dhuruva/plastyfire/ebner/"
+F = "/home/dhuruva/ws/plastyfire/ebner/"
 k = ["pregid", "postgid"]
 sets = {"L23->L5": (pd.read_csv(F + "figs/epsp_base_l23l5.csv"), pd.read_csv(F + "pair_geometry_L23PC_L5TTPC.csv"), .42),
         "L5->L5": (pd.read_csv(F + "figs/epsp_base_l5l5.csv"), pd.read_csv(F + "figs/epsp_delta_l5l5.csv"), 1.3)}

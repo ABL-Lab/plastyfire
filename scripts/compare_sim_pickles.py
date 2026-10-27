@@ -3,8 +3,8 @@ import pickle
 import numpy as np
 import os
 
-file1_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/evaluation_results/Chindemi_params/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
-file2_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/evaluation_results/Chindemi_params_mod/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
+file1_path = "/home/dhuruva/ws/plastyfire/evaluation_results/Chindemi_params/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
+file2_path = "/home/dhuruva/ws/plastyfire/evaluation_results/Chindemi_params_mod/sim_results/simulation_b7a94c1b3d8f_mrk97_08_180164_197248.pkl"
 
 print(f"Comparing:\n1: {file1_path}\n2: {file2_path}")
 

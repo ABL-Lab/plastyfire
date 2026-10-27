@@ -69,6 +69,6 @@
     "--targets",
     "mrk97_01,mrk97_02,mrk97_07,mrk97_08",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-l5_s4.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-l5_s4.json"
   ]
 }

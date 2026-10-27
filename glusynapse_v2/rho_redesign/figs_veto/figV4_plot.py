@@ -14,7 +14,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-plt.style.use("/lustre09/project/6070394/dhuruva/plastyfire/onerule.mplstyle")
+plt.style.use("/home/dhuruva/ws/plastyfire/onerule.mplstyle")
 plt.rcParams["font.sans-serif"] = ["Helvetica Neue", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"]
 plt.rcParams.update({"font.size": 7.5, "axes.labelsize": 7.5, "xtick.labelsize": 7, "ytick.labelsize": 7,
                      "legend.fontsize": 7.2, "axes.titlesize": 8})

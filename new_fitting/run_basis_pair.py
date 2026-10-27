@@ -147,7 +147,7 @@ def run_simulation_trial(args):
         bluecellulab.set_verbose(2)
         
         # Load mechanisms - Hardcoded path from original script
-        mechanisms_path = "/project/ctb-emuller/dhuruva/DEES_cell_packages/"
+        mechanisms_path = "/home/dhuruva/ws/DEES_cell_packages/"
         bluecellulab.neuron.load_mechanisms(mechanisms_path)
         
         # Merge base HOC params with fitted params, then apply globals
@@ -183,7 +183,7 @@ def run_simulation_trial(args):
 
         # Parameter Generation and Setting
         bluepysnap_sim = BluePySnapSimulation(sim_config_path)
-        EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
+        EXTRA_RECIPE_PATH = "/home/dhuruva/ws/plastyfire/biodata/recipe_andras.csv"
         edge_pop = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
         pgen = ParamsGenerator(bluepysnap_sim.circuit, node_pop, edge_pop, EXTRA_RECIPE_PATH)
         syn_extra_params = pgen.generate_params(pre_gid, post_gid)

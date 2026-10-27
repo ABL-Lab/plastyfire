@@ -29,8 +29,8 @@
 #SBATCH --cpus-per-task=60
 #SBATCH --mem=240G
 #SBATCH --time=02:00:00
-#SBATCH --chdir=/lustre06/project/6077694/dhuruva/plastyfire
-#SBATCH --output=/lustre06/project/6077694/dhuruva/plastyfire/cpreonly_pool_%j.log
+#SBATCH --chdir=/home/dhuruva/ws/plastyfire
+#SBATCH --output=/home/dhuruva/ws/plastyfire/cpreonly_pool_%j.log
 
 unset PATH PYTHONPATH LD_LIBRARY_PATH CMAKE_PREFIX_PATH
 unset LIBRARY_PATH JPKGDIR NEURODAMUS_DIR HOC_LIBRARY_PATH
@@ -50,7 +50,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 
 # NEURON/numpy must not each grab all 60 cores — the pool provides the parallelism.
 export OMP_NUM_THREADS=1

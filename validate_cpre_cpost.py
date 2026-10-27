@@ -20,7 +20,7 @@ import os, sys, h5py, numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-EDGES_H5  = "/project/ctb-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
+EDGES_H5  = "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP  = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 BASE      = "refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
 

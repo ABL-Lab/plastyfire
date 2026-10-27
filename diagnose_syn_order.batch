@@ -22,9 +22,9 @@ export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/
 export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python
 export PYTHONPATH=$PYTHONPATH:$JPKGDIR/lib/python3.11/site-packages/neurodamus/core/hoc
 export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
 
-python /lustre06/project/6077694/dhuruva/plastyfire/diagnose_syn_order.py
+python /home/dhuruva/ws/plastyfire/diagnose_syn_order.py

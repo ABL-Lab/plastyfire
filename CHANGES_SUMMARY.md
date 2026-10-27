@@ -119,7 +119,7 @@ All changes were made with surgical precision to minimize impact:
 
 Run the fitness schedule test:
 ```bash
-cd /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 python test_fitness_schedule.py
 ```
 

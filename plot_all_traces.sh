@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define paths
-BASE_RESULTS_DIR="/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/DHURUVA_PARAMS_V7"
+BASE_RESULTS_DIR="/home/dhuruva/ws/plastyfire/trace_results/DHURUVA_PARAMS_V7"
 OUT_DIR="$BASE_RESULTS_DIR/figures"
-PYTHON_SCRIPT="/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plot_detailed_traces.py"
+PYTHON_SCRIPT="/home/dhuruva/ws/plastyfire/plot_detailed_traces.py"
 
 # Create output directory for figures
 mkdir -p "$OUT_DIR"

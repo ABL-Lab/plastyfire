@@ -19,14 +19,14 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from glusynapse_v2 import targets as TG
 
-plt.style.use("/lustre09/project/6070394/dhuruva/plastyfire/onerule.mplstyle")
+plt.style.use("/home/dhuruva/ws/plastyfire/onerule.mplstyle")
 plt.rcParams["font.sans-serif"] = ["Helvetica Neue", "Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"]
 plt.rcParams.update({"font.size": 8, "axes.labelsize": 8, "xtick.labelsize": 7.2, "ytick.labelsize": 7.2,
                      "legend.fontsize": 7.2, "axes.titlesize": 8.5})
 RED, BLUE, ORANGE, DEP, POT = "#e0473c", "#2f6fb5", "#f39c32", "#fbe1de", "#dff0e4"
 WORK = "/scratch/dhuruva/figs_veto"
 HERE = os.path.dirname(os.path.abspath(__file__))
-EBNER = "/lustre09/project/6070394/dhuruva/plastyfire/ebner/ebner_targets.csv"
+EBNER = "/home/dhuruva/ws/plastyfire/ebner/ebner_targets.csv"
 FIT = os.environ.get("FIT", "CHR")                         # CHR = Chindemi refit, B4 = best model (u97, k_V 0.75)
 VAL = dict(CHR="/scratch/dhuruva/latest_figs/variants/CHR_s5_val.csv",
            B4="/scratch/dhuruva/perpair/w_z14b4k75_u97_val.csv")[FIT]

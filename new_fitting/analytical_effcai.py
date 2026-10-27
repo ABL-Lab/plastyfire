@@ -99,7 +99,7 @@ def compute_effcai_euler(cai_trace, t, tau_effca=200.0, min_ca=70e-6, effcai0=0.
 
 if __name__ == "__main__":
     # Load data
-    data_path = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results/Chindemi_params/180164-197248/10Hz_5ms/simulation_traces.pkl"
+    data_path = "/home/dhuruva/ws/plastyfire/trace_results/Chindemi_params/180164-197248/10Hz_5ms/simulation_traces.pkl"
     with open(data_path, "rb") as f:
         data = pickle.load(f)
     

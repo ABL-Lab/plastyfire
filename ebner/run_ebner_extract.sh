@@ -8,9 +8,9 @@
 #SBATCH --cpus-per-task=24
 #SBATCH --mem=500G
 #SBATCH --time=12:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/ebner_extract_%j.out
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/ebner_extract_%j.out
 set -eu
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 N=refitting_results/fitting/n120/seed20262009
 python -u analytical_method/extract.py --workers ${WORKERS:-24} --window --decim 0.25 --skip-existing \

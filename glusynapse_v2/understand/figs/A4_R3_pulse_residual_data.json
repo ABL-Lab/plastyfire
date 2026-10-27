@@ -821,7 +821,7 @@
 }
 },
 "sources": {
-"rows": "/project/rrg-emuller/dhuruva/plastyfire/glusynapse_v2/understand/out/a4_pulse_residual.csv",
+"rows": "/home/dhuruva/ws/plastyfire/glusynapse_v2/understand/out/a4_pulse_residual.csv",
 "harness": "resdep_cell.py copy"
 },
 "traces_50Hz": [

@@ -6,12 +6,12 @@ from tqdm import tqdm
 
 # Configuration
 circuit_path = "/home/dhuruva/projects/ctb-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/circuit_config.json"
-# simulations_dir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
-# output_file = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params.csv"
+# simulations_dir = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations"
+# output_file = "/home/dhuruva/ws/plastyfire/validation/synaptic_params.csv"
 
 # L23PC_L5TTPC
-simulations_dir = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L23PC_L5TTPC/simulations"
-output_file = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/validation/synaptic_params_L23PC_L5TTPC.csv"
+simulations_dir = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L23PC_L5TTPC/simulations"
+output_file = "/home/dhuruva/ws/plastyfire/validation/synaptic_params_L23PC_L5TTPC.csv"
 
 # Load circuit
 print(f"Loading circuit from {circuit_path}")

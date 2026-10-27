@@ -4,13 +4,13 @@
 #SBATCH --time=10:00:00
 #SBATCH --mem=300G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/pipeline_%x_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/pipeline_%x_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/pipeline_%x_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/pipeline_%x_%j.err
 set -euo pipefail
 # emodel -> fitted STDP params -> BCL full-protocol check -> neurodamus validation.
 #
 #   sbatch --job-name=delta-cooker \
-#       --export=ALL,EMODEL_DIR=/project/rrg-emuller/dhuruva/DEES_cell_packages/SSCx-AAD-delta-emodels,EMODEL_TAG=delta,NAME=delta-cooker \
+#       --export=ALL,EMODEL_DIR=/home/dhuruva/ws/DEES_cell_packages/SSCx-AAD-delta-emodels,EMODEL_TAG=delta,NAME=delta-cooker \
 #       run_emodel_pipeline_slurm.sh
 #
 #   EMODEL_DIR  dir with the cADpyr_*.hoc templates (biophysical_neuron_models_dir)
@@ -34,7 +34,7 @@ NAME=${NAME:-${EMODEL_TAG}-cooker}
 FIT_FLAGS=${FIT_FLAGS:-}
 FIT_MAXITER=${FIT_MAXITER:-100}   # DE generations; delta-cooker plateaued by gen ~80
 
-PF=/project/rrg-emuller/dhuruva/plastyfire
+PF=/home/dhuruva/ws/plastyfire
 cd $PF
 source $PF/.venv/bin/activate
 export PYTHONPATH=$PF

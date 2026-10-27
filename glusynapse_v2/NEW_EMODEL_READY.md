@@ -14,7 +14,7 @@ EPSP bases are NOT reusable for L5 posts: run_basis_pair_edges simulates the EPS
 36 jobs, expected 285 CPU-h (measured elapsed x CPUs; l5l5,l23l5), 370 with l23l23; sizes = s2g0321 sacct MaxRSS +25% / elapsed +50% (basis 12/15G 0:30, pfA 146G 0:45 (was
 at its 117G limit), pfB 215G, pf07 81G, pfx 120G, pf23_5 265G (was at 212G limit) 1:00, pf23_5n 147G 1:15, ext_* 41-83G, kca 12G). Sims/cache/audit/cexp as measured.
 ## The one command (after ion_fitter gives NAME and DIR; mechanisms compiled into DEES_cell_packages/x86_64)
-  cd /project/rrg-emuller/dhuruva/plastyfire && NE_NAME=<name> EMODEL_DIR=<dir> KEEP_SK=1 bash glusynapse_v2/spine/submit_newemodel_s2.sh
+  cd /home/dhuruva/ws/plastyfire && NE_NAME=<name> EMODEL_DIR=<dir> KEEP_SK=1 bash glusynapse_v2/spine/submit_newemodel_s2.sh
 (drop KEEP_SK=1 if the note says no_SK_E2 stays; add DRYRUN=1 first; PATHWAYS=l5l5,l23l5,l23l23 for the full ~370 CPU-h). Outputs /scratch/dhuruva/<name>/: extracted/*_delta-<name>-ljp25g0321-*,
 basis_*, cexp, doublets/*_keep_pairs.txt (needs audit_fin), k.txt. Check: seff on pfA/pfB/pf23_5 (at-limit risk), PASS line in sab_merge log, audit_fin done.
 ## DECISIONS.md line (add before submit; sed -i '3a - ...' glusynapse_v2/DECISIONS.md)

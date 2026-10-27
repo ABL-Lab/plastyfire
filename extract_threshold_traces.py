@@ -16,7 +16,7 @@ os.environ["GLOG_minloglevel"] = "3"
 
 def worker(workdir, recipe_path, outdir, tau_eff):
     # Import inside the worker to ensure NEURON states are kept cleanly isolated to this process
-    sys.path.append("/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire")
+    sys.path.append("/home/dhuruva/ws/plastyfire")
     from bluepysnap import Simulation
     from plastyfire.epg_dhuruva import ParamsGenerator
     from plastyfire.simulator import _c_pre_finder_process, _c_post_finder_process
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract raw cai_CR traces across multiple directories.")
     parser.add_argument("rootdir", help="Root directory containing simulation subdirectories or a specific workdir.")
     parser.add_argument("--outdir", "-o", required=True, help="Central directory to save the extracted traces.")
-    parser.add_argument("--recipe-path", "-r", default="/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv", help="Path to custom recipe.csv file")
+    parser.add_argument("--recipe-path", "-r", default="/home/dhuruva/ws/plastyfire/biodata/recipe.csv", help="Path to custom recipe.csv file")
     parser.add_argument("--cores", "-c", type=int, default=40, help="Number of CPU cores to use")
     parser.add_argument("--tau", type=float, default=278.318, help="Tau effca value (ms) to compute simulated Cpre baseline.")
     

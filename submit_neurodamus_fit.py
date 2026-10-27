@@ -32,7 +32,7 @@ DEFAULT_SIMS = os.path.join(PLASTYFIRE_ROOT, "refitting_results/fitting/n120/see
 EDGES_H5 = os.path.join(PLASTYFIRE_ROOT, "data", "dhuruva_modified_edges.h5")
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 ACCOUNT = "rrg-emuller"
-ND_BUILD = "/project/rrg-emuller/dhuruva/DEES_cell_packages/nd_build_22.07.2026/x86_64"
+ND_BUILD = "/home/dhuruva/ws/DEES_cell_packages/nd_build_22.07.2026/x86_64"
 A_KEYS = ("a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31")
 
 ARRAY_TMPL = """\

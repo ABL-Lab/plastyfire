@@ -12,12 +12,12 @@ protocols for a given pair.
 Usage:
     python precompute_cpre_cpost.py --params fitting2 --results-dir <root>
     python precompute_cpre_cpost.py --params fitting2 \\
-        --results-dir /lustre06/project/6077694/dhuruva/plastyfire/working_new_refitting_results \\
-        --output /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/fitting2.pkl
+        --results-dir /home/dhuruva/ws/plastyfire/working_new_refitting_results \\
+        --output /home/dhuruva/ws/plastyfire/cpre_cpost_cache/fitting2.pkl
 
 Then pass to pairrunner_edges.py:
     python pairrunner_edges.py --params fitting2 \\
-        --cpre-cpost-cache /project/ctb-emuller/dhuruva/plastyfire/cpre_cpost_cache/fitting2.pkl
+        --cpre-cpost-cache /home/dhuruva/ws/plastyfire/cpre_cpost_cache/fitting2.pkl
 """
 
 import argparse

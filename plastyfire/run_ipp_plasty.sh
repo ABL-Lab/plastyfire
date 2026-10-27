@@ -14,13 +14,13 @@
 
 # Ensure we are in the script directory
 # Ensure we are in the correct directory
-cd /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire
+cd /home/dhuruva/ws/plastyfire/plastyfire
 
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
 # Ensure environment is loaded
-source /home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh
+source /home/dhuruva/ws/plastyfire/setupenv.sh
 
 # Profile configuration
 PROFILE=job_${SLURM_JOB_ID}
@@ -44,7 +44,7 @@ python modelfitter.py \
     --pop_size=50 \
     --sample_size=20 \
     --seed=19091998 \
-    --recipe-path=/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe_mod.csv \
+    --recipe-path=/home/dhuruva/ws/plastyfire/biodata/recipe_mod.csv \
     --profile=${PROFILE} \
     -v
 

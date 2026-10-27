@@ -4,13 +4,13 @@
 #SBATCH --time=03:00:00
 #SBATCH --mem=200G
 #SBATCH --cpus-per-task=60
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/fit_cooker_%j.out
-#SBATCH --error=/project/rrg-emuller/dhuruva/plastyfire/logs/fit_cooker_%j.err
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/fit_cooker_%j.out
+#SBATCH --error=/home/dhuruva/ws/plastyfire/logs/fit_cooker_%j.err
 set -euo pipefail
 
 # "cooker": 4-param fit, theta_d = a00*c_pre + a01*c_post, theta_p = a10*c_pre + a11*c_post
 # (apical tied to basal); gammas fixed at constants.py defaults (no --fit-gamma).
-PF=/project/rrg-emuller/dhuruva/plastyfire
+PF=/home/dhuruva/ws/plastyfire
 cd $PF/analytical_method
 source $PF/.venv/bin/activate
 export PYTHONPATH=$PF

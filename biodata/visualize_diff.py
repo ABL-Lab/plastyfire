@@ -66,6 +66,6 @@ if max_val / (min_val + 1e-9) > 100:
 
 fig.tight_layout()
 
-output_path = '/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/comparison_plot.png'
+output_path = '/home/dhuruva/ws/plastyfire/biodata/comparison_plot.png'
 plt.savefig(output_path)
 print(f"Plot saved to {output_path}")

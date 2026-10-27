@@ -78,15 +78,15 @@
     "--targets",
     "mrk97_01,mrk97_02,mrk97_07,mrk97_08,sjh06_02",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s3.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jointuafp_s3.json",
     "--x0",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s4.json",
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jointuafp_s4.json",
     "--untie-apical",
     "--apical-syns",
     "/scratch/dhuruva/ogk_kb2/apical_syns_joint.txt",
     "--proto-map",
     "/scratch/dhuruva/ogk_kb2/proto_map_jointfp_w25.json",
     "--save-json",
-    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpw25_s1.json"
+    "/home/dhuruva/ws/plastyfire/fit_results/og-kb2-jfpw25_s1.json"
   ]
 }

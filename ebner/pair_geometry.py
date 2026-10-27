@@ -12,7 +12,7 @@ import pandas as pd
 from bluepysnap import Circuit
 from plastyfire.pipette import afferent_table, SONATA_APICAL, SONATA_BASAL
 
-CIRCUIT = "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"
+CIRCUIT = "/home/dhuruva/ws/plastyfire/data/dhuruva_delta_circuit_config.json"
 NODE_POP, EDGE_POP = "S1nonbarrel_neurons", "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 
 idx = pd.read_csv(sys.argv[1])
@@ -51,7 +51,7 @@ if "--epsp" in sys.argv:
         with open(tmp, "w") as f:
             json.dump(cfg, f)
         return measure_epsp(tmp, row.postgid, [row.pregid], NODE_POP, st,
-                            "/project/rrg-emuller/dhuruva/DEES_cell_packages/")
+                            "/home/dhuruva/ws/DEES_cell_packages/")
 
     with ThreadPoolExecutor(workers) as pool:
         res = list(pool.map(epsp, out.itertuples()))

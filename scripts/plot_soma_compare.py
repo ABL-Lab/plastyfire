@@ -5,7 +5,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
-WORKDIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/180164-197248/10Hz_5ms"
+WORKDIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations/180164-197248/10Hz_5ms"
 
 # ── Load BCL ──────────────────────────────────────────────────────────────────
 bcl = np.load(f"{WORKDIR}/bcl_test_soma.npy")

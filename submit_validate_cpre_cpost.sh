@@ -9,7 +9,7 @@
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 source setupenv.sh
 
 echo "=== validate_cpre_cpost.py ==="

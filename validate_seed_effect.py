@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("validate_seed")
 
 # Base configuration
-BASE_DIR = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_10ms"
-EXTRA_RECIPE_PATH = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/biodata/recipe.csv"
+BASE_DIR = "/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC/simulations/205559-199162/10Hz_10ms"
+EXTRA_RECIPE_PATH = "/home/dhuruva/ws/plastyfire/biodata/recipe.csv"
 NODE_POP = "S1nonbarrel_neurons"
 EDGE_POP = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 

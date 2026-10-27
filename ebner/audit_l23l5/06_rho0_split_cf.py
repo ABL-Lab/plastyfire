@@ -4,7 +4,7 @@ integration). Compares, for L23->L5 (rho0 from the circuit, independent of condu
 final state rho_f (from the full-rho run) fixed. Synapse gmax_d/gmax_p and Use_d/Use_p are re-derived from the original
 conductance c and u with k_gsyn=2, k_u=0.2 (create_dhuruva_edges.py:85-100), so they follow the assigned rho0. NOT a re-simulation."""
 import numpy as np, pandas as pd
-R = "/project/rrg-emuller/dhuruva/plastyfire"; O = R + "/ebner/audit_l23l5"
+R = "/home/dhuruva/ws/plastyfire"; O = R + "/ebner/audit_l23l5"
 m = pd.read_csv(O + "/syn_table_merged.csv"); d = m[m.set == "L23L5"].copy()
 K_G, K_U = 2.0, 0.2
 def params(c, u, r0):

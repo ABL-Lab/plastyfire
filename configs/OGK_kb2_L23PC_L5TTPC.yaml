@@ -11,8 +11,8 @@ seed: 20262009
 npairs: 87
 pairs_from: "/scratch/dhuruva/ogk_kb2/l23l5/pairs87.csv"
 circuit:
-    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
-    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta-split2-bk25-nosk-kv7-kb2_l23l5_circuit_config.json"
+    pre_simwriter_config: "/home/dhuruva/ws/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/home/dhuruva/ws/plastyfire/data/dhuruva_delta-split2-bk25-nosk-kv7-kb2_l23l5_circuit_config.json"
     node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
     target: "hex_O1Excitatory"
     node_pop: "S1nonbarrel_neurons"
@@ -26,8 +26,8 @@ geom_cons:
 sims_dir: "/scratch/dhuruva/ogk_kb2/l23l5/refitting_results"
 simulator:
     account: "rrg-emuller"
-    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
-    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+    env: "/home/dhuruva/ws/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/ws/plastyfire/plastyfire/pairrunner.py"
 stimulus:  # defaults for the protocols below
     freq: [10.0]  # Hz
     amp: "find"  # nA

@@ -6,8 +6,8 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=23G
 #SBATCH --time=02:00:00
-#SBATCH --output=/project/rrg-emuller/dhuruva/plastyfire/logs/pair_geometry_%j.out
-ROOT=/project/rrg-emuller/dhuruva/plastyfire
+#SBATCH --output=/home/dhuruva/ws/plastyfire/logs/pair_geometry_%j.out
+ROOT=/home/dhuruva/ws/plastyfire
 cd $ROOT && source .venv/bin/activate && export PYTHONPATH=$ROOT
 R=refitting_results/fitting/n120/seed20262009
 python -u ebner/pair_geometry.py $R/index_Ebner2019_L23PC_L5TTPC.csv ebner/pair_geometry_L23PC_L5TTPC.csv \

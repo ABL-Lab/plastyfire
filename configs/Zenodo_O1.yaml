@@ -5,7 +5,7 @@ circuit:
     node_pop: "S1nonbarrel_neurons"
     edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 use_extra_recipe: 1
-sims_dir: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results"
+sims_dir: "/home/dhuruva/ws/plastyfire/refitting_results"
 out_dir: "/gpfs/bbp.cscs.ch/project/proj96/circuits/plastic_v1/"
 fit_params:
     tau_effca_GB_GluSynapse: 278.3177658387
@@ -20,5 +20,5 @@ fit_params:
     a30: 5.2356637311
     a31: 1.7822214534
 simulator:
-    env: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/setupenv.sh"
-    run: "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/plastyfire/thresholdfinder.py"
+    env: "/home/dhuruva/ws/plastyfire/setupenv.sh"
+    run: "/home/dhuruva/ws/plastyfire/plastyfire/thresholdfinder.py"

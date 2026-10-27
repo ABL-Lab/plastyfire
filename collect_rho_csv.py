@@ -25,7 +25,7 @@ from submit_l5ttpc_traces import (
     DHURUVA_PARAMS_V17, DHURUVA_PARAMS_V18, DHURUVA_PARAMS_V19
 )
 
-TRACE_RESULTS_BASE = "/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/trace_results"
+TRACE_RESULTS_BASE = "/home/dhuruva/ws/plastyfire/trace_results"
 TRACE_RESULTS_DIRS = {
     "v1":  os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS"),
     "v2":  os.path.join(TRACE_RESULTS_BASE, "DHURUVA_PARAMS_V2"),

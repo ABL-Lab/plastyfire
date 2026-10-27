@@ -26,9 +26,9 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python3.11/site-packages
 export HOC_LIBRARY_PATH=$JPKGDIR/lib/python3.11/site-packages/neurodamus/data/hoc:$JPKGDIR/share/neurodamus_neocortex/hoc
 export LD_LIBRARY_PATH=$JPKGDIR/lib
 export PATH=$PATH:/opt/software/slurm/bin/:$JPKGDIR/bin
-export PYTHONPATH=$PYTHONPATH:/lustre06/project/6077694/dhuruva/plastyfire
+export PYTHONPATH=$PYTHONPATH:/home/dhuruva/ws/plastyfire
 
-cd /project/ctb-emuller/dhuruva/plastyfire
+cd /home/dhuruva/ws/plastyfire
 
 echo "=== plot_three_way_comparison.py ==="
 python plot_three_way_comparison.py --workers 4 --output stdp_three_way_chindemi.png

@@ -15,7 +15,7 @@
  "inputs": [
   "/scratch/dhuruva/basics/bio/V3/v3_outcomes.csv",
   "/scratch/dhuruva/basics/bio/V3n/v3_outcomes.csv",
-  "/lustre09/project/6070394/dhuruva/glusynapse-fits/glusynapse_v2/rho_redesign/ref_bio/M9_core.json",
+  "/home/dhuruva/ws/glusynapse-fits/glusynapse_v2/rho_redesign/ref_bio/M9_core.json",
   "/scratch/dhuruva/basics/bio/ECBX/v3_outcomes.csv"
  ],
  "rows": [

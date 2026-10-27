@@ -16,7 +16,7 @@ from scipy.signal import lfilter
 from constants import (MIN_CA_CR, TAU_EFFCA_GB, RHO_STAR_GB, TAU_IND_GB,
                        GAMMA_D_GB, GAMMA_P_GB, TIED_IC4)
 
-ROOT="/lustre06/project/6077694/dhuruva/plastyfire"
+ROOT="/home/dhuruva/ws/plastyfire"
 SIMS=f"{ROOT}/refitting_results/fitting/n100/seed19091997/L5TTPC_L5TTPC_STDP/simulations"
 fi = int(sys.argv[1]) if len(sys.argv)>1 else 0
 si = int(sys.argv[2]) if len(sys.argv)>2 else 0

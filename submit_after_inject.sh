@@ -3,7 +3,7 @@
 # Called as a SLURM job after inject_thresholds.py completes
 # Usage: sbatch --dependency=afterok:INJECT_JOB submit_after_inject.sh [freq_filter]
 
-REFDIR="/home/dhuruva/projects/ctb-emuller/dhuruva/plastyfire/refitting_results/fitting/n100"
+REFDIR="/home/dhuruva/ws/plastyfire/refitting_results/fitting/n100"
 FREQ_FILTER="${1:-}"  # optional, e.g. "10Hz"
 
 submitted=0
