@@ -34,7 +34,7 @@ ipcontroller --ip="*" --profile=${PROFILE} &
 sleep 10
 
 echo "Starting IPEngines..."
-srun --account=ctb-emuller ipengine --profile=${PROFILE} &
+srun --account=${SRUN_ACCOUNT:-ctb-emuller} ipengine --profile=${PROFILE} &
 sleep 30
 
 echo "Starting Optimization..."
