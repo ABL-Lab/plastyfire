@@ -1,0 +1,159 @@
+{
+ "freq_hz": [
+  10,
+  20,
+  40,
+  50
+ ],
+ "soma_resdep_mV": {
+  "data Sjostrom 2001 Fig 5D": [
+   0.0,
+   4.9,
+   8.3,
+   12.0
+  ],
+  "old emodel delta-split2-ljp25g0321 (n 18-19)": [
+   -0.4,
+   -0.1,
+   1.3,
+   1.6
+  ],
+  "A1 (SK 0.116 x ka2, soma K_Pst 0.0013, g_pas x0.1, Ih x0.3, Rin ~140)": [
+   -0.8,
+   0.2,
+   3.8,
+   4.8
+  ],
+  "A1_S0 (A1 without SK, not anchored)": [
+   1.3,
+   2.7,
+   5.1,
+   5.8
+  ],
+  "best window-A, not anchored (SK0 + soma K_Pst 0.0013 + g_pas x0.1 + Ih x0.2, Rin 157)": [
+   1.7,
+   3.3,
+   5.8,
+   7.0
+  ]
+ },
+ "rin80_50hz_range_mV_SK0_round5": [
+  4.4,
+  5.6
+ ],
+ "B1_rin83_calibrated_SK_50hz_mV": 2.0,
+ "basal_resdep_mV": {
+  "freq_hz": [
+   40,
+   50
+  ],
+  "A1 basal 50-150 um mean (n15)": [
+   3.5,
+   4.4
+  ],
+  "A1 range": [
+   [
+    1.8,
+    4.4
+   ],
+   [
+    3.0,
+    6.1
+   ]
+  ],
+  "A1_S0 basal": [
+   5.3,
+   6.1
+  ],
+  "note": "10 and 20 Hz not measured"
+ },
+ "A1_checks": {
+  "doublets @150% rheobase (%)": [
+   49,
+   7,
+   "<="
+  ],
+  "doublets on pulses (%)": [
+   26,
+   5,
+   "<="
+  ],
+  "Kampa cells passing (/20)": [
+   11,
+   20,
+   ">="
+  ],
+  "somatic gate cells passing (/30)": [
+   6,
+   30,
+   ">="
+  ]
+ },
+ "ahp_mV": {
+  "non-SK AHP, data": 1.1,
+  "non-SK AHP, model (axonal K_Pst + NaTg window, hypothesis)": 9.2,
+  "model_range": [
+   8.2,
+   10.4
+  ],
+  "apamin-sensitive mAHP, data Yi 2013": 6.7,
+  "total mAHP, data Yi 2013": 7.8
+ },
+ "sk_level_x_ka2": {
+  "ka2 (hides the non-SK AHP, kills 50 Hz following)": 1.0,
+  "calibrated to Yi 2013": 0.116
+ },
+ "plasticity_link_ECBY": {
+  "w": [
+   1,
+   1.5,
+   2,
+   3,
+   5
+  ],
+  "L5_core_hits_of_17": [
+   9,
+   9,
+   9,
+   11,
+   13
+  ],
+  "L5_chi2_core": [
+   82.8,
+   77.1,
+   73.7,
+   67.9,
+   63.1
+  ],
+  "V3_core_hits": 12,
+  "V3_chi2_core": 58.5
+ },
+ "hf_ltp_rows_L5": {
+  "rows": [
+   "40 Hz -10",
+   "50 Hz -10",
+   "40 Hz +10",
+   "50 Hz +10"
+  ],
+  "data": [
+   1.51,
+   1.7,
+   1.53,
+   1.57
+  ],
+  "V3 model (old emodel)": [
+   1.0,
+   1.02,
+   1.31,
+   1.33
+  ]
+ },
+ "sources": {
+  "resdep/checks/AHP/SK": "ion_fitter reports 2026-10-05 (corrected 09:40): hfresdep/HF_DIAG.md, HF_SITES.md r7_A1 + r7_A1_S0, calib/CALIB.md, AHP_LEVERS.md; Yi hold reached -60 mV not -55",
+  "data resdep": "Sjostrom 2001 Fig 5D",
+  "mAHP": "Yi 2013 (apamin)",
+  "DTX": "Shu 2007",
+  "ECBY": "glusynapse_v2/rho_redesign/basics/bio/BIO_SPEC.md (jobs 22507407-410)",
+  "hf rows": "/scratch/dhuruva/basics/bio/ECBX/v3_outcomes.csv"
+ }
+}

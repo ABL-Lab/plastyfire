@@ -1,0 +1,76 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 199.773931,
+    "a00": 1.0452181246063925,
+    "a01": 1.2767768822537309,
+    "a10": 1.2524464382160465,
+    "a11": 2.045421414028562,
+    "a20": 1.0452181246063925,
+    "a21": 1.2767768822537309,
+    "a30": 1.2524464382160465,
+    "a31": 2.045421414028562,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 1.1036770651261996,
+  "evaluations": 3232,
+  "offline_curve": {
+    "mrk97_01": 0.983177175207673,
+    "mrk97_02": 0.9828277085364381,
+    "mrk97_07": 1.182131232747842,
+    "mrk97_08": 0.815104667148638
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.983177175207673,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_pilot",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.9828277085364381,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_pilot",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.182131232747842,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_pilot",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.815104667148638,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_pilot",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_pilot",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "16",
+    "--maxiter",
+    "100",
+    "--stride",
+    "1",
+    "--seed",
+    "1",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08",
+    "--x0",
+    "/scratch/dhuruva/og_stdp_bk25/fit_results/og-delta-split2-bk25-mk10_s2.json",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-delta-split2-bk25-nosk-kv7-kb2_s1.json"
+  ]
+}

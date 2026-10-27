@@ -1,0 +1,50 @@
+{
+ "D1 V event + veto (t_drive 3)": {
+  "f_syn": 0.93717277486911,
+  "by_dist": [
+   0.90625,
+   0.968421052631579,
+   0.9512195121951219,
+   0.8260869565217391
+  ],
+  "f_conn_sum": 0.5833333333333334,
+  "f_conn_mean": 0.9583333333333334,
+  "f_conn_all_contacts_pass": 0.875,
+  "f_conn_majority_pass": 0.9583333333333334
+ },
+ "C1v VDCC current event + veto, og": {
+  "f_syn": 0.8795811518324608,
+  "by_dist": [
+   1.0,
+   0.9578947368421052,
+   0.9024390243902439,
+   0.34782608695652173
+  ],
+  "f_conn_sum": 0.4583333333333333,
+  "f_conn_mean": 0.7916666666666666,
+  "f_conn_all_contacts_pass": 0.6666666666666666,
+  "f_conn_majority_pass": 0.9166666666666666
+ },
+ "C1v VDCC current event + veto, R -25 mV": {
+  "f_syn": 0.9214659685863874,
+  "by_dist": [
+   0.96875,
+   0.9894736842105263,
+   0.926829268292683,
+   0.5652173913043478
+  ],
+  "f_conn_sum": 0.5,
+  "f_conn_mean": 0.875,
+  "f_conn_all_contacts_pass": 0.7083333333333334,
+  "f_conn_majority_pass": 1.0
+ },
+ "oracle cvd25 integral": {
+  "without -10": [
+   0.005235602094240838,
+   {
+    "te": 0.62,
+    "tauT": 20.0
+   }
+  ]
+ }
+}

@@ -24,27 +24,33 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXTRACTED = os.path.join(HERE, os.environ.get("ANALYTICAL_EXTRACTED", "extracted"))
 
 
+def _proto_dt(proto):
+    """'10Hz_-10ms' -> -10. Known 10 Hz names resolve through PROTO_DT (unchanged);
+    any other '<f>Hz_<dt>ms' (2Hz_5ms, 50Hz_10ms) is parsed."""
+    return PROTO_DT[proto] if proto in PROTO_DT else int(proto.split("_")[1].replace("ms", ""))
+
+
 class Batch:
-    def __init__(self, limit=None, extracted=None, stride=1):
+    def __init__(self, limit=None, extracted=None, stride=1, basis_dir=None, pattern="*.npz"):
         """stride: decimate effcai on load. The dt scan (dt_scan.py) gives
         0.25 ms -> maxcurve 0.00792 (the trace-interpolation floor, 10.3 s/eval)
         1.00 ms -> maxcurve 0.00875 at 4x less time and RAM.
         So fit at stride 4 from the 0.25 ms data, validate at stride 2."""
         src = extracted or EXTRACTED
-        fs = sorted(glob.glob(os.path.join(src, "*.npz")))
+        fs = sorted(glob.glob(os.path.join(src, pattern)))
         if not fs:
-            raise FileNotFoundError(f"no .npz in {src}")
+            raise FileNotFoundError(f"no {pattern} in {src}")
         if limit: fs = fs[:limit]
-        eff, cp, cq, r0, ro, grp, meta = [], [], [], [], [], [], []
+        eff, cp, cq, r0, ro, grp, meta, sy = [], [], [], [], [], [], [], []
         for gi, f in enumerate(fs):
             pair, proto = os.path.basename(f)[:-4].split("__")
             d = np.load(f)
             n = len(d["syn"])
             e = d["effcai"]
             eff.append(e[:, ::stride] if stride > 1 else e)
-            cp.append(d["c_pre"]); cq.append(d["c_post"])
+            cp.append(d["c_pre"]); cq.append(d["c_post"]); sy.append(d["syn"])
             r0.append(d["rho0"]); ro.append(d["rho_obs"]); grp.append(np.full(n, gi))
-            meta.append(dict(pair=pair, proto=proto, dt=PROTO_DT[proto],
+            meta.append(dict(pair=pair, proto=proto, dt=_proto_dt(proto),
                              n=n, dt_ms=float(d["dt_ms"]) * stride))
         self.effcai = np.concatenate(eff)                  # (N, T) float32
         # (T, N) C-contiguous copy: rho_full touches one timestep at a time, and
@@ -54,6 +60,9 @@ class Batch:
         self.c_pre  = np.concatenate(cp);  self.c_post = np.concatenate(cq)
         self.rho0   = np.concatenate(r0);  self.rho_obs = np.concatenate(ro)
         self.group  = np.concatenate(grp)
+        self.syn    = np.concatenate(sy)       # global synapse ids (apical map lookup)
+        self.is_apical = None                 # (N,) bool, set by fit.py --untie-apical
+        self.basis_dir = basis_dir             # None -> model.BASIS_DIR
         self.meta   = meta
         self.dt_ms  = meta[0]["dt_ms"]
         self.T      = self.effcai.shape[1]
@@ -70,6 +79,7 @@ class Batch:
 
     # ---- theta -----------------------------------------------------------
     def thetas(self, a, is_apical=None):
+        if is_apical is None: is_apical = self.is_apical      # None unless an apical map was set
         ap = np.zeros(self.N, bool) if is_apical is None else is_apical
         d0 = np.where(ap, a["a20"], a["a00"]); d1 = np.where(ap, a["a21"], a["a01"])
         p0 = np.where(ap, a["a30"], a["a10"]); p1 = np.where(ap, a["a31"], a["a11"])
@@ -123,7 +133,7 @@ class Batch:
             sl = slice(off, off + m["n"]); off += m["n"]
             pre, post = m["pair"].split("-")
             try:
-                r = M.epsp_ratio(M.load_basis(pre, post),
+                r = M.epsp_ratio(M.load_basis(pre, post, self.basis_dir),
                                  self.rho0[sl], rho_final[sl])
             except Exception:
                 continue

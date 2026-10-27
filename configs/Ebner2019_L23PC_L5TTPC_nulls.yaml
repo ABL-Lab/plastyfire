@@ -1,0 +1,58 @@
+# Ebner et al. 2019 protocols whose source preparation is L2/3 PC -> L5 TTPC:
+#   Letzkus 2006 (200 Hz bursts; proximal/distal split per pair after the run, from apical path distance
+#   (Sjostrom & Hausser 2006). Pair geometry as configs/L23PC_L5TTPC_STDP.yaml.
+# Own label (own sims folder, calibration cache and index); the L5-L5 Ebner/Sabrina set is untouched.
+# prefire_only false: prefire (pairing only) AND full-protocol (C01 + pairing + C02) configs per workdir.
+#
+# dt convention: dt > 0 = pre before post, measured to the first postsynaptic AP (dt_ref "ap"),
+# i.e. dt = paper's delta t' (EPSP onset to first AP of the burst), for all protocols here.
+# Experimental targets: ebner/ebner_targets.csv (synapse_location proximal/distal).
+label: Ebner2019_L23PC_L5TTPC
+index_label: Ebner2019_L23PC_L5TTPC_nulls  # own index csv + yaml copy; same sims folder, new workdirs only
+reference: Ebner et al. 2019 (Letzkus 2006; Sjostrom & Hausser 2006)
+seed: 20262009
+pairs_from: /project/rrg-emuller/dhuruva/plastyfire/refitting_results/fitting/n120/seed20262009/index_Ebner2019_L23PC_L5TTPC.csv
+npairs: 120
+prefire_only: false  # C01/C02 test pulses written too: EPSP basis + full-protocol delta-cooker check (2026-09-29)
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 700., 10.]  # [x, y, z] um
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms, 0.1 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # --- Letzkus 2006 null controls (Fig 2C, Methods), same pairing as the letzkus_* rows (100 x 1 Hz, T = 1000 ms) ---
+    # Targets: no postsynaptic activity 0.98 +- 0.06 (n=6); burst (3 APs at 200 Hz) offset by 500 ms 0.99 +- 0.05 (n=5);
+    # single AP offset by 500 ms (Fig 2C pooled with no-post: 0.98 +- 0.04, n=11 = the two groups above, not independent).
+    # Offset sign not stated in the paper: -500 = post leads, pre 500 ms after the first AP (fits inside T).
+    - {id: letzkus_nopost, n_pre: 1, n_post: 0, freq: 1., dt: 0., nreps: 100, T: 1000}
+    - {id: letzkus_3ap_200hz_dt-500ms, n_pre: 1, n_post: 3, freq: 200., dt: -500., nreps: 100, T: 1000, width: 2.,
+       amp_min: 1., amp_max: 8., amp_lev: 150, burst_window_search: true}
+    - {id: letzkus_1ap_dt-500ms, n_pre: 1, n_post: 1, freq: 200., dt: -500., nreps: 100, T: 1000, width: 2.,
+       amp_min: 1., amp_max: 8., amp_lev: 150}

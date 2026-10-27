@@ -1,0 +1,71 @@
+signal,family,legal,n_ok,rs,rs_fit,acc3,acc3_loo,n_checks,L1,L2,L3,L4,L5,definition
+Jungl_frac,ca_x_state,1,9,-0.08333333333333334,-0.261904761904762,0.6666666666666666,0.3333333333333333,5,1,1,1,1,1,Jungl_int / J_int
+sh_peak,shaft_ca,1,9,0.5166666666666667,0.5714285714285715,0.6666666666666666,0.4444444444444444,4,1,1,0,1,1,shaft dCa above its rest (uM); stat peak
+c_peak,c_star,1,9,0.09999999999999999,0.4047619047619048,0.6666666666666666,0.4444444444444444,4,1,1,0,1,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat peak"
+c_peak_over_td,c_star,1,9,0.09999999999999999,0.4047619047619048,0.6666666666666666,0.4444444444444444,4,1,1,0,1,1,peak c* / theta_d
+c_peak_over_tp,c_star,1,9,0.08333333333333334,0.38095238095238104,0.6666666666666666,0.4444444444444444,4,1,1,0,1,1,"peak c* / theta_p (theta_p = a10 c_pre + a11 c_post, B4 fit)"
+c_last,c_star,1,9,0.0,0.261904761904762,0.6666666666666666,0.4444444444444444,4,1,1,0,1,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat last"
+J_peak,spine_ca,1,9,0.3666666666666667,0.28571428571428575,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"total spine Ca influx (VDCC + NMDAR, nA; _int in pC); stat peak"
+J_last,spine_ca,1,9,0.3666666666666667,0.28571428571428575,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"total spine Ca influx (VDCC + NMDAR, nA; _int in pC); stat last"
+sh_last,shaft_ca,1,9,0.16666666666666669,0.3333333333333334,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,shaft dCa above its rest (uM); stat last
+fc20_last,fast_ca,1,9,0.09999999999999999,0.4047619047619048,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat last"
+fc40_last,fast_ca,1,9,0.09999999999999999,0.4047619047619048,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat last"
+ca_peak,spine_ca,1,9,0.06666666666666667,0.3571428571428572,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat peak
+ca_last,spine_ca,1,9,0.049999999999999996,0.3333333333333334,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat last
+fc20_peak,fast_ca,1,9,0.049999999999999996,0.3333333333333334,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat peak"
+fc40_peak,fast_ca,1,9,0.049999999999999996,0.3333333333333334,0.6666666666666666,0.3333333333333333,4,1,1,0,1,1,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat peak"
+J_int,spine_ca,1,9,0.11666666666666665,0.2380952380952381,0.5555555555555556,0.1111111111111111,4,1,1,0,1,1,"total spine Ca influx (VDCC + NMDAR, nA; _int in pC); stat int"
+ca_int,spine_ca,1,9,0.08333333333333334,0.3571428571428572,0.5555555555555556,0.1111111111111111,4,1,1,0,1,1,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat int
+c_int,c_star,1,9,0.08333333333333334,0.3571428571428572,0.5555555555555556,0.1111111111111111,4,1,1,0,1,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat int"
+fc20_int,fast_ca,1,9,0.08333333333333334,0.3571428571428572,0.5555555555555556,0.1111111111111111,4,1,1,0,1,1,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat int"
+fc40_int,fast_ca,1,9,0.08333333333333334,0.3571428571428572,0.5555555555555556,0.1111111111111111,4,1,1,0,1,1,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat int"
+sh_arrlast,shaft_ca,1,9,0.2928895930645031,0.29940656547831473,0.4444444444444444,0.0,4,1,1,0,1,1,shaft dCa above its rest (uM); stat arrlast
+c_arrmean,c_star,1,9,0.26666666666666666,0.3333333333333334,0.5555555555555556,0.0,4,1,1,0,1,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat arrmean"
+sh_arrmean,shaft_ca,1,9,0.26666666666666666,0.261904761904762,0.5555555555555556,0.0,4,1,1,0,1,1,shaft dCa above its rest (uM); stat arrmean
+c_arrlast,c_star,1,9,0.25,0.3333333333333334,0.5555555555555556,0.0,4,1,1,0,1,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat arrlast"
+sh_int,shaft_ca,1,9,0.19999999999999998,0.261904761904762,0.5555555555555556,0.0,4,1,1,0,1,1,shaft dCa above its rest (uM); stat int
+c_int_above_tp,c_star,1,9,0.3663545909013695,0.6273764344284781,0.6666666666666666,0.5555555555555556,3,1,1,0,1,0,integral of (c* - theta_p)+ per episode (mM ms)
+b_peak,own_state,1,9,-0.22594340036404525,-0.28571428571428575,0.6666666666666666,0.5555555555555556,3,1,1,0,1,0,max of b just after an own arrival (uncapped)
+rho_drive,c_star,1,9,0.39330888211518983,0.8024095954818835,0.7777777777777778,0.4444444444444444,3,1,1,0,1,0,Chindemi net drive at rho 0.5 per episode: 0.5 (gamma_p t_above_tp - gamma_d t_above_td) (s x 1/s)
+rec_rho_drive,c_star,1,9,0.39330888211518983,0.8024095954818835,0.7777777777777778,0.4444444444444444,3,1,1,0,1,0,rho_drive summed over all episodes
+c_t_above_tp,c_star,1,9,0.3663545909013695,0.6273764344284781,0.6666666666666666,0.4444444444444444,3,1,1,0,1,0,time per episode with c* > theta_p (ms)
+rec_t_above_tp,c_star,1,9,0.3663545909013695,0.6273764344284781,0.6666666666666666,0.4444444444444444,3,1,1,0,1,0,time with c* > theta_p over the whole record (ms; all episodes)
+fc20_lastfirst,fast_ca,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.3333333333333333,3,0,1,1,0,1,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat lastfirst"
+fc40_lastfirst,fast_ca,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.3333333333333333,3,0,1,1,0,1,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat lastfirst"
+c_lastfirst,c_star,1,9,-0.21666666666666667,-0.04761904761904763,0.6666666666666666,0.3333333333333333,3,0,1,1,0,1,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat lastfirst"
+Jungl_int,ca_x_state,1,9,0.03333333333333333,0.11904761904761905,0.5555555555555556,0.2222222222222222,3,1,1,0,0,1,"integral of (1 - min(b,1)) x J: total spine Ca entering without own glutamate (pC; V3 E source)"
+c_arrlast_over_tp,c_star,1,9,0.25,0.3333333333333334,0.5555555555555556,0.0,3,1,1,0,1,0,c* just before the last own arrival / theta_p
+J_first,spine_ca,1,9,0.16666666666666669,-0.04761904761904763,0.6666666666666666,0.0,3,1,1,0,0,1,"total spine Ca influx (VDCC + NMDAR, nA; _int in pC); stat first"
+sh_first,shaft_ca,1,9,0.13333333333333333,0.1666666666666667,0.5555555555555556,0.0,3,1,1,0,0,1,shaft dCa above its rest (uM); stat first
+b_pre_last,own_state,1,9,-0.1651445647689541,-0.2043237776955188,0.5555555555555556,0.0,3,1,1,0,1,0,"own glutamate state b just before the last own arrival (+1 per arrival, tau_d_NMDA, uncapped)"
+J_lastfirst,spine_ca,1,9,-0.2333333333333333,-0.19047619047619052,0.5555555555555556,0.0,3,1,1,0,0,1,"total spine Ca influx (VDCC + NMDAR, nA; _int in pC); stat lastfirst"
+ca_lastfirst,spine_ca,1,9,-0.08333333333333334,0.14285714285714288,0.6666666666666666,0.4444444444444444,2,0,0,1,0,1,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat lastfirst
+b_int,own_state,1,9,-0.1338923854009157,-0.09581010095306072,0.6666666666666666,0.4444444444444444,2,1,1,0,0,0,"integral of b over the episode (ms, uncapped)"
+c_ever_above_tp,c_star,1,9,0.2738612787525831,0.50709255283711,0.4444444444444444,0.3333333333333333,2,1,1,0,0,0,c* ever > theta_p in the record (0/1; protocol: fraction of synapses)
+ca_first,spine_ca,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.0,2,0,0,1,1,0,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat first
+c_first,c_star,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.0,2,0,0,1,1,0,"Chindemi c* (effcai, low-pass of spine Ca, tau 278 ms); stat first"
+fc20_first,fast_ca,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.0,2,0,0,1,1,0,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat first"
+fc40_first,fast_ca,1,9,-0.08333333333333334,-0.04761904761904763,0.6666666666666666,0.0,2,0,0,1,1,0,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat first"
+sh_lastfirst,shaft_ca,1,9,-0.08333333333333334,0.2380952380952381,0.5555555555555556,0.3333333333333333,1,0,0,1,0,0,shaft dCa above its rest (uM); stat lastfirst
+rec_t_above_td,c_star,1,9,-0.08333333333333334,0.0,0.6666666666666666,0.3333333333333333,1,0,0,1,0,0,time with c* > theta_d over the whole record (ms)
+ca_arrmean,spine_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat arrmean
+ca_arrlast,spine_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,spine [Ca]_i - [Ca]_0 (uM; step mean of cai_CR - min from the exact inverse of effcai); stat arrlast
+fc20_arrmean,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat arrmean"
+fc20_arrlast,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,"low-pass (tau 20 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat arrlast"
+fc40_arrmean,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat arrmean"
+fc40_arrlast,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,"low-pass (tau 40 ms, unit gain) of total spine [Ca]_i - [Ca]_0 (uM); stat arrlast"
+fc20_arrlast_over_th,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,fc20 just before the last own arrival / theta_f20
+fc20_arrmax_over_th,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,max over own arrivals of fc20 just before the arrival / theta_f20
+fc40_arrlast_over_th,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,fc40 just before the last own arrival / theta_f40
+fc40_arrmax_over_th,fast_ca,1,9,0.049999999999999996,-0.04761904761904763,0.6666666666666666,0.2222222222222222,1,0,0,0,1,0,max over own arrivals of fc40 just before the arrival / theta_f40
+Jgl_int,ca_x_state,1,9,-0.016666666666666666,0.14285714285714288,0.6666666666666666,0.1111111111111111,1,0,0,1,0,0,"integral of min(b,1) x J: total spine Ca entering while own glutamate is bound (pC)"
+fc40_t_above,fast_ca,1,9,-0.016666666666666666,0.04761904761904763,0.6666666666666666,0.0,1,0,0,1,0,0,time per episode with fc40 > theta_f40 (ms); theta_f = median over synapses of the fc episode peak at sjostrom_0.1hz_dt-10ms (one global constant)
+c_t_above_td,c_star,1,9,-0.049999999999999996,0.0,0.6666666666666666,0.0,1,0,0,1,0,0,time per episode with c* > theta_d (ms)
+c_int_above_td,c_star,1,9,-0.049999999999999996,0.0,0.6666666666666666,0.0,1,0,0,1,0,0,integral of (c* - theta_d)+ per episode (mM ms)
+fc20_t_above,fast_ca,1,9,-0.05857791861290061,-0.01197626261913259,0.6666666666666666,0.0,1,0,0,1,0,0,time per episode with fc20 > theta_f20 (ms); theta_f = median over synapses of the fc episode peak at sjostrom_0.1hz_dt-10ms (one global constant)
+pre_n_ep,pre_spikes,1,9,-0.05504818825631803,-0.06385118052984962,0.6666666666666666,0.5555555555555556,0,0,0,0,0,0,episodes in the record
+pre_n_arr,pre_spikes,1,9,0.05504818825631803,0.06385118052984962,0.6666666666666666,0.4444444444444444,0,0,0,0,0,0,own arrivals per episode
+pre_rate_hz,pre_spikes,1,9,0.0,0.12598815766974242,0.4444444444444444,0.3333333333333333,0,0,0,0,0,0,own arrival rate within an episode (1000 / median ISI; 0 for single spikes)
+vdcc_int,label,0,9,0.2333333333333333,0.4047619047619048,0.6666666666666666,0.5555555555555556,4,1,1,0,1,1,"LABEL: VDCC Ca influx per episode (pC) - per-source, illegal as rule input"
+vdcc_share,label,0,9,0.41666666666666663,0.5714285714285715,0.5555555555555556,0.2222222222222222,4,1,1,0,1,1,LABEL: VDCC share of the episode influx - illegal as rule input
+nmdaca_int,label,0,9,-0.016666666666666666,0.023809523809523815,0.5555555555555556,0.0,0,0,0,0,0,0,LABEL: NMDAR Ca influx per episode = J - VDCC (pC) - illegal as rule input

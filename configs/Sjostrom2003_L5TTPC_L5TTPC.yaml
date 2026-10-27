@@ -1,0 +1,65 @@
+# T25 (glusynapse_v2): Sjostrom, Turrigiano & Nelson 2003 (Neuron 39:641) L5-L5 paired-recording protocols
+# that the Ebner set lacks: the tLTD timing window at 0.1 Hz (Fig 9B/C), pre-only / post-only controls, and
+# post bursts followed by a late pre spike (Fig 9C "Burst"). Header copied from Ebner2019_L5TTPC_L5TTPC.yaml;
+# own index_label, so that config and its index are untouched.
+# Written into the existing Sabrina simulations folder (same label/seed/npairs/sims_dir) as extra
+# protocol subfolders next to the Markram 10Hz_* ones; index_label keeps its own index csv / yaml copy.
+# prefire_only: pairing sims only (no C01/C02 test pulses). Basis stays per pair, reused from the Markram set.
+#
+# dt convention: dt > 0 = pre before post, measured to the first postsynaptic AP (dt_ref "ap"),
+# i.e. dt = paper's delta t' (EPSP onset to first AP of the burst), for all protocols here.
+# Experimental targets for the Nevian protocols are in nevian/nevian_protocols.py.
+label: Sabrina_L5TTPC_L5TTPC_STDP
+index_label: Sjostrom2003_L5TTPC_L5TTPC
+reference: Sjostrom, Turrigiano & Nelson 2003 Neuron 39:641 (Figs 9B, 9C)
+seed: 20262009
+npairs: 120
+pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results/fitting/n120/seed20262009/index_Sabrina_L5TTPC_L5TTPC_STDP.csv"
+prefire_only: true
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms, 0.1 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # --- 0.1 Hz single pairings, 50x (as sjostrom_0.1hz_dt+-10ms); dt to the post AP, < 0 = post first ---
+    - {id: sjostrom_0.1hz_dt-25ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -25., nreps: 50}
+    - {id: sjostrom_0.1hz_dt-50ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -50., nreps: 50}
+    - {id: sjostrom_0.1hz_dt-100ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -100., nreps: 50}
+    - {id: sjostrom_0.1hz_dt-120ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -120., nreps: 50}
+    - {id: sjostrom_0.1hz_dt-200ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -200., nreps: 50}
+    - {id: sjostrom_0.1hz_dt+25ms, n_pre: 1, n_post: 1, freq: 0.1, dt: 25., nreps: 50}
+    - {id: sjostrom_0.1hz_dt+50ms, n_pre: 1, n_post: 1, freq: 0.1, dt: 50., nreps: 50}
+    # --- controls: pre alone / post alone, 50x at 0.1 Hz ---
+    - {id: sjostrom_pre_only_0.1hz, n_pre: 1, n_post: 0, freq: 0.1, dt: 0., nreps: 50}
+    - {id: sjostrom_post_only_0.1hz, n_pre: 0, n_post: 1, freq: 0.1, dt: 0., nreps: 50}
+    # --- 5 post APs at 20 Hz, one pre spike 120 / 200 ms after the LAST AP (Fig 9C Burst); 15x at 0.1 Hz ---
+    - {id: sjostrom_burst5x20hz_dt-120ms, n_pre: 1, n_post: 5, freq: 20., dt: -120., dt_ref: ap_last, nreps: 15}
+    - {id: sjostrom_burst5x20hz_dt-200ms, n_pre: 1, n_post: 5, freq: 20., dt: -200., dt_ref: ap_last, nreps: 15}

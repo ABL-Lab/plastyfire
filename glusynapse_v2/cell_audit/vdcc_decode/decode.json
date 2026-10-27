@@ -1,0 +1,216 @@
+{
+ "replay_validation": {
+  "og|ap1": {
+   "vdcc_charge_ratio_median": 1.0047738125657333,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.007
+   ],
+   "cacr_peak_ratio_median": 0.9958063954863606,
+   "cacr_ratio_5_95": [
+    0.982,
+    1.002
+   ]
+  },
+  "og|burst": {
+   "vdcc_charge_ratio_median": 1.0036533389478277,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.006
+   ],
+   "cacr_peak_ratio_median": 0.9960157533935016,
+   "cacr_ratio_5_95": [
+    0.982,
+    1.002
+   ]
+  },
+  "og|sj20@-10": {
+   "vdcc_charge_ratio_median": 1.0035606498188188,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.005
+   ],
+   "cacr_peak_ratio_median": 0.9971749551673841,
+   "cacr_ratio_5_95": [
+    0.989,
+    0.999
+   ]
+  },
+  "s5|ap1": {
+   "vdcc_charge_ratio_median": 1.005942025894342,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.011
+   ],
+   "cacr_peak_ratio_median": 0.9970050769976769,
+   "cacr_ratio_5_95": [
+    0.982,
+    1.003
+   ]
+  },
+  "s5|burst": {
+   "vdcc_charge_ratio_median": 1.0048848438772673,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.01
+   ],
+   "cacr_peak_ratio_median": 0.9976217351941354,
+   "cacr_ratio_5_95": [
+    0.982,
+    1.002
+   ]
+  },
+  "s5|sj20@-10": {
+   "vdcc_charge_ratio_median": 1.0046024752405307,
+   "vdcc_ratio_IQR": [
+    1.0,
+    1.01
+   ],
+   "cacr_peak_ratio_median": 0.9973633965252198,
+   "cacr_ratio_5_95": [
+    0.991,
+    1.0
+   ]
+  }
+ },
+ "g_K23_cv": 0.009476012976555743,
+ "bins": [
+  {
+   "bin": "0-60",
+   "n": 32,
+   "n_basal": 28,
+   "bap_v_pk": 77.2395715713501,
+   "epsp_v_pk": 5.002309269375274,
+   "ratio_bap_epsp_v_pk": 16.119540829647626,
+   "bap_vabs_pk": -0.8464078903198242,
+   "epsp_vabs_pk": -73.44635772705078,
+   "bap_nvdcc_int": 0.000621772806393951,
+   "epsp_nvdcc_int": 8.403378359340254e-08,
+   "ratio_bap_epsp_nvdcc_int": 5082.199747191462,
+   "bap_cacr_pk": 0.000826684816274792,
+   "epsp_cacr_pk": 0.0002620581290102564,
+   "ratio_bap_epsp_cacr_pk": 3.0774158895316415,
+   "bap_cacr_int": 0.01137640572487726,
+   "epsp_cacr_int": 0.021437371131469263,
+   "ratio_bap_epsp_cacr_int": 0.5385328902244518,
+   "bap_cai_pk": 0.00041887631959980354,
+   "epsp_cai_pk": 1.338048605248332e-08,
+   "ratio_bap_epsp_cai_pk": 21137.612599060034,
+   "bap_cai_int": 0.01733732443244662,
+   "epsp_cai_int": 1.0166932042920962e-06,
+   "ratio_bap_epsp_cai_int": 10849.814194361279,
+   "s5_bap_nvdcc_int": 0.0010177808116515244
+  },
+  {
+   "bin": "60-150",
+   "n": 95,
+   "n_basal": 85,
+   "bap_v_pk": 48.37313270568848,
+   "epsp_v_pk": 9.188618723551429,
+   "ratio_bap_epsp_v_pk": 5.576091444999068,
+   "bap_vabs_pk": -30.03999137878418,
+   "epsp_vabs_pk": -68.79663848876953,
+   "bap_nvdcc_int": 3.350285374203349e-05,
+   "epsp_nvdcc_int": 1.7642151450392208e-07,
+   "ratio_bap_epsp_nvdcc_int": 245.0832771995797,
+   "bap_cacr_pk": 4.315840487834066e-05,
+   "epsp_cacr_pk": 0.0002157607232220471,
+   "ratio_bap_epsp_cacr_pk": 2.1390836851746324,
+   "bap_cacr_int": 0.0006414548501197715,
+   "epsp_cacr_int": 0.016581836069235578,
+   "ratio_bap_epsp_cacr_int": 0.3857488442772088,
+   "bap_cai_pk": 7.691731298109517e-05,
+   "epsp_cai_pk": 2.9489456210285425e-08,
+   "ratio_bap_epsp_cai_pk": 1562.4136340524442,
+   "bap_cai_int": 0.0021292039695254062,
+   "epsp_cai_int": 2.058639074675739e-06,
+   "ratio_bap_epsp_cai_int": 1005.7357102503859,
+   "s5_bap_nvdcc_int": 8.67701492544572e-05
+  },
+  {
+   "bin": "150-250",
+   "n": 41,
+   "n_basal": 25,
+   "bap_v_pk": 30.466415405273438,
+   "epsp_v_pk": 22.017380226982965,
+   "ratio_bap_epsp_v_pk": 1.1884835006018193,
+   "bap_vabs_pk": -48.27031707763672,
+   "epsp_vabs_pk": -56.02513122558594,
+   "bap_nvdcc_int": 4.141195061787363e-06,
+   "epsp_nvdcc_int": 1.2778827827316667e-06,
+   "ratio_bap_epsp_nvdcc_int": 1.6632720902142224,
+   "bap_cacr_pk": 3.6575656849890947e-06,
+   "epsp_cacr_pk": 0.0005871197499800473,
+   "ratio_bap_epsp_cacr_pk": 0.007520492080589172,
+   "bap_cacr_int": 5.811997252749279e-05,
+   "epsp_cacr_int": 0.03495454267031164,
+   "ratio_bap_epsp_cacr_int": 0.0025295097157777093,
+   "bap_cai_pk": 3.454646503087133e-06,
+   "epsp_cai_pk": 5.5065902415663e-07,
+   "ratio_bap_epsp_cai_pk": 1.2496648151695078,
+   "bap_cai_int": 0.00010631976983859204,
+   "epsp_cai_int": 3.540742254699581e-05,
+   "ratio_bap_epsp_cai_int": 0.8729959514912955,
+   "s5_bap_nvdcc_int": 1.1486417459218037e-05
+  },
+  {
+   "bin": "250-",
+   "n": 23,
+   "n_basal": 5,
+   "bap_v_pk": 10.228401184082031,
+   "epsp_v_pk": 3.0858688354492188,
+   "ratio_bap_epsp_v_pk": 5.12944349855566,
+   "bap_vabs_pk": -67.01721954345703,
+   "epsp_vabs_pk": -72.81849670410156,
+   "bap_nvdcc_int": 9.438124357114675e-07,
+   "epsp_nvdcc_int": 6.194706944444151e-08,
+   "ratio_bap_epsp_nvdcc_int": 9.202834432921515,
+   "bap_cacr_pk": 6.113186827860773e-07,
+   "epsp_cacr_pk": 5.7712895795702934e-08,
+   "ratio_bap_epsp_cacr_pk": 5.793522267206478,
+   "bap_cacr_int": 2.1414427465060726e-05,
+   "epsp_cacr_int": 2.244450297439471e-06,
+   "ratio_bap_epsp_cacr_int": 2.5953107481184583,
+   "bap_cai_pk": 1.4573015505447984e-07,
+   "epsp_cai_pk": 9.829818736761808e-09,
+   "ratio_bap_epsp_cai_pk": 11.993413173652694,
+   "bap_cai_int": 5.517914541997016e-06,
+   "epsp_cai_int": 6.834488885942847e-07,
+   "ratio_bap_epsp_cai_int": 6.594299097756368,
+   "s5_bap_nvdcc_int": 2.6344564623433856e-06
+  }
+ ],
+ "slopes": {
+  "nvdcc_int": {
+   "n_per_log_amp": 3.4871078246654195,
+   "mV_per_efold": 8.742554684832069,
+   "range_p5_p95_decades": 3.8581205646175
+  },
+  "cacr_pk": {
+   "n_per_log_amp": 3.6441871720421193,
+   "mV_per_efold": 8.449906742376822,
+   "range_p5_p95_decades": 4.026137366712615
+  },
+  "cai_pk": {
+   "n_per_log_amp": 4.121818472256044,
+   "mV_per_efold": 7.860696314650646,
+   "range_p5_p95_decades": 4.436838148392272
+  },
+  "v_pk": {
+   "range_p5_p95_decades": 0.9913611320496024
+  },
+  "frac_epsp_gt_bap_nvdcc_pk": 0.193717277486911,
+  "frac_epsp_gt_bap_cacr_pk": 0.4869109947643979,
+  "frac_epsp_gt_bap_cai_pk": 0.20418848167539266,
+  "frac_epsp_gt_bap_v_pk": 0.19895287958115182
+ },
+ "shaft": {
+  "lva_share_median": 0.7878599416897268,
+  "corr_log_replay_charge_vs_cai_pk": 0.9831666276015832,
+  "cai_pk_over_cacr_pk_median": 1.003448869146307,
+  "lva_share_0": 0.23918959835642245,
+  "lva_share_60": 0.6793444990038884,
+  "lva_share_150": 0.9798232905138745,
+  "lva_share_250": 0.9993675046435427
+ }
+}

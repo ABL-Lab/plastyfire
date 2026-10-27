@@ -1,0 +1,63 @@
+# CHS (Chindemi 2022 Fig 6 / A.10 / A.11 reproductions, ticket CHS-03): Markram STDP grid (2/5/10/20 Hz x 7 dt) at the L5 protocol
+# structure (5 pre + 5 post at freq, nreps 10, T 4000 ms, width 3 ms, C01/C02 4 min), as Chindemi Fig 3g-k.
+# Written into the existing L5->L5 tree (new protocol dirs only; same label, seed, npairs); index_label keeps its own index csv + yaml copy
+# so the OGK index / basedir yaml copy are not touched. Protocol ids: biodata/paired_recordings.csv where they exist (mrk97_01..04 = +5 ms at
+# 2/5/10/20 Hz, mrk97_07/08 = 10 Hz +-10), else mrk{freq}_{m|p}{|dt|}.
+label: OGK_kb2_L5TTPC_L5TTPC
+index_label: CHS_kb2_L5TTPC_L5TTPC
+reference: Markram et al. 1997
+seed: 20262009
+npairs: 120
+pairs_from: "/scratch/dhuruva/ogk_kb2/l5/pairs120.csv"
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta-split2-bk25-nosk-kv7-kb2_circuit_config.json"
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/scratch/dhuruva/ogk_kb2/l5/refitting_results"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0  # widen via env PLASTYFIRE_TOLERANT_MAX_AMP_NA (tolerant fallback ceiling, default 5.0 nA)
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 4000  # ms
+    offset: 1000  # ms
+    nreps: 10
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+protocols:  # 19 new L5->L5 protocols (2 and 5 Hz: 6 each; 20 Hz: 7); 10 Hz row exists (OGK-38)
+    - {id: mrk2_m50, freq: 2., dt: -50.}
+    - {id: mrk2_m30, freq: 2., dt: -30.}
+    - {id: mrk2_m10, freq: 2., dt: -10.}
+    - {id: mrk2_p10, freq: 2., dt: 10.}
+    - {id: mrk2_p30, freq: 2., dt: 30.}
+    - {id: mrk2_p50, freq: 2., dt: 50.}
+    - {id: mrk5_m50, freq: 5., dt: -50.}
+    - {id: mrk5_m30, freq: 5., dt: -30.}
+    - {id: mrk5_m10, freq: 5., dt: -10.}
+    - {id: mrk5_p10, freq: 5., dt: 10.}
+    - {id: mrk5_p30, freq: 5., dt: 30.}
+    - {id: mrk5_p50, freq: 5., dt: 50.}
+    - {id: mrk20_m50, freq: 20., dt: -50.}
+    - {id: mrk20_m30, freq: 20., dt: -30.}
+    - {id: mrk20_m10, freq: 20., dt: -10.}
+    - {id: mrk97_04, freq: 20., dt: 5.}
+    - {id: mrk20_p10, freq: 20., dt: 10.}
+    - {id: mrk20_p30, freq: 20., dt: 30.}
+    - {id: mrk20_p50, freq: 20., dt: 50.}

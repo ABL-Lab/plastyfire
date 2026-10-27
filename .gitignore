@@ -55,3 +55,4 @@ plastyfire/simulation_epsp_df.csv
 !/analytical_method/*.md
 !/analytical_method/*.sh
 *.pkl.tmp
+.tasks

@@ -50,10 +50,13 @@ def integrate_rho(effcai, dt_ms, theta_d, theta_p, rho0):
 
 
 _BASIS = {}
-def load_basis(pre_gid, post_gid):
-    key = (pre_gid, post_gid)
+def load_basis(pre_gid, post_gid, basis_dir=None):
+    """basis_dir=None -> BASIS_DIR (ANALYTICAL_BASIS_DIR), cache key unchanged.
+    An explicit basis_dir (per-protocol fits, OGK-03) gets its own cache key."""
+    key = (pre_gid, post_gid) if basis_dir is None else (basis_dir, pre_gid, post_gid)
     if key not in _BASIS:
-        _BASIS[key] = pd.read_csv(os.path.join(BASIS_DIR, f"basis_{pre_gid}_{post_gid}.csv"))
+        _BASIS[key] = pd.read_csv(os.path.join(basis_dir or BASIS_DIR,
+                                               f"basis_{pre_gid}_{post_gid}.csv"))
     return _BASIS[key]
 
 

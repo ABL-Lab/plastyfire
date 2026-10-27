@@ -1,0 +1,90 @@
+# Ebner et al. 2019 validation protocols (their Figs 2-4) on the Sabrina L5TTPC-L5TTPC pairs.
+# Written into the existing Sabrina simulations folder (same label/seed/npairs/sims_dir) as extra
+# protocol subfolders next to the Markram 10Hz_* ones; index_label keeps its own index csv / yaml copy.
+# prefire_only: pairing sims only (no C01/C02 test pulses). Basis stays per pair, reused from the Markram set.
+#
+# dt convention: dt > 0 = pre before post, measured to the first postsynaptic AP (dt_ref "ap"),
+# i.e. dt = paper's delta t' (EPSP onset to first AP of the burst), for all protocols here.
+# Experimental targets for the Nevian protocols are in nevian/nevian_protocols.py.
+label: Sabrina_L5TTPC_L5TTPC_STDP
+index_label: Ebner2019_L5TTPC_L5TTPC
+reference: Ebner et al. 2019 (Sjostrom 2001, Nevian & Sakmann 2006, Letzkus 2006)
+seed: 20262009
+npairs: 120
+pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results/fitting/n120/seed20262009/index_Sabrina_L5TTPC_L5TTPC_STDP.csv"
+prefire_only: true
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms, 0.1 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # --- Sjostrom 2001 (Ebner Fig 2): 5 pre + 5 post paired spike by spike, 15 bursts at 0.1 Hz ---
+    # 0.1 Hz "intra-burst": 50 single pairings at 0.1 Hz (= Ebner's 10 sweeps x 5 spikes)
+    - {id: sjostrom_0.1hz_dt+10ms, n_pre: 1, n_post: 1, freq: 0.1, dt: 10., nreps: 50}
+    - {id: sjostrom_0.1hz_dt-10ms, n_pre: 1, n_post: 1, freq: 0.1, dt: -10., nreps: 50}
+    - {id: sjostrom_10hz_dt+10ms, freq: 10., dt: 10.}
+    - {id: sjostrom_10hz_dt-10ms, freq: 10., dt: -10.}
+    - {id: sjostrom_20hz_dt+10ms, freq: 20., dt: 10.}
+    - {id: sjostrom_20hz_dt-10ms, freq: 20., dt: -10.}
+    - {id: sjostrom_40hz_dt+10ms, freq: 40., dt: 10.}
+    - {id: sjostrom_40hz_dt-10ms, freq: 40., dt: -10.}
+    - {id: sjostrom_50hz_dt+10ms, freq: 50., dt: 10.}
+    - {id: sjostrom_50hz_dt-10ms, freq: 50., dt: -10.}
+    # --- Nevian & Sakmann 2006 (Ebner Fig 3): 1 pre + burst, 60 pairings at 0.1 Hz, 5 ms pulses ---
+    # timing sweep, 3 APs at 50 Hz (dt = first AP; -50 = last AP 10 ms before EPSP)
+    - {id: nevian_3ap_50hz_dt-90ms, n_pre: 1, n_post: 3, freq: 50., dt: -90., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-50ms, n_pre: 1, n_post: 3, freq: 50., dt: -50., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-30ms, n_pre: 1, n_post: 3, freq: 50., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-10ms, n_pre: 1, n_post: 3, freq: 50., dt: -10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt+10ms, n_pre: 1, n_post: 3, freq: 50., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt+50ms, n_pre: 1, n_post: 3, freq: 50., dt: 50., nreps: 60, width: 5.}
+    # number of APs, 50 Hz
+    - {id: nevian_epsp_only, n_pre: 1, n_post: 0, dt: 0., nreps: 60}
+    - {id: nevian_post_only_3ap_50hz, n_pre: 0, n_post: 3, freq: 50., dt: 0., nreps: 60, width: 5.}
+    - {id: nevian_1ap_dt-10ms, n_pre: 1, n_post: 1, freq: 50., dt: -10., nreps: 60, width: 5.}
+    - {id: nevian_1ap_dt+10ms, n_pre: 1, n_post: 1, freq: 50., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_2ap_50hz_dt-30ms, n_pre: 1, n_post: 2, freq: 50., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_2ap_50hz_dt+10ms, n_pre: 1, n_post: 2, freq: 50., dt: 10., nreps: 60, width: 5.}
+    # burst frequency, 3 APs (post-pre: last AP 10 ms before EPSP)
+    - {id: nevian_3ap_20hz_dt-110ms, n_pre: 1, n_post: 3, freq: 20., dt: -110., nreps: 60, width: 5.}
+    - {id: nevian_3ap_20hz_dt+10ms, n_pre: 1, n_post: 3, freq: 20., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_100hz_dt-30ms, n_pre: 1, n_post: 3, freq: 100., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_3ap_100hz_dt+10ms, n_pre: 1, n_post: 3, freq: 100., dt: 10., nreps: 60, width: 5.}
+    # --- Letzkus 2006 (Ebner Fig 4): 1 pre + 3 APs at 200 Hz (2 ms pulses), 100 pairings at 0.1 Hz ---
+    # Spike count is not monotonic in amp at 200 Hz (low amps give late Ca2+ burst spikes), so the plain search
+    # rejected 37/120 cells at 2 or 3 ms; burst_window_search counts only in-burst APs and allows later spikes
+    - {id: letzkus_3ap_200hz_dt+10ms, n_pre: 1, n_post: 3, freq: 200., dt: 10., nreps: 100, width: 2.,
+       amp_min: 1., amp_max: 8., amp_lev: 150, burst_window_search: true}
+    # -10 ms = burst onset (first AP) 10 ms before the EPSP, so the last AP coincides with it
+    # (Letzkus 2006: "the EPSP coincides with the last and smallest backpropagating AP")
+    - {id: letzkus_3ap_200hz_dt-10ms, n_pre: 1, n_post: 3, freq: 200., dt: -10., nreps: 100,
+       width: 2., amp_min: 1., amp_max: 8., amp_lev: 150,
+       burst_window_search: true}

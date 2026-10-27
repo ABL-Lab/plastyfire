@@ -1,0 +1,69 @@
+# Zilberter et al. 2009 (Cereb Cortex 19:2308) unitary L2/3 PC -> L2/3 PC STDP, rat visual cortex P14-21,
+# 32-34 C, ACSF 2 mM Ca / 1 mM Mg. Methods: "pre- and postsynaptic pyramidal cells were stimulated 40 times, every 5 s"
+# -> 40 pairings at 0.2 Hz (T = 5000 ms) for every protocol. Current-pulse width is not given in the paper: 3 ms default
+# (ASSUMED). Targets: glusynapse_v2/targets.py PAIRED_L23L23, glusynapse_v2/rho_redesign/L23L23_TARGETS.md.
+# Hardingham 2007 (10 mM EGTA post pipette, 23 C) is validation only and not simulated here.
+# Pathway: L2/3 PC -> L2/3 PC in the same circuit as L2/3 -> L5 (og-delta emodels cADpyr_L2TPC / cADpyr_L3TPC).
+# Workdirs use the delta config (as Ebner2019_L23PC_L5TTPC); cache, basis and prefire override it with
+# data/dhuruva_delta_l23l23_circuit_config.json (rho0 conductance split on these pairs, new edges file).
+#
+# dt convention: dt > 0 = pre before post. dt_ref "ap": to the first post AP; "ap_last": to the last post AP of the
+# train (Zilberter's train protocols time the single pre AP to the 10th AP).
+label: Zilberter2009_L23PC_L23PC
+reference: Zilberter et al. 2009
+seed: 20262009
+npairs: 120
+prefire_only: false  # C01/C02 files too: the EPSP basis reads simulation_config.json + prespikes.h5
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
+postgid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um, as configs/L23PC_L23PC_STDP.yaml (paper: somata ~19 um apart)
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults (pair search uses freq / nspikes / amp grid, same as the L2/3 -> L5 set)
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 5000  # ms, 0.2 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 40
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # --- single pre AP + single post AP (Fig 2B, 3; text) ---
+    - {id: zilberter_1ap_dt+10ms, n_pre: 1, n_post: 1, dt: 10.}
+    - {id: zilberter_1ap_dt-10ms, n_pre: 1, n_post: 1, dt: -10.}
+    - {id: zilberter_pre_only, n_pre: 1, n_post: 0, dt: 0.}
+    # --- 5 pre + 5 post trains, pre i 10 ms before post AP i (Fig 2G, H; text) ---
+    - {id: zilberter_5ap_10hz_dt+10ms, n_pre: 5, n_post: 5, freq: 10., dt: 10., amp_max: 4., amp_lev: 100}
+    - {id: zilberter_5ap_20hz_dt+10ms, n_pre: 5, n_post: 5, freq: 20., dt: 10., amp_max: 4., amp_lev: 100}
+    - {id: zilberter_5ap_20hz_dt-10ms, n_pre: 5, n_post: 5, freq: 20., dt: -10., amp_max: 4., amp_lev: 100}
+    # --- post train (10 APs at 50 Hz) + one pre AP (Figs 4, 5, 6) ---
+    # train-LTP: pre 3-5 ms before the 10th AP (Fig 5 uses 4 ms); train-LTD: pre after the 10th AP,
+    # 3-5 ms (no change) or 5-12 ms (LTD; Fig 4C inset 10 ms)
+    - {id: zilberter_train10_50hz_dt+4ms_last, n_pre: 1, n_post: 10, freq: 50., dt: 4., dt_ref: ap_last, amp_max: 4., amp_lev: 100}
+    - {id: zilberter_train10_50hz_dt-4ms_last, n_pre: 1, n_post: 10, freq: 50., dt: -4., dt_ref: ap_last, amp_max: 4., amp_lev: 100}
+    - {id: zilberter_train10_50hz_dt-10ms_last, n_pre: 1, n_post: 10, freq: 50., dt: -10., dt_ref: ap_last, amp_max: 4., amp_lev: 100}
+    # pre 5 ms before the FIRST AP of the train (Fig 4B), and the train alone (Suppl Fig 1)
+    - {id: zilberter_train10_50hz_dt+5ms, n_pre: 1, n_post: 10, freq: 50., dt: 5., amp_max: 4., amp_lev: 100}
+    - {id: zilberter_train10_50hz_post_only, n_pre: 0, n_post: 10, freq: 50., dt: 0., amp_max: 4., amp_lev: 100}
+    # shorter trains, pre 4 ms before the last AP (Fig 5D)
+    - {id: zilberter_train4_50hz_dt+4ms_last, n_pre: 1, n_post: 4, freq: 50., dt: 4., dt_ref: ap_last, amp_max: 4., amp_lev: 100}
+    - {id: zilberter_train8_50hz_dt+4ms_last, n_pre: 1, n_post: 8, freq: 50., dt: 4., dt_ref: ap_last, amp_max: 4., amp_lev: 100}

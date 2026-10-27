@@ -301,7 +301,7 @@ def main():
         g = {k: float(v) for k, v in json.loads(args.glusyn_globals).items()}
         assert all(k.endswith("_GluSynapse") for k in g), g
         fit_params.update(g)
-    fixhp = not args.no_fixhp
+    fixhp = (not args.no_fixhp) and os.environ.get("KEEP_SK", "0") != "1"
     output = args.output or os.path.join(args.results_dir, f"cpre_cpost_{args.params}.pkl")
 
     # Find all workdirs and collect unique (pre_gid, post_gid) → one representative workdir

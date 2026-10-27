@@ -1,0 +1,66 @@
+# Sjostrom, Turrigiano & Nelson 2004 (J Neurophysiol 92:3338), "Endocannabinoid-dependent neocortical layer-5 LTD in
+# the absence of postsynaptic spiking" (dLTD). Unitary L5 -> L5 pairs, rat visual cortex. Methods "Induction of LTD":
+# single presynaptic spikes (n = 14; or 3 spikes at 20-30 Hz, n = 3) paired with 250 ms SUBTHRESHOLD postsynaptic current
+# pulses at 0.1-0.2 Hz, 50-60 pairings; amplitude = "minimal suprathreshold current less 20 pA" (mean 141 pA, peak Vm
+# -52.1 mV); pre spike evoked by a 5 ms injection. Here: 1 pre spike, step amplitude = lowest 250 ms-step amplitude on the
+# 0.02 nA grid that fires >= 1 AP, minus one grid level (step_below_nA 0.02, 0 APs required), 50 pairings at 0.1 Hz.
+# UNKNOWN in the paper: where in the 250 ms pulse the pre spike falls ("coincident"); dt 0 = at step onset is ASSUMED.
+# Same Sabrina folder / seed / 24 subset24 pairs as Sjostrom2007_L5TTPC_L5TTPC.yaml (prefire_only, own index_label).
+label: Sabrina_L5TTPC_L5TTPC_STDP
+index_label: Sjostrom2004_L5TTPC_L5TTPC
+reference: Sjostrom, Turrigiano & Nelson 2004 J Neurophysiol 92:3338 (Methods, Figs 1, 3)
+seed: 20262009
+npairs: 120
+pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/configs/Sjostrom2007_subset24_pairs.csv"
+prefire_only: true
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [0.1]  # Hz, repetition rate ("every 10 s"); a step has no intra-burst frequency
+    amp: "find"  # nA
+    amp_min: 0.1  # step search grid 0.1-3.0 nA in 0.02 nA steps (covers the paper's 0.5-1.8 nA)
+    amp_max: 3.0
+    amp_lev: 146
+    nspikes: 1
+    dt: [0.0]  # ms
+    width: 3.0  # unused by step protocols (they use step_duration)
+    T: 10000  # ms, 0.1 Hz (paper: 0.1-0.2 Hz)
+    offset: 1000  # ms
+    nreps: 50  # 50-60 pairings (Methods)
+    C01_duration: 4  # min (not written: prefire_only). Paper baseline: 1 AP / 10 s = C01_T default (T)
+    C02_duration: 4  # min
+protocols:
+    # pre = one AP at the step onset (pre_type train, n_pre 1, dt 0, dt_ref stim); post = 250 ms subthreshold step
+    - {id: sjostrom04_dltd_step250ms, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: 0., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.02}
+    # Fig 4 timings (pre = onset - dt, so dt < 0 = pre AFTER step onset; step is 250 ms): pre+100 inside the step,
+    # post+50 / post+200 = 50 / 200 ms after step end (dt -300 / -450); pre-100 = pre 100 ms BEFORE onset, no-LTD control (data ~1.0).
+    - {id: sjostrom04_dltd_step250ms_pre+100, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: -100., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.02}
+    # pre+100c: same timing, but the step is 0.10 nA below the threshold level (5 grid levels, vs 0.02). The calibration is a
+    # single-cell search without synapses (no option to include the EPSP), and with 0.02 nA the pre EPSP on the plateau fired 2 APs
+    # in all 21 pairs of pre+100 (guardrail). Same bisection + "0 APs in the step" check as step_below_nA; own cache key (below0.1nA).
+    - {id: sjostrom04_dltd_step250ms_pre+100c, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: -100., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.10}
+    - {id: sjostrom04_dltd_step250ms_post+50, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: -300., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.02}
+    - {id: sjostrom04_dltd_step250ms_post+200, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: -450., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.02}
+    - {id: sjostrom04_dltd_step250ms_pre-100, n_pre: 1, n_post: 1, pre_type: train, post_type: step, step_duration: 250.,
+       dt: 100., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000, step_below_nA: 0.02}

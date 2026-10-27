@@ -1,0 +1,75 @@
+# Ebner et al. 2019 Nevian & Sakmann 2006 protocols (Ebner Fig 3) on their own preparation:
+# L2/3 PC (barrel cortex), extracellular stimulation pipette near the basal dendrites 50-150 um from the
+# soma, compound EPSP 1-3 mV, bicuculline. Not a paired recording, so no pairs: `pipette:` mode
+# (plastyfire/pipette.py) recruits EXC presynaptic cells by their nearest basal synapse to a basal site
+# at 50-150 um path distance until the somatic EPSP is ~2 mV. All recruited cells fire the same train;
+# all their synapses on the post cell are active. INH inputs are never recruited (bicuculline).
+# Workdirs: simulations/pip0-<post>/<protocol>; group logs: simulations/single_cells/pipette_<post>.json.
+# prefire_only: pairing sims only (no C01/C02 test pulses).
+#
+# dt convention: dt > 0 = pre before post, measured to the first postsynaptic AP (dt_ref "ap").
+# Experimental targets: ebner/ebner_targets.csv.
+label: Ebner2019_L23PC_L23PC_basal
+reference: Ebner et al. 2019 (Nevian & Sakmann 2006)
+seed: 20262009
+npairs: 120
+prefire_only: true
+pipette:
+    path_dist: [50., 150.]  # um, basal pipette site
+    epsp_target: 2.  # mV
+    epsp_range: [1., 3.]  # mV, groups outside are rejected
+    max_pre: 200
+    n_epsp_spikes: 10  # EPSP = mean peak over 10 spikes at 1 Hz (stochastic release)
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]  # unused in pipette mode (any EXC afferent)
+postgid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # unused in pipette mode
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms, 0.1 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # --- Nevian & Sakmann 2006 (Ebner Fig 3): 1 pre + burst, 60 pairings at 0.1 Hz, 5 ms pulses ---
+    # timing sweep, 3 APs at 50 Hz (dt = first AP; -50 = last AP 10 ms before EPSP)
+    - {id: nevian_3ap_50hz_dt-90ms, n_pre: 1, n_post: 3, freq: 50., dt: -90., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-50ms, n_pre: 1, n_post: 3, freq: 50., dt: -50., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-30ms, n_pre: 1, n_post: 3, freq: 50., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt-10ms, n_pre: 1, n_post: 3, freq: 50., dt: -10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt+10ms, n_pre: 1, n_post: 3, freq: 50., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_50hz_dt+50ms, n_pre: 1, n_post: 3, freq: 50., dt: 50., nreps: 60, width: 5.}
+    # number of APs, 50 Hz
+    - {id: nevian_epsp_only, n_pre: 1, n_post: 0, dt: 0., nreps: 60}
+    - {id: nevian_post_only_3ap_50hz, n_pre: 0, n_post: 3, freq: 50., dt: 0., nreps: 60, width: 5.}
+    - {id: nevian_1ap_dt-10ms, n_pre: 1, n_post: 1, freq: 50., dt: -10., nreps: 60, width: 5.}
+    - {id: nevian_1ap_dt+10ms, n_pre: 1, n_post: 1, freq: 50., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_2ap_50hz_dt-30ms, n_pre: 1, n_post: 2, freq: 50., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_2ap_50hz_dt+10ms, n_pre: 1, n_post: 2, freq: 50., dt: 10., nreps: 60, width: 5.}
+    # burst frequency, 3 APs (post-pre: last AP 10 ms before EPSP)
+    - {id: nevian_3ap_20hz_dt-110ms, n_pre: 1, n_post: 3, freq: 20., dt: -110., nreps: 60, width: 5.}
+    - {id: nevian_3ap_20hz_dt+10ms, n_pre: 1, n_post: 3, freq: 20., dt: 10., nreps: 60, width: 5.}
+    - {id: nevian_3ap_100hz_dt-30ms, n_pre: 1, n_post: 3, freq: 100., dt: -30., nreps: 60, width: 5.}
+    - {id: nevian_3ap_100hz_dt+10ms, n_pre: 1, n_post: 3, freq: 100., dt: 10., nreps: 60, width: 5.}

@@ -1,0 +1,21 @@
+{
+ "val_logs": {
+  "old": "v9V3val_A_s5_22500402.out",
+  "s5": "v9V3val_A_s5_22578113.out",
+  "u7": "v9V3val_A_u7_22578115.out",
+  "u8": "v9V3val_A_u8_22578117.out"
+ },
+ "fit_logs": {
+  "old": "v9V3fit_A_s5_22500401.out",
+  "s5": "v9V3fit_A_s5_22578112.out",
+  "u7": "v9V3fit_A_u7_22578114.out",
+  "u8": "v9V3fit_A_u8_22578116.out",
+  "ap": "v9V3fit_A_s5_22578118.out"
+ },
+ "scores": {
+  "old": "SCORE v9A_s5: class_match 20/31, CORE 13/17; chi2 303.995, CORE 43.236; arm {'bio_src': 0, 'bio_gate': 0, 'bio_kE': 0.6,",
+  "s5": "SCORE v9A_s5: class_match 23/31, CORE 15/17; chi2 346.393, CORE 48.095; arm {'bio_src': 0, 'bio_gate': 0, 'bio_kE': 0.6,",
+  "u7": "SCORE v9A_u7: class_match 21/31, CORE 14/17; chi2 308.347, CORE 46.980; arm {'bio_src': 0, 'bio_gate': 0, 'bio_kE': 0.6,",
+  "u8": "SCORE v9A_u8: class_match 25/31, CORE 16/17; chi2 278.474, CORE 35.620; arm {'bio_src': 0, 'bio_gate': 0, 'bio_kE': 0.6,"
+ }
+}

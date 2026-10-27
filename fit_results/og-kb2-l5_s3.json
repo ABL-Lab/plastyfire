@@ -1,0 +1,74 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 199.773931,
+    "a00": 1.0078263699975485,
+    "a01": 1.357096044869296,
+    "a10": 1.237686557615623,
+    "a11": 1.974243821529314,
+    "a20": 1.0078263699975485,
+    "a21": 1.357096044869296,
+    "a30": 1.237686557615623,
+    "a31": 1.974243821529314,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 1.3994488569345107,
+  "evaluations": 4608,
+  "offline_curve": {
+    "mrk97_01": 0.9727566152506602,
+    "mrk97_02": 0.9648680660650293,
+    "mrk97_07": 1.1837452622274574,
+    "mrk97_08": 0.8133576153993474
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.9727566152506602,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.9648680660650293,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.1837452622274574,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.8133576153993474,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "16",
+    "--maxiter",
+    "150",
+    "--stride",
+    "1",
+    "--seed",
+    "3",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-l5_s3.json"
+  ]
+}

@@ -1,0 +1,61 @@
+# 2026-10-01 (A8): extra PAIRED L5->L5 rows of Chindemi's paired_recordings.csv that the fits did not simulate:
+# Markram 1997 (mrk97_01/02/04/05/06: 5 pre + 5 post, +5 ms, 2/5/20/30/40 Hz, 10 sweeps every 4 s; 10 Hz is the existing 10Hz_5ms) and
+# Sjostrom 2001 (sjs01_11..17: 0.1 Hz dt 0 single pair x50 sweeps; 20 Hz +25/0/-25, 40/50/100 Hz dt 0: 5+5 APs, 15 sweeps every 10 s).
+# dt convention as all other L5 yamls: dt > 0 = pre before post, to the first post AP (dt_ref ap). Same 24-pair subset, delta-split1
+# circuit, own index_label; sims land in the Sabrina folder (like sj03r50). Stimulus keys 5ap_{20,40,50}Hz_3ms and 1ap_0.1Hz_3ms are
+# already in the single_cells pkls (reused, no recalibration); only 5ap_{2,5,30,100}Hz_3ms are calibrated by the sim job.
+# sjh06_01 (Sjostrom & Hausser 2006 L5->L5 50 Hz +10 ms, 1.40) is the same stimulus as sjostrom_50hz_dt+10ms: no new simulation (see L5_EXTRA.md).
+label: Sabrina_L5TTPC_L5TTPC_STDP
+index_label: L5extra_L5TTPC_L5TTPC
+reference: Markram 1997 (Chindemi mrk97_*), Sjostrom Turrigiano Nelson 2001 (sjs01_*)
+seed: 20262009
+npairs: 120
+pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results/fitting/n120/seed20262009/index_Sabrina_L5TTPC_L5TTPC_STDP.csv"
+prefire_only: true
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta-split1_circuit_config.json"
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/scratch/dhuruva/split1/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms, 0.1 Hz pairing repetition
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    # Markram 1997: 5 pre + 5 post, pre 5 ms before each post AP, 10 sweeps, one every 4 s
+    - {id: 2Hz_5ms,  n_pre: 5, n_post: 5, freq: 2.,  dt: 5., nreps: 10, T: 4000}
+    - {id: 5Hz_5ms,  n_pre: 5, n_post: 5, freq: 5.,  dt: 5., nreps: 10, T: 4000}
+    - {id: 20Hz_5ms, n_pre: 5, n_post: 5, freq: 20., dt: 5., nreps: 10, T: 4000}
+    - {id: 30Hz_5ms, n_pre: 5, n_post: 5, freq: 30., dt: 5., nreps: 10, T: 4000}
+    - {id: 40Hz_5ms, n_pre: 5, n_post: 5, freq: 40., dt: 5., nreps: 10, T: 4000}
+    # Sjostrom 2001: 0.1 Hz single pair at dt 0 (sjs01_11, 50 sweeps), 5+5 APs, 15 sweeps every 10 s
+    - {id: sjostrom_0.1hz_dt0ms, n_pre: 1, n_post: 1, freq: 0.1, dt: 0., nreps: 50}
+    - {id: sjostrom_20hz_dt+25ms, freq: 20., dt: 25.}
+    - {id: sjostrom_20hz_dt0ms, freq: 20., dt: 0.}
+    - {id: sjostrom_20hz_dt-25ms, freq: 20., dt: -25.}
+    - {id: sjostrom_40hz_dt0ms, freq: 40., dt: 0.}
+    - {id: sjostrom_50hz_dt0ms, freq: 50., dt: 0.}
+    - {id: sjostrom_100hz_dt0ms, freq: 100., dt: 0.}

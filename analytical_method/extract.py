@@ -24,6 +24,7 @@ SIMS     = os.path.join(ROOT, "refitting_results/fitting/n100/seed19091997/"
 CACHE    = os.path.join(ROOT, "cpre_cpost_cache/ion_channels_tau278.pkl")
 HERE     = os.path.dirname(os.path.abspath(__file__))
 DECIM_MS = 2.0   # default; override with --decim
+TAGMAP = {}      # --tag-map: sim protocol dir -> npz tag (sjh06_02 -> 50Hz_10ms); empty = unchanged names
 
 
 def out_dir_for(decim):
@@ -108,7 +109,7 @@ def _one(job):
                          win_pre_ms=np.float64(win["pre"]), win_post_ms=np.float64(win["post"]),
                          pre_t_ms=pre_t, post_t_ms=post_t, raw_dt_ms=np.float64(dt))
         np.savez_compressed(
-            os.path.join(out, f"{pair}__{proto}.npz"),
+            os.path.join(out, f"{pair}__{TAGMAP.get(proto, proto)}.npz"),
             syn=np.array(sids, dtype=np.int64),
             effcai=np.stack(eff),                       # (n_syn, n_t) float32
             dt_ms=np.float64(dt * step),
@@ -133,6 +134,7 @@ def main():
                     help="comma-separated protocol ids; default: constants.PROTOCOLS (10Hz_*)")
     ap.add_argument("--index-csv", default=None,
                     help="simwriter index csv: extract every protocol_id in it")
+    ap.add_argument("--tag-map", default="", help="comma list <sim protocol>=<npz tag>, e.g. sjh06_02=50Hz_10ms (output names only)")
     ap.add_argument("--decim", type=float, default=DECIM_MS,
                     help="decimation in ms (default 2.0). 0.25 gives 8x finer "
                          "threshold-crossing resolution at 8x the storage.")
@@ -146,6 +148,7 @@ def main():
     ap.add_argument("--skip-existing", action="store_true", help="skip jobs whose npz exists")
     ap.add_argument("--pairs", default=None, help="comma-separated pair dirs (<pre>-<post>); default: all")
     args = ap.parse_args()
+    TAGMAP.update(kv.split("=", 1) for kv in args.tag_map.split(",") if kv)
     win = dict(pre=args.win_pre, post=args.win_post, coarse=args.coarse) if args.window else None
 
     SIMS = args.sims or globals()["SIMS"]
@@ -171,7 +174,7 @@ def main():
                   if os.path.isfile(f)][:1]
             rf = f"{SIMS}/{pair}/{proto}/simulation_edges_{args.param_hash}.pkl"
             if tf and os.path.isfile(rf):
-                if args.skip_existing and os.path.isfile(os.path.join(out, f"{pair}__{proto}.npz")):
+                if args.skip_existing and os.path.isfile(os.path.join(out, f"{pair}__{TAGMAP.get(proto, proto)}.npz")):
                     continue
                 jobs.append((pair, proto, tf[0], rf, cpre, cpost, args.decim, out, win))
 

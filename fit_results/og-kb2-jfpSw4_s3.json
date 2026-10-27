@@ -1,0 +1,102 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 199.773931,
+    "a00": 1.022127286735397,
+    "a01": 1.101790329925338,
+    "a10": 1.2739699175785035,
+    "a11": 1.7312328034586622,
+    "a20": 2.145954863070232,
+    "a21": 1.1551223598076965,
+    "a30": 2.251683356337291,
+    "a31": 1.6961615207379124,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 38.4135891128818,
+  "evaluations": 10368,
+  "offline_curve": {
+    "mrk97_01": 0.8706433144681416,
+    "mrk97_02": 0.8230980789333971,
+    "mrk97_07": 1.0883504040179228,
+    "mrk97_08": 0.8204536100404182,
+    "sjh06_02": 1.2589703877364375
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.8706433144681416,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.8230980789333971,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.0883504040179228,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.8204536100404182,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "sjh06_02": {
+      "proto": "50Hz_10ms",
+      "target": 1.06,
+      "sem": 0.09,
+      "pred": 1.2589703877364375,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted_fp",
+      "basis": "/scratch/dhuruva/ogk_kb2/l23l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted_fp; /scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "128",
+    "--maxiter",
+    "80",
+    "--stride",
+    "1",
+    "--seed",
+    "3",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08,sjh06_02",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpLw4_s1.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpw4_s2.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpw10_s2.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s3.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointuafp_s4.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jointua2_s2.json",
+    "--popsize",
+    "16",
+    "--untie-apical",
+    "--apical-syns",
+    "/scratch/dhuruva/ogk_kb2/apical_syns_joint.txt",
+    "--proto-map",
+    "/scratch/dhuruva/ogk_kb2/proto_map_jointfp_w4.json",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpSw4_s3.json"
+  ]
+}

@@ -1,0 +1,562 @@
+{
+ "note": "A9 shaft-Ca / NO diagnostics and toy. understand/a9_shaft_no/no_diag.py on the s2g0321 L5->L5 records; data = CH0 rows of /scratch/dhuruva/basics/bio/ECBX/v3_outcomes.csv",
+ "panel_a": {
+  "sh_int": {
+   "rows": [
+    "sjostrom_0.1hz_dt-10ms",
+    "sjostrom_10hz_dt-10ms",
+    "sjostrom_20hz_dt-10ms",
+    "sjostrom_40hz_dt-10ms",
+    "sjostrom_50hz_dt-10ms",
+    "sjostrom_20hz_dt0ms",
+    "sjostrom_40hz_dt0ms"
+   ],
+   "raw_mean": [
+    55.29476243126546,
+    168.43574175400832,
+    133.03733096349683,
+    110.97796895897322,
+    107.293088633894,
+    182.02325383288746,
+    145.1621510988443
+   ],
+   "normalised": [
+    0.498249904462633,
+    1.5177403527386262,
+    1.1987724429582831,
+    1.0,
+    0.9667962897533161,
+    1.6401746719673573,
+    1.3080267413481719
+   ]
+  },
+  "S270_pk": {
+   "rows": [
+    "sjostrom_0.1hz_dt-10ms",
+    "sjostrom_10hz_dt-10ms",
+    "sjostrom_20hz_dt-10ms",
+    "sjostrom_40hz_dt-10ms",
+    "sjostrom_50hz_dt-10ms",
+    "sjostrom_20hz_dt0ms",
+    "sjostrom_40hz_dt0ms"
+   ],
+   "raw_mean": [
+    0.2469032658707663,
+    0.39232225585156094,
+    0.38645898401066403,
+    0.3702141054657504,
+    0.3563541102908268,
+    0.5342232936082015,
+    0.47819943802052933
+   ],
+   "normalised": [
+    0.6669202016496588,
+    1.059717201639298,
+    1.0438796855794477,
+    1.0,
+    0.9625622174566069,
+    1.443011721382464,
+    1.2916834635971723
+   ]
+  },
+  "N1_int": {
+   "rows": [
+    "sjostrom_0.1hz_dt-10ms",
+    "sjostrom_10hz_dt-10ms",
+    "sjostrom_20hz_dt-10ms",
+    "sjostrom_40hz_dt-10ms",
+    "sjostrom_50hz_dt-10ms",
+    "sjostrom_20hz_dt0ms",
+    "sjostrom_40hz_dt0ms"
+   ],
+   "raw_mean": [
+    33.28060269254081,
+    118.83920106260669,
+    88.19615790097038,
+    67.1388176946195,
+    63.27581533595597,
+    102.69986847166832,
+    77.4252347560416
+   ],
+   "normalised": [
+    0.4956983729430182,
+    1.7700520376028375,
+    1.31363882965783,
+    1.0,
+    0.9424624607446265,
+    1.5296645368227668,
+    1.153211173723818
+   ]
+  },
+  "N4_int": {
+   "rows": [
+    "sjostrom_0.1hz_dt-10ms",
+    "sjostrom_10hz_dt-10ms",
+    "sjostrom_20hz_dt-10ms",
+    "sjostrom_40hz_dt-10ms",
+    "sjostrom_50hz_dt-10ms",
+    "sjostrom_20hz_dt0ms",
+    "sjostrom_40hz_dt0ms"
+   ],
+   "raw_mean": [
+    46.31482142401025,
+    187.5888506336055,
+    141.01131879345175,
+    102.95183345735596,
+    95.98990803097084,
+    162.3739347958214,
+    117.8637908739558
+   ],
+   "normalised": [
+    0.4498688354413277,
+    1.822103058624083,
+    1.369682443313266,
+    1.0,
+    0.9323768679722557,
+    1.5771835172132112,
+    1.1448440199248764
+   ]
+  },
+  "data": {
+   "rows": [
+    "sjostrom_0.1hz_dt-10ms",
+    "sjostrom_10hz_dt-10ms",
+    "sjostrom_20hz_dt-10ms",
+    "sjostrom_40hz_dt-10ms",
+    "sjostrom_50hz_dt-10ms",
+    "sjostrom_20hz_dt0ms",
+    "sjostrom_40hz_dt0ms"
+   ],
+   "mean": [
+    0.69,
+    0.57,
+    0.65,
+    1.51,
+    1.7,
+    0.760771,
+    0.928899
+   ]
+  }
+ },
+ "panel_b": {
+  "rows": [
+   "sjostrom_0.1hz_dt-10ms",
+   "sjostrom_0.1hz_dt+10ms",
+   "sjostrom_10hz_dt-10ms",
+   "sjostrom_10hz_dt+10ms",
+   "sjostrom_20hz_dt-10ms",
+   "sjostrom_20hz_dt+10ms",
+   "sjostrom_40hz_dt-10ms",
+   "sjostrom_40hz_dt+10ms",
+   "sjostrom_50hz_dt-10ms",
+   "sjostrom_50hz_dt+10ms",
+   "10Hz_-10ms",
+   "10Hz_10ms",
+   "sjostrom_0.1hz_dt-25ms",
+   "sjostrom_0.1hz_dt-120ms",
+   "sjostrom_0.1hz_dt-200ms",
+   "sjostrom_burst5x20hz_r50_dt-120ms",
+   "sjostrom_burst5x20hz_r50_dt-200ms",
+   "sjostrom_0.1hz_dt0ms",
+   "sjostrom_20hz_dt-25ms",
+   "sjostrom_20hz_dt0ms",
+   "sjostrom_20hz_dt+25ms",
+   "sjostrom_40hz_dt0ms",
+   "2Hz_5ms",
+   "5Hz_5ms",
+   "10Hz_5ms",
+   "20Hz_5ms",
+   "30Hz_5ms",
+   "40Hz_5ms",
+   "sjostrom07_step200ms_pair",
+   "sjostrom07_step200ms_pre_only"
+  ],
+  "fitted_rows": [
+   "sjostrom_0.1hz_dt-10ms",
+   "sjostrom_0.1hz_dt+10ms",
+   "sjostrom_10hz_dt-10ms",
+   "sjostrom_10hz_dt+10ms",
+   "sjostrom_20hz_dt-10ms",
+   "sjostrom_20hz_dt+10ms",
+   "sjostrom_40hz_dt-10ms",
+   "sjostrom_40hz_dt+10ms",
+   "sjostrom_50hz_dt-10ms",
+   "sjostrom_50hz_dt+10ms",
+   "10Hz_-10ms",
+   "10Hz_10ms",
+   "sjostrom_0.1hz_dt-25ms",
+   "sjostrom_0.1hz_dt-120ms",
+   "sjostrom_0.1hz_dt-200ms",
+   "sjostrom_burst5x20hz_r50_dt-120ms",
+   "sjostrom_burst5x20hz_r50_dt-200ms"
+  ],
+  "validation_rows": [
+   "sjostrom_0.1hz_dt0ms",
+   "sjostrom_20hz_dt-25ms",
+   "sjostrom_20hz_dt0ms",
+   "sjostrom_20hz_dt+25ms",
+   "sjostrom_40hz_dt0ms",
+   "2Hz_5ms",
+   "5Hz_5ms",
+   "10Hz_5ms",
+   "20Hz_5ms",
+   "30Hz_5ms",
+   "40Hz_5ms",
+   "sjostrom07_step200ms_pair",
+   "sjostrom07_step200ms_pre_only"
+  ],
+  "data": {
+   "sjostrom_0.1hz_dt-10ms": {
+    "mean": 0.69,
+    "sem": 0.07,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (0.1 Hz bar)"
+   },
+   "sjostrom_0.1hz_dt+10ms": {
+    "mean": 0.97,
+    "sem": 0.04,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (0.1 Hz bar); also Fig 3B squares"
+   },
+   "sjostrom_10hz_dt-10ms": {
+    "mean": 0.57,
+    "sem": 0.11,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (10 Hz bar)"
+   },
+   "sjostrom_10hz_dt+10ms": {
+    "mean": 1.16,
+    "sem": 0.09,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (10 Hz bar)"
+   },
+   "sjostrom_20hz_dt-10ms": {
+    "mean": 0.65,
+    "sem": 0.09,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (20 Hz bar)"
+   },
+   "sjostrom_20hz_dt+10ms": {
+    "mean": 1.31,
+    "sem": 0.14,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (20 Hz bar)"
+   },
+   "sjostrom_40hz_dt-10ms": {
+    "mean": 1.51,
+    "sem": 0.31,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (40 Hz bar)"
+   },
+   "sjostrom_40hz_dt+10ms": {
+    "mean": 1.53,
+    "sem": 0.14,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 6B legend (text: 'normal 40 Hz induction' 153 +- 14%, n=11)"
+   },
+   "sjostrom_50hz_dt-10ms": {
+    "mean": 1.7,
+    "sem": 0.19,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (50 Hz bar)"
+   },
+   "sjostrom_50hz_dt+10ms": {
+    "mean": 1.57,
+    "sem": 0.26,
+    "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (50 Hz bar)"
+   },
+   "10Hz_-10ms": {
+    "mean": 0.7922,
+    "sem": 0.0259,
+    "source": "Markram 1997"
+   },
+   "10Hz_10ms": {
+    "mean": 1.2013,
+    "sem": 0.0626,
+    "source": "Markram 1997"
+   },
+   "sjostrom_0.1hz_dt-25ms": {
+    "mean": 0.65,
+    "sem": 0.09,
+    "source": "Sjostrom 2003 Fig 9C Ctrl dt -25 ms [digitised]"
+   },
+   "sjostrom_0.1hz_dt-120ms": {
+    "mean": 1.05,
+    "sem": 0.0989949493661166,
+    "source": "Sjostrom 2003 Fig 9C Ctrl dt -120/-200/-400 pooled (1.05 +- 0.07) [digitised]; SEM x sqrt2, shared with -200"
+   },
+   "sjostrom_0.1hz_dt-200ms": {
+    "mean": 1.05,
+    "sem": 0.0989949493661166,
+    "source": "as -120 (pooled bar)"
+   },
+   "sjostrom_burst5x20hz_r50_dt-120ms": {
+    "mean": 0.79,
+    "sem": 0.0848528137423857,
+    "source": "Sjostrom 2003 Fig 9C Burst, pre 120 or 200 ms after the burst (0.79 +- 0.06) [digitised]; SEM x sqrt2, shared with -200"
+   },
+   "sjostrom_burst5x20hz_r50_dt-200ms": {
+    "mean": 0.79,
+    "sem": 0.0848528137423857,
+    "source": "as -120 (pooled bar)"
+   },
+   "sjostrom_0.1hz_dt0ms": {
+    "mean": 0.910125,
+    "sem": 0.139103,
+    "source": "Sjostrom 2001 (sjs01_11) 0.1 Hz dt 0, 50 sweeps [csv]"
+   },
+   "sjostrom_20hz_dt-25ms": {
+    "mean": 0.70462,
+    "sem": 0.06994,
+    "source": "Sjostrom 2001 (sjs01_14) 20 Hz -25 ms [csv]"
+   },
+   "sjostrom_20hz_dt0ms": {
+    "mean": 0.760771,
+    "sem": 0.099366,
+    "source": "Sjostrom 2001 (sjs01_13) 20 Hz dt 0 [csv]"
+   },
+   "sjostrom_20hz_dt+25ms": {
+    "mean": 0.6519,
+    "sem": 0.18373,
+    "source": "Sjostrom 2001 (sjs01_12) 20 Hz +25 ms [csv]"
+   },
+   "sjostrom_40hz_dt0ms": {
+    "mean": 0.928899,
+    "sem": 0.0384392,
+    "source": "Sjostrom 2001 (sjs01_15) 40 Hz dt 0, pooled 40/50 Hz [csv]"
+   },
+   "2Hz_5ms": {
+    "mean": 0.9886,
+    "sem": 0.04,
+    "source": "Markram 1997 (mrk97_01) 2 Hz +5 ms [csv]"
+   },
+   "5Hz_5ms": {
+    "mean": 1.0161,
+    "sem": 0.0727,
+    "source": "Markram 1997 (mrk97_02) 5 Hz +5 ms [csv]"
+   },
+   "10Hz_5ms": {
+    "mean": 1.2038,
+    "sem": 0.0644,
+    "source": "Markram 1997"
+   },
+   "20Hz_5ms": {
+    "mean": 1.3687,
+    "sem": 0.0909,
+    "source": "Markram 1997 (mrk97_04) 20 Hz +5 ms [csv]"
+   },
+   "30Hz_5ms": {
+    "mean": 1.4239,
+    "sem": 0.0745,
+    "source": "Markram 1997 (mrk97_05) 30 Hz +5 ms [csv]"
+   },
+   "40Hz_5ms": {
+    "mean": 1.5008,
+    "sem": 0.12,
+    "source": "Markram 1997 (mrk97_06) 40 Hz +5 ms [csv]"
+   },
+   "sjostrom07_step200ms_pair": {
+    "mean": 1.62,
+    "sem": 0.07,
+    "source": "Sjostrom 2007 Results 3 + Fig 1B: paired 200 ms steps, LTP 162 +- 7% [text]"
+   },
+   "sjostrom07_step200ms_pre_only": {
+    "mean": 1.0,
+    "sem": 0.0707106781186547,
+    "source": "Sjostrom 2007 Fig 1B open circles, pre/post-only pooled n=12 [digitised; SEM assumed]; SEM x sqrt2, shared with post_only"
+   }
+  },
+  "CH0": {
+   "pred": [
+    1.0059660276221716,
+    0.9650707890081057,
+    0.954454941601364,
+    0.9898339713719394,
+    1.3224346504515543,
+    1.3404637527599503,
+    1.3594637981077942,
+    1.3883013006672733,
+    1.3836734668742592,
+    1.4053112424864718,
+    1.0385244595018026,
+    1.1882419140913743,
+    1.0059660276221716,
+    1.0052510753085022,
+    1.0052510753085022,
+    0.8019596547993001,
+    0.8375508370073445,
+    1.0058707243977394,
+    1.335475690110779,
+    1.327714966406676,
+    1.3110844803302404,
+    1.5222011505760653,
+    0.7628934012036743,
+    0.8037228116675308,
+    1.191055181364312,
+    1.4108985119205681,
+    1.5064816491494768,
+    1.5565905442323584,
+    1.6114218854365685,
+    0.8702847718996704
+   ],
+   "rmse_core": 0.2536334724777773,
+   "rmse_val": 0.3551733974406687,
+   "checks": "S20-MKP20STEP"
+  },
+  "a_n1_k0.2": {
+   "pred": [
+    1.0124963263176572,
+    0.9650707890081057,
+    1.0429862578725362,
+    1.1957458286442735,
+    1.3685622207212587,
+    1.3598577530074756,
+    1.4057295194049577,
+    1.4071406651106313,
+    1.390519561071548,
+    1.412736597419574,
+    1.1244754691123988,
+    1.254709144740506,
+    1.0059660276221716,
+    1.0052510753085022,
+    1.0052510753085022,
+    0.8019596547993001,
+    0.8375508370073445,
+    1.031106154304985,
+    1.3728014143484832,
+    1.378916965517984,
+    1.348793499283513,
+    1.5555914404740503,
+    0.7628934012036743,
+    0.8995644327609605,
+    1.2470624043905467,
+    1.4637979203917404,
+    1.5646355791483,
+    1.5730075099970622,
+    1.6178571251515688,
+    0.8838259237412684
+   ],
+   "rmse_core": 0.270152076633474,
+   "rmse_val": 0.3757630118601342,
+   "checks": "S20-MK-STEP"
+  },
+  "b_n1_k0.5": {
+   "pred": [
+    0.999911907176287,
+    0.9213177271434243,
+    0.9707738294019433,
+    1.0453700988401105,
+    1.3366670116350305,
+    1.3517947483463344,
+    1.3815945873348354,
+    1.3883013006672733,
+    1.3741920847133398,
+    1.4053112424864718,
+    1.0827400361888793,
+    1.2372324385500326,
+    1.0059660276221716,
+    1.0052510753085022,
+    1.0052510753085022,
+    0.7803285134992404,
+    0.8019596547993001,
+    0.969874019870036,
+    1.3604608170264798,
+    1.3359521972079587,
+    1.3057559147729505,
+    1.5222011505760653,
+    0.7628934012036743,
+    0.8241898821282573,
+    1.2013552143810182,
+    1.4108985119205681,
+    1.5246087578232532,
+    1.5565905442323584,
+    1.6114218854365685,
+    0.8702847718996704
+   ],
+   "rmse_core": 0.2580391034372381,
+   "rmse_val": 0.35774718706437425,
+   "checks": "S20-MKP20STEP"
+  }
+ },
+ "dominance": [
+  {
+   "signal": "sh",
+   "check": "D0",
+   "low_row": "sjostrom_40hz_dt0ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 165,
+   "frac_syn_blocked": 0.896969696969697,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 1.0,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "sh",
+   "check": "S20",
+   "low_row": "sjostrom_20hz_dt-10ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 172,
+   "frac_syn_blocked": 0.06976744186046512,
+   "mean_curve_blocked": false,
+   "frac_grid_low_above": 0.8536585365853658,
+   "theta_where_high_above": "0.946;5.9;8.01;10.9;14.7;20"
+  },
+  {
+   "signal": "S270",
+   "check": "D0",
+   "low_row": "sjostrom_40hz_dt0ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 165,
+   "frac_syn_blocked": 0.9272727272727272,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.8536585365853658,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "S270",
+   "check": "S20",
+   "low_row": "sjostrom_20hz_dt-10ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 172,
+   "frac_syn_blocked": 0.6104651162790697,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.8292682926829268,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "N1",
+   "check": "D0",
+   "low_row": "sjostrom_40hz_dt0ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 165,
+   "frac_syn_blocked": 0.9515151515151515,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.8780487804878049,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "N1",
+   "check": "S20",
+   "low_row": "sjostrom_20hz_dt-10ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 172,
+   "frac_syn_blocked": 0.7209302325581395,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.9024390243902439,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "N4",
+   "check": "D0",
+   "low_row": "sjostrom_40hz_dt0ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 165,
+   "frac_syn_blocked": 0.9575757575757575,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.9512195121951219,
+   "theta_where_high_above": ""
+  },
+  {
+   "signal": "N4",
+   "check": "S20",
+   "low_row": "sjostrom_20hz_dt-10ms",
+   "high_row": "sjostrom_40hz_dt-10ms",
+   "n_matched": 172,
+   "frac_syn_blocked": 0.7209302325581395,
+   "mean_curve_blocked": true,
+   "frac_grid_low_above": 0.9512195121951219,
+   "theta_where_high_above": ""
+  }
+ ]
+}

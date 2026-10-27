@@ -1,0 +1,46 @@
+# OGK: Sjostrom & Hausser 2006 (Neuron 51:227) L2/3 PC -> L5 TTPC, 50 Hz, dt +10 ms, on the frozen L5 emodel K_b_2.
+# Protocol id sjh06_02 from biodata/paired_recordings.csv (50 Hz, dt 10, 5 stimuli, n_sweep 15, period 10 s ->
+# nreps 15, T 10000 ms; post APs by 5 ms pulses as in Ebner2019_L23PC_L5TTPC.yaml).
+# Pair selection (provenance as ebner/eval_cooker_l23l5.py and ebner/ebner_targets.csv): S&H distal unitary L2/3->L5,
+# Fig 4C (distal unitary L2/3-to-L5 pairs), = sh_distal (path_mean > 200 um and EPSP < 1 mV) of
+# ebner/pair_geometry_L23PC_L5TTPC.csv: 87 of the 120 Ebner2019_L23PC_L5TTPC pairs (same geometry set), listed in pairs87.csv.
+# Geometry flags come from the og-delta emodel; re-check the EPSP < 1 mV cut on K_b_2 if the pair set matters.
+label: OGK_kb2_L23PC_L5TTPC
+reference: Sjostrom and Hausser 2006
+seed: 20262009
+npairs: 87
+pairs_from: "/scratch/dhuruva/ogk_kb2/l23l5/pairs87.csv"
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta-split2-bk25-nosk-kv7-kb2_l23l5_circuit_config.json"
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L2_TPC:A", "L2_TPC:B", "L3_TPC:A", "L3_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 700., 10.]  # [x, y, z] um
+sims_dir: "/scratch/dhuruva/ogk_kb2/l23l5/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0  # widen via env PLASTYFIRE_TOLERANT_MAX_AMP_NA (tolerant fallback ceiling, default 5.0 nA)
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 10000  # ms
+    offset: 1000  # ms
+    nreps: 15
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+protocols:
+    - {id: sjh06_02, freq: 50., dt: 10., width: 5.}

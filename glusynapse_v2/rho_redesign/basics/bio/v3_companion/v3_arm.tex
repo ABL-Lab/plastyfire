@@ -1,0 +1,201 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% Notation follows Chindemi et al. (2022)
+\newcommand{\Ca}{[\mathrm{Ca}^{2+}]_i}
+\newcommand{\Caz}{[\mathrm{Ca}^{2+}]_0}
+\newcommand{\cpre}{c_{\mathrm{pre}}}
+\newcommand{\cpost}{c_{\mathrm{post}}}
+\newcommand{\USE}{U_{\mathrm{SE}}}
+\newcommand{\gA}{\hat g_{\mathrm{AMPA}}}
+\newcommand{\deCB}{d_{\mathrm{eCB}}}
+\newcommand{\dNO}{d_{\mathrm{NO}}}
+\newcommand{\phiCa}{\phi_{\mathrm{Ca}}}
+\newcommand{\Phipost}{\Phi_{\mathrm{post}}}
+\newcommand{\tpre}{t_{\mathrm{pre}}}
+
+\title{The V3 eCB arm in Chindemi notation}
+\author{Dhuruva Priyan Gowri Mariyappan}
+\date{4 October 2026}
+
+\begin{document}
+\maketitle
+
+%=====================================================================
+\section{The idea in one sentence}
+\begin{center}
+\fbox{\parbox{0.85\linewidth}{\centering
+\emph{Calcium entering my spine makes eCB, unless my own glutamate is already bound.\\
+When I release, if there is enough eCB around, my release probability drops a little.}}}
+\end{center}
+The synapse uses only its \emph{own past}: its own $\Ca$, its own presynaptic spikes and its own state. It never
+looks into the future.
+
+%=====================================================================
+\section{The Chindemi model (unchanged)}
+The symbols are those of Chindemi et al.\ (2022).
+
+\paragraph{Spine calcium.} Each synapse has its own spine compartment:
+\begin{equation}
+\frac{d\Ca}{dt}=-\frac{\Ca-\Caz}{\tau_{\mathrm{Ca}}}+\phiCa(t),\qquad \tau_{\mathrm{Ca}}=12~\text{ms},
+\label{eq:ca}
+\end{equation}
+where $\phiCa(t)$ is the calcium influx through NMDA receptors and VDCCs, converted to concentration in the spine
+volume.
+
+\paragraph{Effective calcium.}
+\begin{equation}
+\frac{dc^*}{dt}=-\frac{c^*}{\tau_{\mathrm{eff}}}+\bigl(\Ca-\Caz\bigr),\qquad \tau_{\mathrm{eff}}=278.3~\text{ms}.
+\end{equation}
+
+\paragraph{Efficacy.}
+\begin{equation}
+\tau\frac{d\rho}{dt}=-\rho(1-\rho)(\rho^*-\rho)+\gamma_p(1-\rho)\,\Theta(c^*-\theta_p)-\gamma_d\,\rho\,\Theta(c^*-\theta_d),
+\qquad \rho^*=0.5,\ \tau=70~\text{s},
+\end{equation}
+with the thresholds scaled per synapse by the peak $c^*$ of one presynaptic spike ($\cpre$) and of one
+back-propagating AP ($\cpost$):
+\begin{equation}
+\theta_d=a_{00}\,\cpre+a_{01}\,\cpost,\qquad \theta_p=a_{10}\,\cpre+a_{11}\,\cpost .
+\end{equation}
+
+\paragraph{Expression.} When $\rho$ crosses $\rho^*$, the synapse switches between its depressed
+$(\USE^d,\gA^d)$ and potentiated $(\USE^p,\gA^p)$ states.
+
+\paragraph{What our base adds.} Our reference model (CH0) is this rule with two additions from the current fit:
+the shaft-Ca$^{2+}$ licence on $\Theta(c^*-\theta_p)$, and the presynaptic NO term $\dNO$. Neither is changed here.
+Only $a_{00},a_{01},a_{10},a_{11},\gamma_d,\gamma_p$ are free.
+
+%=====================================================================
+\section{What V3 adds}
+Two state variables per synapse, $b$ and $E$; one check at each own presynaptic spike $\tpre$
+(\texttt{NET\_RECEIVE}); and one presynaptic variable $\deCB$, which starts at 0.
+
+\paragraph{1. Own-glutamate state $b$.} It counts the synapse's own recent releases and decays with the NMDA time
+constant:
+\begin{equation}
+\frac{db}{dt}=-\frac{b}{\tau_b},\qquad b\leftarrow b+1\ \text{at each }\tpre,\qquad \tau_b=70~\text{ms}.
+\end{equation}
+
+\paragraph{2. eCB trace $E$.} It is fed by the same influx $\phiCa$ that drives $\Ca$ in Eq.~(\ref{eq:ca}), but only
+while $b$ is low:
+\begin{equation}
+\frac{dE}{dt}=-\frac{E}{\tau_E}+\underbrace{\bigl(1-\min(b,1)\bigr)}_{\text{gate}}\;\frac{\phiCa(t)}{\Phipost},
+\qquad \tau_E=150~\text{ms}.
+\end{equation}
+$\Phipost=\int\phiCa\,dt$ is the total influx of one isolated back-propagating AP at this synapse (the same
+protocol that defines $\cpost$). One bAP therefore adds about $1$ to $E$.
+
+\paragraph{3. Check at each own presynaptic spike $\tpre$.}
+\begin{equation}
+\text{if } E(\tpre^-)>k_E:\qquad \deCB\leftarrow\deCB+\frac{d_{\min}-\deCB}{N},
+\qquad k_E=0.6,\quad d_{\min}=-0.29,\quad N=5 .
+\end{equation}
+Each such coincidence moves $\deCB$ one fifth of the way to the floor $d_{\min}$.
+
+\paragraph{4. Readout.} The release probability of the current state is scaled:
+\begin{equation}
+\USE\;\to\;\min\bigl(1,\;\USE\,(1+\deCB+\dNO)\bigr),\qquad \USE\in\{\USE^d,\USE^p\}.
+\end{equation}
+Blocking CB1 (AM251) means $\deCB=0$.
+
+%=====================================================================
+\section{How it behaves: four cases}
+
+\paragraph{Post before pre ($\Delta t=-10$ ms): LTD.}
+The bAP comes first, while $b\approx0$, so the gate is open and its influx charges $E$ to about 1. Ten ms later the
+presynaptic spike finds $E>k_E$: one coincidence, and $\deCB$ steps down.
+
+\paragraph{Pre before post ($\Delta t=+10$ ms): no eCB-LTD, so $\rho$ decides.}
+The presynaptic spike comes first and sets $b\ge1$, which closes the gate. The bAP 10 ms later raises $\Ca$ and
+$c^*$ (and so drives $\rho$), but adds nothing to $E$. At the next presynaptic spike, $E$ is low.
+
+\paragraph{Presynaptic spikes alone: nothing.}
+The EPSP influx is small, and it enters while the synapse's own glutamate is bound.
+
+\paragraph{Long gaps ($\Delta t=-120$ or $-200$ ms): nothing.}
+The bAP charges $E$, but $E$ decays with $\tau_E=150$ ms and is below $k_E$ when the presynaptic spike arrives.
+
+%=====================================================================
+\section{Where the constants come from}
+\begin{center}
+\begin{tabular}{l l l}
+\toprule
+Constant & Value & Source \\
+\midrule
+$\tau_E$ & 150 ms & eCB window, Sj\"ostr\"om et al.\ 2003, Fig.~9C (band 120--200 ms) \\
+$k_E$ & 0.6 & same figure (band 0.5--0.7) \\
+$\tau_b$ & 70 ms & NMDA decay; order effect from Nevian \& Sakmann 2006 \\
+$d_{\min}$ & $-0.29$ & CB1 agonist ceiling, Sj\"ostr\"om et al.\ 2003, Fig.~8A \\
+$N$ & 5 & not measured; $N=1$, 5 or 15 give nearly the same result \\
+\bottomrule
+\end{tabular}
+\end{center}
+No new parameter is fitted.
+
+%=====================================================================
+\section{Results so far (no refit)}
+The $\rho$ parameters are those of the previous fit; nothing was refitted with V3.
+CH0 is the same model without the eCB arm. Classes: LTD $<0.9$, LTP $>1.1$.
+
+\begin{center}
+\begin{tabular}{l c c c}
+\toprule
+ & data & CH0 & V3 \\
+\midrule
+0.1 Hz, $-10$ ms & 0.69 & 1.01 & \textbf{0.77} \\
+0.1 Hz, $+10$ ms & 0.97 & 0.97 & 0.97 \\
+0.1 Hz, $-25$ ms & 0.65 & 1.01 & \textbf{0.77} \\
+0.1 Hz, $-120$ ms & 1.05 & 1.01 & 1.01 \\
+10 Hz, $-10$ ms & 0.57 & 0.95 & \textbf{0.69} \\
+10 Hz, $+10$ ms & 1.16 & 0.99 & \textcolor{red}{0.87} \\
+Markram 10 Hz, $-10$ ms & 0.79 & 1.04 & \textbf{0.75} \\
+Markram 10 Hz, $+10$ ms & 1.20 & 1.19 & 1.06 \\
+20 Hz, $-10$ ms & 0.65 & 1.32 & 0.97 \\
+40 Hz, $+10$ ms & 1.53 & 1.39 & 1.31 \\
+50 Hz, $-10$ ms & 1.70 & 1.38 & \textcolor{red}{1.02} \\
+pre only (Sj\"ostr\"om 2007) & 1.00 & 0.87 & 0.82 \\
+\midrule
+core class match (17 rows) & & 11/17 & 12/17 \\
+core $\chi^2$ & & 203 & 58 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{What works.} Every low-frequency post-before-pre row now depresses, and the long gaps stay at 1.
+
+\paragraph{What does not.}
+\begin{itemize}
+  \item \textbf{10 Hz, $+10$ ms} gives 0.87 against 1.16. The gate leaks: $b$ decays with $\tau_b=70$ ms, so it
+        reopens while the pairing's influx (NMDA and bAP) is still entering. Some eCB is then made, and at 10 Hz the
+        next presynaptic spike, 100 ms later, still finds $E>k_E$.
+  \item \textbf{40/50 Hz, $-10$ ms} should potentiate but sit near 1.0: eCB-LTD fires and cancels the LTP from
+        $\rho$.
+  \item \textbf{Pre only} (0.82) is already wrong without the arm (0.87): a problem of the base model.
+\end{itemize}
+The next step is to refit $a_{00}\dots a_{11}$, $\gamma_d$ and $\gamma_p$ with V3 in place.
+
+\section*{References}
+\small
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item Chindemi G, et al.\ (2022) A calcium-based plasticity model for predicting long-term potentiation and depression
+      in the neocortex. \emph{Nat Commun} 13:3038.
+\item Nevian T, Sakmann B (2006) Spine Ca$^{2+}$ signaling in spike-timing-dependent plasticity.
+      \emph{J Neurosci} 26:11001--11013.
+\item Sj\"ostr\"om PJ, Turrigiano GG, Nelson SB (2001) Rate, timing, and cooperativity jointly determine cortical
+      synaptic plasticity. \emph{Neuron} 32:1149--1164.
+\item Sj\"ostr\"om PJ, Turrigiano GG, Nelson SB (2003) Neocortical LTD via coincident activation of presynaptic NMDA
+      and cannabinoid receptors. \emph{Neuron} 39:641--654.
+\item Sj\"ostr\"om PJ, Turrigiano GG, Nelson SB (2007) Multiple forms of long-term plasticity at unitary neocortical
+      layer 5 synapses. \emph{Neuropharmacology} 52:176--184.
+\end{itemize}
+
+\end{document}

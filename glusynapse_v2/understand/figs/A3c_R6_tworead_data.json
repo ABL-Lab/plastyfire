@@ -1,0 +1,455 @@
+{
+ "note": "EPSP ratio per protocol (mean over pairs). Fitted = rank.CORE rows (left of the dashed line), validation right. Data: CH0 rows of /scratch/dhuruva/basics/bio/ECBX/v3_outcomes.csv (data_mean, data_sem, source). Model: a3c_tworead/fit.py on prep.py records.",
+ "rows": [
+  "sjostrom_0.1hz_dt-10ms",
+  "sjostrom_0.1hz_dt+10ms",
+  "sjostrom_10hz_dt-10ms",
+  "sjostrom_10hz_dt+10ms",
+  "sjostrom_20hz_dt-10ms",
+  "sjostrom_20hz_dt+10ms",
+  "sjostrom_40hz_dt-10ms",
+  "sjostrom_40hz_dt+10ms",
+  "sjostrom_50hz_dt-10ms",
+  "sjostrom_50hz_dt+10ms",
+  "10Hz_-10ms",
+  "10Hz_10ms",
+  "sjostrom_0.1hz_dt-25ms",
+  "sjostrom_0.1hz_dt-120ms",
+  "sjostrom_0.1hz_dt-200ms",
+  "sjostrom_burst5x20hz_r50_dt-120ms",
+  "sjostrom_burst5x20hz_r50_dt-200ms",
+  "sjostrom_0.1hz_dt0ms",
+  "sjostrom_20hz_dt-25ms",
+  "sjostrom_20hz_dt0ms",
+  "sjostrom_20hz_dt+25ms",
+  "sjostrom_40hz_dt0ms",
+  "2Hz_5ms",
+  "5Hz_5ms",
+  "10Hz_5ms",
+  "20Hz_5ms",
+  "30Hz_5ms",
+  "40Hz_5ms",
+  "sjostrom07_step200ms_pair",
+  "sjostrom07_step200ms_pre_only"
+ ],
+ "fitted_rows": [
+  "sjostrom_0.1hz_dt-10ms",
+  "sjostrom_0.1hz_dt+10ms",
+  "sjostrom_10hz_dt-10ms",
+  "sjostrom_10hz_dt+10ms",
+  "sjostrom_20hz_dt-10ms",
+  "sjostrom_20hz_dt+10ms",
+  "sjostrom_40hz_dt-10ms",
+  "sjostrom_40hz_dt+10ms",
+  "sjostrom_50hz_dt-10ms",
+  "sjostrom_50hz_dt+10ms",
+  "10Hz_-10ms",
+  "10Hz_10ms",
+  "sjostrom_0.1hz_dt-25ms",
+  "sjostrom_0.1hz_dt-120ms",
+  "sjostrom_0.1hz_dt-200ms",
+  "sjostrom_burst5x20hz_r50_dt-120ms",
+  "sjostrom_burst5x20hz_r50_dt-200ms"
+ ],
+ "validation_rows": [
+  "sjostrom_0.1hz_dt0ms",
+  "sjostrom_20hz_dt-25ms",
+  "sjostrom_20hz_dt0ms",
+  "sjostrom_20hz_dt+25ms",
+  "sjostrom_40hz_dt0ms",
+  "2Hz_5ms",
+  "5Hz_5ms",
+  "10Hz_5ms",
+  "20Hz_5ms",
+  "30Hz_5ms",
+  "40Hz_5ms",
+  "sjostrom07_step200ms_pair",
+  "sjostrom07_step200ms_pre_only"
+ ],
+ "data": {
+  "sjostrom_0.1hz_dt-10ms": {
+   "mean": 0.69,
+   "sem": 0.07,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (0.1 Hz bar)"
+  },
+  "sjostrom_0.1hz_dt+10ms": {
+   "mean": 0.97,
+   "sem": 0.04,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (0.1 Hz bar); also Fig 3B squares"
+  },
+  "sjostrom_10hz_dt-10ms": {
+   "mean": 0.57,
+   "sem": 0.11,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (10 Hz bar)"
+  },
+  "sjostrom_10hz_dt+10ms": {
+   "mean": 1.16,
+   "sem": 0.09,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (10 Hz bar)"
+  },
+  "sjostrom_20hz_dt-10ms": {
+   "mean": 0.65,
+   "sem": 0.09,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (20 Hz bar)"
+  },
+  "sjostrom_20hz_dt+10ms": {
+   "mean": 1.31,
+   "sem": 0.14,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (20 Hz bar)"
+  },
+  "sjostrom_40hz_dt-10ms": {
+   "mean": 1.51,
+   "sem": 0.31,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (40 Hz bar)"
+  },
+  "sjostrom_40hz_dt+10ms": {
+   "mean": 1.53,
+   "sem": 0.14,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 6B legend (text: 'normal 40 Hz induction' 153 +- 14%, n=11)"
+  },
+  "sjostrom_50hz_dt-10ms": {
+   "mean": 1.7,
+   "sem": 0.19,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (50 Hz bar)"
+  },
+  "sjostrom_50hz_dt+10ms": {
+   "mean": 1.57,
+   "sem": 0.26,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (50 Hz bar)"
+  },
+  "10Hz_-10ms": {
+   "mean": 0.7922,
+   "sem": 0.0259,
+   "source": "Markram 1997"
+  },
+  "10Hz_10ms": {
+   "mean": 1.2013,
+   "sem": 0.0626,
+   "source": "Markram 1997"
+  },
+  "sjostrom_0.1hz_dt-25ms": {
+   "mean": 0.65,
+   "sem": 0.09,
+   "source": "Sjostrom 2003 Fig 9C Ctrl dt -25 ms [digitised]"
+  },
+  "sjostrom_0.1hz_dt-120ms": {
+   "mean": 1.05,
+   "sem": 0.0989949493661166,
+   "source": "Sjostrom 2003 Fig 9C Ctrl dt -120/-200/-400 pooled (1.05 +- 0.07) [digitised]; SEM x sqrt2, shared with -200"
+  },
+  "sjostrom_0.1hz_dt-200ms": {
+   "mean": 1.05,
+   "sem": 0.0989949493661166,
+   "source": "as -120 (pooled bar)"
+  },
+  "sjostrom_burst5x20hz_r50_dt-120ms": {
+   "mean": 0.79,
+   "sem": 0.0848528137423857,
+   "source": "Sjostrom 2003 Fig 9C Burst, pre 120 or 200 ms after the burst (0.79 +- 0.06) [digitised]; SEM x sqrt2, shared with -200"
+  },
+  "sjostrom_burst5x20hz_r50_dt-200ms": {
+   "mean": 0.79,
+   "sem": 0.0848528137423857,
+   "source": "as -120 (pooled bar)"
+  },
+  "sjostrom_0.1hz_dt0ms": {
+   "mean": 0.910125,
+   "sem": 0.139103,
+   "source": "Sjostrom 2001 (sjs01_11) 0.1 Hz dt 0, 50 sweeps [csv]"
+  },
+  "sjostrom_20hz_dt-25ms": {
+   "mean": 0.70462,
+   "sem": 0.06994,
+   "source": "Sjostrom 2001 (sjs01_14) 20 Hz -25 ms [csv]"
+  },
+  "sjostrom_20hz_dt0ms": {
+   "mean": 0.760771,
+   "sem": 0.099366,
+   "source": "Sjostrom 2001 (sjs01_13) 20 Hz dt 0 [csv]"
+  },
+  "sjostrom_20hz_dt+25ms": {
+   "mean": 0.6519,
+   "sem": 0.18373,
+   "source": "Sjostrom 2001 (sjs01_12) 20 Hz +25 ms [csv]"
+  },
+  "sjostrom_40hz_dt0ms": {
+   "mean": 0.928899,
+   "sem": 0.0384392,
+   "source": "Sjostrom 2001 (sjs01_15) 40 Hz dt 0, pooled 40/50 Hz [csv]"
+  },
+  "2Hz_5ms": {
+   "mean": 0.9886,
+   "sem": 0.04,
+   "source": "Markram 1997 (mrk97_01) 2 Hz +5 ms [csv]"
+  },
+  "5Hz_5ms": {
+   "mean": 1.0161,
+   "sem": 0.0727,
+   "source": "Markram 1997 (mrk97_02) 5 Hz +5 ms [csv]"
+  },
+  "10Hz_5ms": {
+   "mean": 1.2038,
+   "sem": 0.0644,
+   "source": "Markram 1997"
+  },
+  "20Hz_5ms": {
+   "mean": 1.3687,
+   "sem": 0.0909,
+   "source": "Markram 1997 (mrk97_04) 20 Hz +5 ms [csv]"
+  },
+  "30Hz_5ms": {
+   "mean": 1.4239,
+   "sem": 0.0745,
+   "source": "Markram 1997 (mrk97_05) 30 Hz +5 ms [csv]"
+  },
+  "40Hz_5ms": {
+   "mean": 1.5008,
+   "sem": 0.12,
+   "source": "Markram 1997 (mrk97_06) 40 Hz +5 ms [csv]"
+  },
+  "sjostrom07_step200ms_pair": {
+   "mean": 1.62,
+   "sem": 0.07,
+   "source": "Sjostrom 2007 Results 3 + Fig 1B: paired 200 ms steps, LTP 162 +- 7% [text]"
+  },
+  "sjostrom07_step200ms_pre_only": {
+   "mean": 1.0,
+   "sem": 0.0707106781186547,
+   "source": "Sjostrom 2007 Fig 1B open circles, pre/post-only pooled n=12 [digitised; SEM assumed]; SEM x sqrt2, shared with post_only"
+  }
+ },
+ "panels": {
+  "old": {
+   "CH0_kernel": {
+    "pred": [
+     1.0059660276221716,
+     0.9650707890081057,
+     0.954454941601364,
+     0.9898339713719394,
+     1.3224346504515543,
+     1.3404637527599503,
+     1.3594637981077942,
+     1.3883013006672733,
+     1.3836734668742592,
+     1.4053112424864718,
+     1.0385244595018026,
+     1.1882419140913743,
+     1.0059660276221716,
+     1.0052510753085022,
+     1.0052510753085022,
+     0.8019596547993001,
+     0.8375508370073445,
+     1.0058707243977394,
+     1.335475690110779,
+     1.327714966406676,
+     1.3110844803302404,
+     1.5222011505760653,
+     0.7628934012036743,
+     0.8037228116675308,
+     1.191055181364312,
+     1.4108985119205681,
+     1.5064816491494768,
+     1.5565905442323584,
+     1.6114218854365685,
+     0.8702847718996704
+    ],
+    "rmse_core": 0.2536334724777773,
+    "rmse_val": 0.3551733974406687,
+    "rs": 0.5198664472932316,
+    "checks": "S20-MKP20STEP"
+   },
+   "ca12_joint": {
+    "pred": [
+     0.6735072148582776,
+     0.9650707890081058,
+     0.7719934983690026,
+     0.9898339713719392,
+     1.2867503028931515,
+     1.4228781445132086,
+     1.4844971292717617,
+     1.5771613279327032,
+     1.5468724282962336,
+     1.6902746446592365,
+     0.7938111641896345,
+     1.1882419140913745,
+     0.999911907176287,
+     1.005251075308502,
+     1.005251075308502,
+     0.8019596547993003,
+     0.8375508370073447,
+     0.943795149751483,
+     1.3343102982821913,
+     1.3279414133772662,
+     1.431478378449509,
+     1.629056542620431,
+     0.7628934012036743,
+     0.803722811667531,
+     1.191055181364312,
+     1.4807295558929197,
+     1.6049518864688608,
+     1.6581240222028706,
+     2.0197567393954525,
+     0.8199310108986081
+    ],
+    "rmse_core": 0.19674643495483712,
+    "rmse_val": 0.4091088229238433,
+    "rs": 0.6196305517371699,
+    "checks": "S20-MKP20STEP"
+   },
+   "fc20_joint": {
+    "pred": [
+     0.744131388328333,
+     0.9650707890081058,
+     0.799827410438015,
+     0.9669779610534345,
+     1.1472580716158918,
+     1.212022026425631,
+     1.5197525151860902,
+     1.68328765746348,
+     1.7313768123362225,
+     1.7653037490054104,
+     0.8828894607844352,
+     1.1757654932992616,
+     0.7507682255879095,
+     1.005251075308502,
+     1.005251075308502,
+     0.8019596547993003,
+     0.8375508370073447,
+     1.0058707243977394,
+     1.1527387665036068,
+     1.267102134252296,
+     1.1773970898735795,
+     1.6983751565768326,
+     0.7628934012036743,
+     0.803722811667531,
+     1.1857095288385235,
+     1.3064787195693104,
+     1.5397511687454086,
+     1.7588504515990735,
+     1.963378847569815,
+     0.5256910004612572
+    ],
+    "rmse_core": 0.16052452118310304,
+    "rmse_val": 0.3780237597105101,
+    "rs": 0.6801691688609163,
+    "checks": "S20-MKP20STEP"
+   }
+  },
+  "new": {
+   "CH0_kernel": {
+    "pred": [
+     0.9690765543486022,
+     0.8786913533027653,
+     0.8193439586116688,
+     0.8758629764411636,
+     1.2075656540755921,
+     1.1496203929244158,
+     1.2765639185898796,
+     1.3205644470825717,
+     1.2193972708425873,
+     1.3525530903953706,
+     0.9592595695941449,
+     1.0173401617015088,
+     1.0109126570812945,
+     1.0109126570812945,
+     1.0109126570812945,
+     0.8093556293149018,
+     0.8215857294003754,
+     0.8878344941768888,
+     1.2327404435810396,
+     1.242323980877074,
+     1.1770241028351656,
+     1.4326732467770391,
+     0.7586589615358464,
+     0.7357332408531777,
+     1.0882609901212281,
+     1.45678195078023,
+     1.555701537594114,
+     1.5684672121423904,
+     1.7123312582143655,
+     0.9179201846226344
+    ],
+    "rmse_core": 0.2588188250102226,
+    "rmse_val": 0.30767664169390313,
+    "rs": 0.5051764475251553,
+    "checks": "S20-MK-STEP"
+   },
+   "ca12_joint": {
+    "pred": [
+     0.683884625401122,
+     0.8786913533027653,
+     0.6720204578256572,
+     0.8758629764411637,
+     1.099073899027143,
+     1.261050149443969,
+     1.3922740813158958,
+     1.4418599674876855,
+     1.499886685938753,
+     1.6438099345859272,
+     0.7497783595767848,
+     1.0173401617015088,
+     0.981099988584439,
+     1.0109126570812945,
+     1.0109126570812945,
+     0.8093556293149018,
+     0.8215857294003754,
+     0.8235257267503826,
+     1.288410284635643,
+     1.2299514751283485,
+     1.2242549107583593,
+     1.6201991672739353,
+     0.7586589615358467,
+     0.7357332408531777,
+     1.0882609901212281,
+     1.4908242062384134,
+     1.7066539358166204,
+     1.6493538182715262,
+     2.0291169809622587,
+     0.8883584929364673
+    ],
+    "rmse_core": 0.17496174458011146,
+    "rmse_val": 0.37370571048699786,
+    "rs": 0.6263076050964065,
+    "checks": "S20-MKP20STEP"
+   },
+   "fc20_joint": {
+    "pred": [
+     0.722809309835529,
+     0.8786913533027653,
+     0.6189020531422952,
+     0.8674263906991385,
+     0.9505210090196403,
+     1.0814470601474433,
+     1.4506107430718629,
+     1.5704456131231719,
+     1.6521317227561787,
+     1.6599079999534614,
+     0.8148171136102923,
+     0.9893904400661756,
+     0.744426421251474,
+     1.0109126570812945,
+     1.0109126570812945,
+     0.8093556293149018,
+     0.8215857294003754,
+     0.8878344941768888,
+     1.0156711670035197,
+     1.189475108074812,
+     1.0089026245184958,
+     1.6175214226698373,
+     0.7586589615358467,
+     0.7357332408531777,
+     1.061160380721212,
+     1.2632661162423995,
+     1.581498894535351,
+     1.7143409431843828,
+     1.9742352935645144,
+     0.612225320750203
+    ],
+    "rmse_core": 0.1359612847973652,
+    "rmse_val": 0.3272165101893696,
+    "rs": 0.6957489600324687,
+    "checks": "S20-MKP20STEP"
+   }
+  }
+ }
+}

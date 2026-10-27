@@ -1,0 +1,106 @@
+{
+ "181455-195199|ap1": {
+  "max_abs_dV_mV": 2.0338096618652344,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.9,
+   0.986,
+   1.01
+  ],
+  "cacr_peak_ratio": [
+   0.854,
+   0.968,
+   0.998
+  ]
+ },
+ "181455-195199|burst": {
+  "max_abs_dV_mV": 2.0338096618652344,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.894,
+   0.985,
+   1.009
+  ],
+  "cacr_peak_ratio": [
+   0.854,
+   0.968,
+   0.998
+  ]
+ },
+ "181455-195199|epsp": {
+  "max_abs_dV_mV": 4.798675537109375,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.819,
+   0.987,
+   1.021
+  ],
+  "cacr_peak_ratio": [
+   0.81,
+   0.98,
+   0.997
+  ]
+ },
+ "181455-195199|sj20@-10": {
+  "max_abs_dV_mV": 6.079326629638672,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.882,
+   0.969,
+   1.009
+  ],
+  "cacr_peak_ratio": [
+   0.875,
+   0.975,
+   1.0
+  ]
+ },
+ "207453-189325|ap1": {
+  "max_abs_dV_mV": 0.9512519836425781,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.961,
+   0.993,
+   1.006
+  ],
+  "cacr_peak_ratio": [
+   0.952,
+   0.988,
+   1.001
+  ]
+ },
+ "207453-189325|burst": {
+  "max_abs_dV_mV": 0.9512519836425781,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.973,
+   0.995,
+   1.01
+  ],
+  "cacr_peak_ratio": [
+   0.952,
+   0.988,
+   1.001
+  ]
+ },
+ "207453-189325|epsp": {
+  "max_abs_dV_mV": 0.00580596923828125,
+  "vdcc_charge_ratio_open_over_closed": [
+   1.001,
+   1.008,
+   1.023
+  ],
+  "cacr_peak_ratio": [
+   0.955,
+   0.98,
+   0.998
+  ]
+ },
+ "207453-189325|sj20@-10": {
+  "max_abs_dV_mV": 0.8857192993164062,
+  "vdcc_charge_ratio_open_over_closed": [
+   0.971,
+   0.996,
+   1.01
+  ],
+  "cacr_peak_ratio": [
+   0.949,
+   0.993,
+   0.999
+  ]
+ }
+}

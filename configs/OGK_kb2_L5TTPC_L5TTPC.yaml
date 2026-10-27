@@ -1,0 +1,46 @@
+# OGK: Markram et al. 1997 L5 TTPC -> L5 TTPC protocols on the frozen L5 emodel K_b_2 (delta-split2-bk25-nosk-kv7-kb2).
+# Copy of the n120 bk25 yaml (Sabrina_L5TTPC_L5TTPC_STDP_bk25.yaml): same 120 pairs (index_Sabrina_L5TTPC_L5TTPC_STDP.csv),
+# new circuit config, new label, new sims_dir. Protocol ids/values from biodata/paired_recordings.csv
+# (frequency_train, dt_train, n_stimuli_train=5, n_sweep=10, period_sweep=4 s -> nreps 10, T 4000 ms).
+label: OGK_kb2_L5TTPC_L5TTPC
+reference: Markram et al. 1997
+seed: 20262009
+npairs: 120
+pairs_from: "/scratch/dhuruva/ogk_kb2/l5/pairs120.csv"
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta-split2-bk25-nosk-kv7-kb2_circuit_config.json"
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/scratch/dhuruva/ogk_kb2/l5/refitting_results"
+stimulus:  # defaults for the protocols below
+    freq: [10.0]  # Hz
+    amp: "find"  # nA
+    amp_min: 0.5
+    amp_max: 3.0  # widen via env PLASTYFIRE_TOLERANT_MAX_AMP_NA (tolerant fallback ceiling, default 5.0 nA)
+    amp_lev: 10
+    nspikes: 5
+    dt: [10.0]  # ms
+    width: 3.0
+    T: 4000  # ms
+    offset: 1000  # ms
+    nreps: 10
+    C01_duration: 4  # min
+    C02_duration: 4  # min
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+protocols:  # dt_ref ap (default): dt to the first post AP, as the bk25 grid
+    - {id: mrk97_01, freq: 2., dt: 5.}
+    - {id: mrk97_02, freq: 5., dt: 5.}
+    - {id: mrk97_07, freq: 10., dt: 10.}
+    - {id: mrk97_08, freq: 10., dt: -10.}

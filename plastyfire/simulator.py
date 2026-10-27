@@ -18,7 +18,9 @@ from conntility.io.synapse_report import get_presyn_mapping
 
 bluecellulab.set_verbose(2)
 bluecellulab.neuron.h.cvode.atolscale("v", .1)
-bluecellulab.neuron.load_mechanisms("/project/rrg-emuller/dhuruva/DEES_cell_packages/")
+MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # one setting for all og stages
+bluecellulab.neuron.load_mechanisms(MECHANISMS_PATH)
+logging.getLogger(__name__).warning("mechanisms %s (Kv7m loaded: %s)", MECHANISMS_PATH, hasattr(bluecellulab.neuron.h, "Kv7m"))
 SPIKE_THRESHOLD = -30  # mV
 EXTRA_RECIPE_PATH = "/project/rrg-emuller/dhuruva/plastyfire/biodata/recipe_andras.csv"
 with_cache = lru_cache(128)  # set cache for spiking thresholds
@@ -106,7 +108,7 @@ def runsinglecell(sim_config, post_gid, stimulus, node_pop, fixhp):
 DOUBLET_MAX_ISI_MS = 6.0
 # Many low-kBK cells answer the threshold pulse with a slow (> 6 ms) doublet or a burst but fire one clean AP to a
 # stronger pulse, so the fallback scans up from threshold. Induction-train grids are widened to the c_post range.
-TOLERANT_MAX_AMP_NA = 5.0
+TOLERANT_MAX_AMP_NA = float(os.environ.get("PLASTYFIRE_TOLERANT_MAX_AMP_NA", "5.0"))  # env: widen the tolerant-fallback ceiling (default unchanged)
 TOLERANT_AMP_STEP_NA = 0.1
 TOLERANT_SCAN_STEPS = 25  # at most ~this many sims for the upward scan (stride), plus the refinement in the last stride
 
@@ -271,6 +273,18 @@ def _set_global_params(allparams):
                 # when simulations were built without the CICR extension) — skip gracefully.
                 logger.warning("Skipping unknown HOC global: %s (not defined in loaded .mod)", param_name)
             # logger.debug("\t%s = %f", param_name, getattr(bluecellulab.neuron.h, param_name))
+
+
+def _freeze_expression_if_requested(log=None):
+    """Opt-in (PLASTYFIRE_FREEZE_EXPRESSION=1, default off): freeze plastic expression by setting the GluSynapse
+    GLOBAL tau_exp_GB to 1e12 s, so gmax_AMPA / Use_GB do not relax toward their rho-dependent values during a run.
+    Call after _set_global_params. (OGK-22: tests whether Ca depends on the params only via expression.)"""
+    if os.environ.get("PLASTYFIRE_FREEZE_EXPRESSION", "0") != "1":
+        return False
+    bluecellulab.neuron.h.tau_exp_GB_GluSynapse = 1e12
+    (log or logger).info("PLASTYFIRE_FREEZE_EXPRESSION=1: tau_exp_GB_GluSynapse = %g (expression frozen)",
+                         bluecellulab.neuron.h.tau_exp_GB_GluSynapse)
+    return True
 
 
 def _set_local_params(synapse, fit_params, extra_params, c_pre=0., c_post=0.):
@@ -580,6 +594,7 @@ def _runconnectedpair_prefire_process(conn, workdir, fit_params, syn_extra_param
                 sec.uninsert("SK_E2")
         if fit_params is not None:  # setup global parameters
             _set_global_params(fit_params)
+        _freeze_expression_if_requested()
         syn_rec_lst = SYNREC if syn_rec_lst is None else syn_rec_lst
         # Check what is actually available on the first synapse to record
         actual_syn_rec = []
@@ -684,6 +699,7 @@ def _runconnectedpair_process(results, workdir, fit_params, syn_extra_params, pr
             sec.uninsert("SK_E2")
     if fit_params is not None:  # setup global parameters
         _set_global_params(fit_params)
+    _freeze_expression_if_requested()
     syn_rec_lst = SYNREC if syn_rec_lst is None else syn_rec_lst
     # Check what is actually available on the first synapse to record
     actual_syn_rec = []

@@ -1,0 +1,107 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 84.74548478975979,
+    "gamma_p_GB_GluSynapse": 199.82921170459562,
+    "a00": 1.021661253199997,
+    "a01": 1.5501041916696527,
+    "a10": 1.3265102333745735,
+    "a11": 1.8584242681589087,
+    "a20": 1.3646758970055193,
+    "a21": 4.416101021710024,
+    "a30": 1.86219983687498,
+    "a31": 4.638066747424483,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 17.30944299654389,
+  "evaluations": 12960,
+  "offline_curve": {
+    "mrk97_01": 0.9032613123453398,
+    "mrk97_02": 0.897405552450812,
+    "mrk97_07": 1.0671349209012753,
+    "mrk97_08": 0.8528974257568473,
+    "sjh06_02": 1.0526396360035222
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.9032613123453398,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.897405552450812,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.0671349209012753,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.8528974257568473,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "sjh06_02": {
+      "proto": "50Hz_10ms",
+      "target": 1.06,
+      "sem": 0.09,
+      "pred": 1.0526396360035222,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted_fp_single",
+      "basis": "/scratch/dhuruva/ogk_kb2/l23l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted_fp_single; /scratch/dhuruva/ogk_kb2/l5/extracted_fp_single",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "160",
+    "--maxiter",
+    "80",
+    "--stride",
+    "1",
+    "--seed",
+    "2",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08,sjh06_02",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpSw4_s3.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfp6gc_s6.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfpSw4_s4.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfp6gw1_s2.json",
+    "--fit-gamma",
+    "--gd-lo",
+    "20",
+    "--gd-hi",
+    "250",
+    "--gp-lo",
+    "100",
+    "--gp-hi",
+    "600",
+    "--popsize",
+    "16",
+    "--untie-apical",
+    "--apical-syns",
+    "/scratch/dhuruva/ogk_kb2/apical_syns_joint.txt",
+    "--proto-map",
+    "/scratch/dhuruva/ogk_kb2/proto_map_jointfp_single.json",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-jfp10gS_s2.json"
+  ]
+}

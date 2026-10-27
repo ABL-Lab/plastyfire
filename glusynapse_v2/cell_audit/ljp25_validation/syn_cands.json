@@ -1,0 +1,3 @@
+[{"name": "ljp25_g025", "glob": {"ljp_VDCC": 25.0, "gca_bar_VDCC": 0.0186}, "bd": null},
+ {"name": "ljp25_g031", "glob": {"ljp_VDCC": 25.0, "gca_bar_VDCC": 0.02306}, "bd": null},
+ {"name": "ljp25_g040", "glob": {"ljp_VDCC": 25.0, "gca_bar_VDCC": 0.02976}, "bd": null}]

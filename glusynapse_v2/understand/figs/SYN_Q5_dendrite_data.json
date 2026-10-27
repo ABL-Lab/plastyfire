@@ -1,0 +1,163 @@
+{
+ "sources": {
+  "a": "figs/A4_R6_rise_factors_data.json summary[*].cross_2p7_um (csv origin out/a4_r6_rise_factors.csv); the 4 anchored R8 variants (hatched) are also listed in a4_dend/NOTES.md 'R5 (A4b) extra, R8 variants' (old/new: ra_70 175/141, spine_cmL 174/147, spine_cmL+ra_70 183/151, spine_cmLg+ra_70 217/153; rounded values matched to the json); not refitted, diagnostic variants only",
+  "a_data": "~280 um at 2.7 ms: figs/A4_R6_rise_factors_data.json data.aEPSP [280, 2.7] = Letzkus, Kampa & Stuart 2006 Fig 1F",
+  "b": "figs/A4b_R5_letzkus_outcome_data.json (pairs; model, old emodel) with the bin / split rows of out/a4b_r5_letzkus_outcome_vs_rise.csv (kind=bin|split: ratio mean+-sem per rise bin; data_mean/data_sem). Data: Letzkus, Kampa & Stuart 2006 J Neurosci 26:10420; 1AP +10 Fig 2D (points read off, per rise bin), bursts Results + Fig 5 text (ebner_targets.csv), proximal < 2.7 ms / distal > 2.7 ms"
+ },
+ "a": {
+  "old": {
+   "control": 164.89032241247963,
+   "passive": 154.2636930372555,
+   "ih_off": 161.63217730162035,
+   "ih_swap": 162.88219032679908,
+   "nseg_x3": 166.5196171081081,
+   "gpas_swap": 137.84584274434843,
+   "ra_half": 188.51073548524462,
+   "cm1": 236.40839392494036,
+   "cm1+ra_half": 335.3797619558734,
+   "spine_cm": 203.80973803109745,
+   "spine_cmg": 219.90987291757597,
+   "spine_cm+ra_half": 272.9705895459999,
+   "ra_70": 174.67285350613756,
+   "spine_cmL": 173.87459029288576,
+   "spine_cmL+ra_70": 182.60214977551487,
+   "spine_cmLg+ra_70": 216.5676556743137
+  },
+  "new": {
+   "control": 136.85475052859655,
+   "passive": 128.15241934951072,
+   "ih_off": 134.1074862122852,
+   "ih_swap": 138.60103138131768,
+   "nseg_x3": 137.77209585401397,
+   "gpas_swap": 163.58711797972012,
+   "ra_half": 147.22459833570386,
+   "cm1": 148.4633918389038,
+   "cm1+ra_half": 185.5017117419365,
+   "spine_cm": 146.40927944284678,
+   "spine_cmg": 147.29951735716122,
+   "spine_cm+ra_half": 168.02715513329147,
+   "ra_70": 141.25628971818884,
+   "spine_cmL": 147.02472124269627,
+   "spine_cmL+ra_70": 150.60172764924044,
+   "spine_cmLg+ra_70": 152.66785647465002
+  }
+ },
+ "b": {
+  "1AP +10": {
+   "CH0": {
+    "ratio": [
+     0.4827240915566091,
+     0.7255639855744709,
+     0.7068796463454605,
+     0.6932464366692294
+    ],
+    "sem": [
+     0.0568413170709202,
+     0.1141193979509891,
+     0.0690689484432075,
+     0.0440441089016229
+    ],
+    "n": [
+     17,
+     15,
+     19,
+     42
+    ]
+   },
+   "data_per_bin": {
+    "mean": [
+     0.7949999999999999,
+     0.7266666666666667,
+     0.6925,
+     0.56
+    ],
+    "sem": [
+     0.0529622507074614,
+     0.0491030662088541,
+     0.0528165062583027,
+     0.0399999999999999
+    ]
+   }
+  },
+  "3AP +10": {
+   "CH0": {
+    "ratio": [
+     1.783551982799089,
+     1.1253247047130426,
+     0.8875786125063573,
+     0.7464696674029656
+    ],
+    "sem": [
+     0.109583520640657,
+     0.2417397474201073,
+     0.1845776686646653,
+     0.0754253003301447
+    ],
+    "n": [
+     6,
+     5,
+     6,
+     23
+    ]
+   },
+   "data_proximal": {
+    "mean": 1.3,
+    "sem": 0.1
+   },
+   "data_distal": {
+    "mean": 0.79,
+    "sem": 0.06
+   }
+  },
+  "3AP -10": {
+   "CH0": {
+    "ratio": [
+     1.1538552718917237,
+     1.003865744881966,
+     0.6971535425838806,
+     0.7456892381595566
+    ],
+    "sem": [
+     0.1279593170892426,
+     0.1526885953602602,
+     0.118403180095454,
+     0.0615552148358959
+    ],
+    "n": [
+     7,
+     8,
+     8,
+     22
+    ]
+   },
+   "V3": {
+    "ratio": [
+     0.8437703844681483,
+     0.7785195596347674,
+     0.5540806251678887,
+     0.6888134705281673
+    ],
+    "sem": [
+     0.0934990233332743,
+     0.0979812012278355,
+     0.0959876717211771,
+     0.0569789764314192
+    ],
+    "n": [
+     7,
+     8,
+     8,
+     22
+    ]
+   },
+   "data_proximal": {
+    "mean": 0.89,
+    "sem": 0.03
+   },
+   "data_distal": {
+    "mean": 1.42,
+    "sem": 0.09
+   }
+  }
+ }
+}

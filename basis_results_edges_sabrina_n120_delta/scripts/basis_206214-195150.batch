@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --job-name=basis_206214-195150
+#SBATCH --account=rrg-emuller
+#SBATCH --cpus-per-task=12
+#SBATCH --ntasks=1
+#SBATCH --mem=32g
+#SBATCH --time=01:00:00
+#SBATCH --chdir=/lustre09/project/6070394/dhuruva/plastyfire
+#SBATCH --output=/lustre09/project/6070394/dhuruva/plastyfire/basis_results_edges_sabrina_n120_delta/logs/basis_206214-195150.log
+
+source /lustre09/project/6070394/dhuruva/plastyfire/.venv/bin/activate
+
+python /lustre09/project/6070394/dhuruva/plastyfire/run_basis_pair_edges.py \
+    --pre-gid 206214 \
+    --post-gid 195150 \
+    --sim-config /lustre09/project/6070394/dhuruva/plastyfire/refitting_results/fitting/n120/seed20262009/Sabrina_L5TTPC_L5TTPC_STDP/simulations/206214-195150/10Hz_-10ms/simulation_config.json \
+    --output-csv basis_results_edges_sabrina_n120_delta/basis_206214_195150.csv \
+    --num-trials 5 \
+    --workers 12 \
+    --circuit-config /project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json

@@ -468,6 +468,8 @@ def main():
     if args.full:
         PKL_PREFIX = "simulation_full"
         EXTRA_ARGS = EXTRA_ARGS + ["--full-protocol", f"--fastforward={FULL_FASTFORWARD_MS}"]
+    elif os.environ.get("PLASTYFIRE_PREFIRE_FULLPROTO", "0") == "1":    # OGK-26: full-protocol prefire, same default fastforward as --full
+        EXTRA_ARGS = EXTRA_ARGS + [f"--fastforward={FULL_FASTFORWARD_MS}"]   # --fastforward-map overrides per protocol (sjh06_02: 390000)
 
     if args.fastforward_map:
         FF_BY_PROTOCOL.update({k: float(v) for k, v in json.loads(args.fastforward_map).items()})

@@ -5,6 +5,7 @@ last modified: András Ecker 06.2024
 """
 
 import os
+FIXHP_DEFAULT = os.environ.get("KEEP_SK", "0") != "1"   # KEEP_SK=1: keep SK (no no_SK_E2 modification, no uninsert in the amp search)
 import argparse
 import h5py
 import json
@@ -25,7 +26,7 @@ from plastyfire.config import OptConfig, Config
 from plastyfire.simulator import spike_threshold_finder, runsinglecell, doublet_tolerant, tolerant_amp_grid, any_firing
 from plastyfire.pipette import afferent_table, rank_pre_gids, measure_epsp, calibrate_group
 
-MECHANISMS_PATH = "/project/rrg-emuller/dhuruva/DEES_cell_packages/"  # same as simulator_edges
+MECHANISMS_PATH = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # same as simulator_edges
 
 MIN2MS = 60 * 1000.
 OPT_CPU_TIME = 2.  # heuristics: it takes ~2x compute time (w/ CVode w/ reporting w/o fastforward) as biological time
@@ -105,12 +106,12 @@ def check_electrical_constraint(sim_config, gid, stim_config, save_dir):
     for freq in stim_config["freq"]:
         simres = spike_threshold_finder(sim_config, gid, stim_config["nspikes"],
                                         freq, stim_config["width"], stim_config["offset"], stim_config["amp_min"],
-                                        stim_config["amp_max"], stim_config["amp_lev"], fixhp=True)
+                                        stim_config["amp_max"], stim_config["amp_lev"], fixhp=FIXHP_DEFAULT)
         if simres is None and doublet_tolerant():  # opt-in fallback: 1 AP or a <= 6 ms doublet per pulse
             simres = spike_threshold_finder(sim_config, gid, stim_config["nspikes"],
                                             freq, stim_config["width"], stim_config["offset"],
                                             *tolerant_amp_grid(stim_config["amp_min"], stim_config["amp_max"],
-                                                               stim_config["amp_lev"]), fixhp=True, doublet_ok=True)
+                                                               stim_config["amp_lev"]), fixhp=FIXHP_DEFAULT, doublet_ok=True)
         if simres is None:
             return False
         else:
@@ -122,7 +123,7 @@ def check_electrical_constraint(sim_config, gid, stim_config, save_dir):
     for pulse_width in SINGLE_AP_PULSE_WIDTHS_MS:
         simres = spike_threshold_finder(sim_config, gid, 1, SINGLE_AP_FREQ_HZ,
                                         pulse_width, stim_config["offset"], SINGLE_AP_MIN_AMP_NA,
-                                        SINGLE_AP_MAX_AMP_NA, SINGLE_AP_AMP_LEVELS, fixhp=True)
+                                        SINGLE_AP_MAX_AMP_NA, SINGLE_AP_AMP_LEVELS, fixhp=FIXHP_DEFAULT)
         if simres is not None:
             results["single_ap"] = simres
             break
@@ -130,7 +131,7 @@ def check_electrical_constraint(sim_config, gid, stim_config, save_dir):
         for pulse_width in SINGLE_AP_PULSE_WIDTHS_MS:
             simres = spike_threshold_finder(sim_config, gid, 1, SINGLE_AP_FREQ_HZ,
                                             pulse_width, stim_config["offset"], SINGLE_AP_MIN_AMP_NA,
-                                            SINGLE_AP_MAX_AMP_NA, SINGLE_AP_AMP_LEVELS, fixhp=True, doublet_ok=True)
+                                            SINGLE_AP_MAX_AMP_NA, SINGLE_AP_AMP_LEVELS, fixhp=FIXHP_DEFAULT, doublet_ok=True)
             if simres is not None:
                 results["single_ap"] = simres
                 break
@@ -190,7 +191,7 @@ def protocol_pre_stim_key(proto, stim_config):
 
 
 def step_rate_threshold_finder(sim_config, gid, duration, offset, min_amp, max_amp, nlevels, nspikes_min,
-                               nspikes_max, node_pop="S1nonbarrel_neurons", fixhp=True, below_nA=0.):
+                               nspikes_max, node_pop="S1nonbarrel_neurons", fixhp=FIXHP_DEFAULT, below_nA=0.):
     """Lowest amplitude on np.linspace(min_amp, max_amp, nlevels) at which a single `duration` ms step fires
     >= `nspikes_min` APs within [onset, onset + duration + 5 ms] (binary search; the step spike count grows with
     the amplitude), accepted if that count is <= `nspikes_max`. With nlevels 1 this only checks a fixed
@@ -228,7 +229,7 @@ def step_rate_threshold_finder(sim_config, gid, duration, offset, min_amp, max_a
 
 
 def burst_window_threshold_finder(sim_config, post_gid, nspikes, freq, width, offset, min_amp, max_amp, nlevels,
-                                  node_pop="S1nonbarrel_neurons", fixhp=True, max_scan=10):
+                                  node_pop="S1nonbarrel_neurons", fixhp=FIXHP_DEFAULT, max_scan=10):
     """Like `spike_threshold_finder`, but only APs inside the burst window [first pulse onset, last pulse onset +
     `width` + 5 ms] are counted, and later spikes are allowed. For high-frequency bursts (Letzkus 2006: 3 APs at
     200 Hz) the total spike count is not monotonic in amplitude: low amplitudes evoke late (Ca2+ spike driven)
@@ -299,11 +300,11 @@ def calibrate_protocol_stimuli(sim_config, gid, protocols, stim_config, save_dir
         else:
             finder = burst_window_threshold_finder if proto.get("burst_window_search") else spike_threshold_finder
             res = None if retry else finder(sim_config, gid, proto["n_post"], freq, proto["width"],
-                                            stim_config["offset"], amp_min, amp_max, amp_lev, fixhp=True)
+                                            stim_config["offset"], amp_min, amp_max, amp_lev, fixhp=FIXHP_DEFAULT)
             if res is None and tolerant and finder is spike_threshold_finder and proto["n_post"]:
                 grid = (amp_min, amp_max, amp_lev) if amp_lev == 1 else tolerant_amp_grid(amp_min, amp_max, amp_lev)
                 res = spike_threshold_finder(sim_config, gid, proto["n_post"], freq, proto["width"],
-                                             stim_config["offset"], *grid, fixhp=True, doublet_ok=True)
+                                             stim_config["offset"], *grid, fixhp=FIXHP_DEFAULT, doublet_ok=True)
             cached[key] = res
         updated = True
     if updated:
@@ -786,7 +787,7 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
                     "v_init": -80.0,
                     "spike_location": "AIS",
                     "mechanisms": {"GluSynapse": glusynapse_conditions},
-                    "modifications": [no_sk_e2_modification]
+                    "modifications": ([no_sk_e2_modification] if FIXHP_DEFAULT else [])
                 },
                 "reports": {
                     "soma": {"cells": "postcell", "type": "compartment",
@@ -806,8 +807,7 @@ srun $NEURODAMUS_DIR/bin/special -mpi --debug \\
         freq x dt grid unless the yaml has a `protocols:` list); workdirs are `<pre>-<post>/<protocol id>`"""
         # Copy config file to sims dir (just to make sure that one can more or less know what was run...)
         basedir = os.path.split(os.path.split(self.out_dir)[0])[0]
-        if not os.path.exists(basedir):
-            os.makedirs(basedir)
+        os.makedirs(basedir, exist_ok=True)  # exist_ok: parallel simwriters share basedir (race in job 22560015)
         shutil.copyfile(self._config_path, os.path.join(basedir, "%s.yaml" % self.index_label))
         stim_config = self.config["stimulus"]
         failed = self.calibrate_stimuli(pairs, max_workers=getattr(self, "calibration_workers", 30))

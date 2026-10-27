@@ -13,6 +13,7 @@ plot_refitting_stdp_basis.py can read it directly via the existing basis pipelin
 
 import json
 import os
+FIXHP_DEFAULT = os.environ.get("KEEP_SK", "0") != "1"   # KEEP_SK=1: keep somatic/axonal SK_E2 (no uninsert), new-emodel runs with calibrated SK
 import pickle
 import tempfile
 import time
@@ -26,7 +27,7 @@ from bluepysnap import Simulation
 import bluecellulab
 
 from plastyfire.simulator import (
-    _get_spikes, _map_syn_idx, _set_global_params, spike_threshold_finder, doublet_tolerant, pulse_spike_counts,
+    _get_spikes, _map_syn_idx, _set_global_params, _freeze_expression_if_requested, spike_threshold_finder, doublet_tolerant, pulse_spike_counts,
     any_firing,
 )
 
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 EDGES_H5_DEFAULT  = "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_edges.h5"
 EDGE_POP_DEFAULT  = "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
 NODE_POP_DEFAULT  = "S1nonbarrel_neurons"
-MECHANISMS_PATH   = "/project/rrg-emuller/dhuruva/DEES_cell_packages/"
+MECHANISMS_PATH   = os.environ.get("PLASTYFIRE_MECHANISMS_PATH", "/project/rrg-emuller/dhuruva/DEES_cell_packages/")  # K_b_2: DEES_cell_packages/other_mods/modified_mechanisms_kv7
 
 # Keys that trigger per-synapse theta override via c_pre/c_post computation
 _A_PARAM_KEYS = {"a00", "a01", "a10", "a11", "a20", "a21", "a30", "a31"}
@@ -618,7 +619,21 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
     bluecellulab.neuron.load_mechanisms(MECHANISMS_PATH)
 
     try:
-        if full_protocol:
+        # ---- BEGIN OGK-26 (flags): two opt-in env switches, both default off (old prefire unchanged) ----
+        # PLASTYFIRE_PREFIRE_FULLPROTO=1 (prefire path only): run the FULL protocol's config + prespikes up to the fastforward
+        #   time exactly as the full-protocol run does (C01 test pulses, induction, same init_depleted/RNG seeding), stop there,
+        #   keep the prefire result format. Window of cai_CR/t/v/spikes = [induction onset - 1000 ms, fastforward], re-based to 0.
+        # PLASTYFIRE_RECORD_INDSTATE=1: extra recorders only; per synapse Use_GB, gmax_AMPA, rho_GB and the GluSynapse NetCon
+        #   state (u, tsyn, recovered, unrecovered) are sampled at induction onset into results["ind_state"].
+        fp_mode   = (not full_protocol) and os.environ.get("PLASTYFIRE_PREFIRE_FULLPROTO", "0") == "1"
+        rec_state = os.environ.get("PLASTYFIRE_RECORD_INDSTATE", "0") == "1"
+        if fp_mode:
+            if fastforward is None:
+                raise ValueError("PLASTYFIRE_PREFIRE_FULLPROTO=1 needs a fastforward time (pool: --fastforward-map / default 280000)")
+            if trace_vars is None:
+                trace_vars = ["cai_CR"]      # extract.py reads only cai_CR; keeps the 280 s run light
+        # ---- END OGK-26 (flags) ----
+        if full_protocol or fp_mode:
             sim_config      = os.path.join(workdir, "simulation_config.json")
             pre_spikes_path = os.path.join(workdir, "prespikes.h5")
         else:
@@ -630,6 +645,8 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         # We collect rho manually, so no information is lost.
         with open(sim_config) as f:
             cfg = json.load(f)
+        if fp_mode:                                  # OGK-26: tstop of the full config (the caller read the prefire one)
+            t_end = float(cfg["run"]["tstop"])
         # Fix hardcoded paths that may point to an old/moved location
         node_sets_local = os.path.join(workdir, "node_sets.json")
         if os.path.exists(node_sets_local):
@@ -672,6 +689,9 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         sim_config_eff = tmp.name
 
         synapse_seed = int(cfg.get("run", {}).get("synapse_seed") or 0)
+        if os.environ.get("PLASTYFIRE_SYN_SEED", "") != "":   # opt-in (OGK-24): different release RNG realization
+            synapse_seed = int(os.environ["PLASTYFIRE_SYN_SEED"])
+            _logger.info("PLASTYFIRE_SYN_SEED=%d: synapse_seed overridden", synapse_seed)
 
         _logger.info("Loading prefire circuit: %s", sim_config)
         sim        = bluecellulab.CircuitSimulation(sim_config_eff, base_seed=cfg["run"]["random_seed"])
@@ -718,6 +738,11 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
         if fit_params:
             _set_global_params(fit_params)
             _logger.info("fit_params applied (override glusyn_conds defaults)")
+        _freeze_expression_if_requested(_logger)   # opt-in PLASTYFIRE_FREEZE_EXPRESSION=1 (default off)
+        if os.environ.get("PLASTYFIRE_INIT_FULL", "0") == "1":   # opt-in (OGK-24): vesicle pool starts full, not depleted
+            bluecellulab.neuron.h.init_depleted_GluSynapse = 0
+            _logger.info("PLASTYFIRE_INIT_FULL=1: init_depleted_GluSynapse = %g (vesicles start full)",
+                         bluecellulab.neuron.h.init_depleted_GluSynapse)
 
         # Map local synapse indices → global circuit IDs
         syn_idx    = [syn_id[1] for syn_id in cell.synapses]
@@ -770,6 +795,68 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
             synapse.hsynapse.setRNG(s1, s2, s3)
             _logger.info("  syn %s: setRNG(%d, %d, %d)", syn_id, s1, s2, s3)
 
+        # ---- BEGIN OGK-31: opt-in PLASTYFIRE_RESET_AT_INDUCTION=1 (default off; nothing below runs when off) ----
+        # Full protocol only. At (first induction pre spike - X), X = time of the prefire's first pre spike
+        # (prefire_prespikes.h5), reset every synapse to what the prefire has at init, X before its induction:
+        #  (a) Random123 release stream restarted: setRNG(s1, s2, s3) with the same seeds as above (counter at 0);
+        #  (b) NetCon state of GluSynapse NET_RECEIVE(weight, u, tsyn, recovered, unrecovered, nc_type):
+        #      u=0, tsyn=t_reset (so the first induction spike sees the same elapsed time X as the prefire's
+        #      elapsed-from-0), recovered=0, unrecovered=Nrrp (= INITIAL with init_depleted=1; if the
+        #      init_depleted global is 0 the INITIAL state is recovered=Nrrp, unrecovered=0, copied from it).
+        # rho_GB / Use_GB / gmax_AMPA deviations from their prefire initial values (rho0_GB, Use, gmax0_AMPA) are logged.
+        _reset_keep = []   # keep NEURON handler / callback objects alive
+        if full_protocol and os.environ.get("PLASTYFIRE_RESET_AT_INDUCTION", "0") == "1":
+            _h = bluecellulab.neuron.h
+            _pf = SpikeReader(os.path.join(workdir, "prefire_prespikes.h5"))[node_pop].get_dict()
+            _pf_sp = np.sort(np.asarray(_pf["timestamps"])[np.asarray(_pf["node_ids"]) == _pre_gids(pre_gid)[0]])
+            _fl_sp = np.sort(np.asarray(pre_spikes, dtype=float))
+            _n = len(_pf_sp)
+            _j = [j for j in range(len(_fl_sp) - _n + 1)
+                  if np.allclose(_fl_sp[j:j + _n] - _fl_sp[j], _pf_sp - _pf_sp[0], atol=0.05)]
+            if len(_j) != 1:
+                raise RuntimeError(f"PLASTYFIRE_RESET_AT_INDUCTION: induction train found {len(_j)} times in the full spikes")
+            _t_ind = float(_fl_sp[_j[0]])
+            _X = float(_pf_sp[0])
+            _t_reset = _t_ind - _X
+            if _j[0] > 0 and _fl_sp[_j[0] - 1] >= _t_reset:
+                raise RuntimeError("PLASTYFIRE_RESET_AT_INDUCTION: last C01 pre spike %.1f is after t_reset %.1f"
+                                   % (_fl_sp[_j[0] - 1], _t_reset))
+            _depl = float(_h.init_depleted_GluSynapse)
+            _ncs = {}
+            for _sid, _conn in cell.connections.items():
+                if _conn.post_netcon is not None and _sid in cell.synapses:
+                    _ncs.setdefault(_sid, []).append(_conn.post_netcon)
+            _logger.info("RESET_AT_INDUCTION: t_ind=%.3f X=%.3f t_reset=%.3f, %d synapses with netcons, init_depleted=%g",
+                         _t_ind, _X, _t_reset, len(_ncs), _depl)
+
+            def _reset_release_state():
+                _dev = {"rho": 0.0, "Use_GB": 0.0, "gmax": 0.0}
+                for _sid, _syn in cell.synapses.items():
+                    _hs = _syn.hsynapse
+                    _dev["rho"] = max(_dev["rho"], abs(_hs.rho_GB - _hs.rho0_GB))
+                    _dev["Use_GB"] = max(_dev["Use_GB"], abs(_hs.Use_GB - _hs.Use))
+                    _dev["gmax"] = max(_dev["gmax"], abs(_hs.gmax_AMPA - _hs.gmax0_AMPA))
+                    for _nc in _ncs.get(_sid, []):
+                        assert _nc.wcnt() >= 5, "NetCon weight vector too short for GluSynapse NET_RECEIVE"
+                        if _nc.weight[5] == 1:      # spontaneous-mini netcon: not part of the prefire
+                            continue
+                        _nrrp = float(_hs.Nrrp)
+                        _nc.weight[1] = 0.0                                   # u
+                        _nc.weight[2] = _t_reset                              # tsyn
+                        _nc.weight[3] = 0.0 if _depl else _nrrp               # recovered
+                        _nc.weight[4] = _nrrp if _depl else 0.0               # unrecovered
+                    _s1, _s2, _s3 = _syn.randseed1, _syn.randseed2, _syn.randseed3
+                    _hs.setRNG(_s1, _s2, _s3)                                 # Random123 counter back to 0
+                _logger.info("RESET_AT_INDUCTION done at t=%.3f: max|rho-rho0|=%.3g max|Use_GB-Use|=%.3g max|gmax-gmax0|=%.3g",
+                             float(_h.t), _dev["rho"], _dev["Use_GB"], _dev["gmax"])
+
+            def _schedule_reset():
+                _h.cvode.event(_t_reset, _reset_release_state)
+
+            _reset_keep.append(_h.FInitializeHandler(1, _schedule_reset))
+            _reset_keep.append((_reset_release_state, _schedule_reset, _ncs))
+        # ---- END OGK-31 ----
+
         # Record synapse variables per synapse for full time-series output.
         # cai_CR    : spine calcium (mM) — the primary signal for JAX CICR fitting
         # shaft_cai : dendritic shaft calcium from the local section (mM)
@@ -809,11 +896,39 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                 v = _h.Vector(); v.record(_sec(_x)._ref_v)
                 vseg_vecs[syn_id] = v
 
+        # ---- BEGIN OGK-26 (recorders): Vector.record only, no event, no state change ----
+        state_vecs, state_const = {}, {}
+        if rec_state:
+            _h26 = bluecellulab.neuron.h
+            for syn_id, synapse in cell.synapses.items():
+                _hs = synapse.hsynapse
+                _d = {}
+                for _nm in ("Use_GB", "gmax_AMPA", "rho_GB"):
+                    _v = _h26.Vector(); _v.record(getattr(_hs, "_ref_" + _nm)); _d[_nm] = _v
+                _conn = (cell.connections or {}).get(syn_id)
+                _nc = None if _conn is None else _conn.post_netcon
+                if _nc is not None:
+                    for _i, _nm in ((1, "u"), (2, "tsyn"), (3, "recovered"), (4, "unrecovered")):
+                        _v = _h26.Vector(); _v.record(_nc._ref_weight[_i]); _d[_nm] = _v
+                state_vecs[syn_id] = _d
+                state_const[syn_id] = {k: float(getattr(_hs, k)) for k in ("Use", "Dep", "Fac", "Nrrp", "Use_d", "Use_p",
+                                                                      "gmax0_AMPA", "gmax_d_AMPA", "gmax_p_AMPA", "rho0_GB")}
+            _logger.info("PLASTYFIRE_RECORD_INDSTATE=1: recording %d synapses (netcon state: %s)", len(state_vecs),
+                         all("u" in d for d in state_vecs.values()))
+        _ps_cfg = [p_ for p_ in cfg.get("inputs", {}).values() if p_.get("module") == "pulse"]
+        ind_start_ms = min(p_["delay"] for p_ in _ps_cfg) if _ps_cfg else 0.0
+        win_t0 = (ind_start_ms - 1000.0) if fp_mode else 0.0    # fp window start (1 s lead-in, as the old prefire)
+        # ---- END OGK-26 (recorders) ----
+
         # Collect initial rho from bluecellulab-loaded rho0_GB
         initial_rho = [s.hsynapse.rho0_GB for s in cell.synapses.values()]
 
         # Run
-        if fastforward is not None and fastforward < t_end:
+        if fp_mode:                                  # OGK-26: same call as the pre-fastforward part of the full run, then stop
+            _logger.info("PLASTYFIRE_PREFIRE_FULLPROTO=1: full protocol up to %.0f ms (window start %.0f ms), no snap",
+                         fastforward, win_t0)
+            sim.run(fastforward, cvode=True)
+        elif fastforward is not None and fastforward < t_end:
             _logger.info("Fast-forwarding to %.0f ms", fastforward)
             sim.run(fastforward, cvode=True)
             # Snap rho and use as the initial state for recording. In the full
@@ -899,7 +1014,8 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
             #   rho_GB    : dict {global_id (int): float32 array (T,)}
             RECORD_DT = 0.025  # ms — matches default NEURON dt; fine enough for CICR dynamics
             # interpolate on a float64 grid: float32 spacing is 0.06 ms at 1000 s (Ebner protocols)
-            t_uniform64 = np.arange(len(np.arange(0.0, t[-1] + RECORD_DT, RECORD_DT, dtype=np.float32))) * RECORD_DT
+            # OGK-26: win_t0 = 0 unless PLASTYFIRE_PREFIRE_FULLPROTO=1; t_uniform is re-based to 0 (extract.py reads only its diffs)
+            t_uniform64 = np.arange(len(np.arange(0.0, t[-1] - win_t0 + RECORD_DT, RECORD_DT, dtype=np.float32))) * RECORD_DT
             t_uniform = t_uniform64.astype(np.float32)
 
             def _interp_dict(vec_dict, syn_order, gids, t_raw, t_uni):
@@ -907,7 +1023,7 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                 out = {}
                 for syn_id, gid in zip(syn_order, gids):
                     raw = np.array(vec_dict[syn_id], dtype=np.float64)
-                    out[gid] = np.interp(t_uni, t_raw, raw).astype(np.float32)
+                    out[gid] = np.interp(t_uni + win_t0, t_raw, raw).astype(np.float32)
                 return out
 
             syn_order = list(cell.synapses.keys())
@@ -920,7 +1036,7 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
             if vseg_vecs:
                 traces_pkl["v_seg"] = _interp_dict(vseg_vecs, syn_order, global_ids, t, t_uniform64)
             traces_pkl.update({
-                "prespikes": np.array(pre_spikes, dtype=np.float32),
+                "prespikes": np.array(pre_spikes[pre_spikes >= win_t0] - win_t0 if fp_mode else pre_spikes, dtype=np.float32),   # OGK-26 window
                 "global_ids": global_ids,
             })
 
@@ -1085,8 +1201,51 @@ def _run_prefire_edges_process(conn, workdir, fit_params, edges_h5,
                 results["snapped_rho"] = snapped_rho
         elif not lean:
             # t/v/spike trains are ~500 kB per workdir; rho alone is ~1 kB.
-            results.update({"t": t, "v": v,
-                            "prespikes": pre_spikes, "postspikes": post_spikes})
+            if fp_mode:      # OGK-26: window [win_t0, fastforward] re-based to 0, so induction sits at 1000 ms as in the old prefire
+                _sel = t >= win_t0
+                results.update({"t": t[_sel] - win_t0, "v": v[_sel],
+                                "prespikes": pre_spikes[pre_spikes >= win_t0] - win_t0,
+                                "postspikes": post_spikes[post_spikes >= win_t0] - win_t0,
+                                "t0_ms": float(win_t0), "fastforward_ms": float(fastforward),
+                                "rho_at_fastforward": list(final_rho)})
+            else:
+                results.update({"t": t, "v": v,
+                                "prespikes": pre_spikes, "postspikes": post_spikes})
+        # ---- BEGIN OGK-26 (results): extra outputs of the two opt-in switches ----
+        if fp_mode:
+            # C01 check: can the test pulses alone reach theta_d? max effcai over [0, win_t0] per synapse (exact integrator on a 0.1 ms
+            # grid, MIN_CA_CR = 70e-6 as analytical_method/constants.py) + rho at window start vs rho0 (any C01 plasticity shows here)
+            from scipy.signal import lfilter
+            _tau = float((fit_params or {}).get("tau_effca_GB_GluSynapse", 278.3177658387))
+            _a = np.exp(-0.1 / _tau); _b = _tau * (1.0 - _a)
+            _tg = np.arange(0.0, win_t0, 0.1)
+            _c01, _rw = [], []
+            for _sid in cell.synapses:
+                _cai = np.interp(_tg, t, np.array(cai_vecs[_sid], dtype=np.float64))
+                _c01.append(float(lfilter([0.0, _b], [1.0, -_a], _cai - 70e-6).max()))
+                _rw.append(float(np.interp(win_t0, t, np.array(rho_vecs[_sid], dtype=np.float64))))
+            results.update({"c01_max_effcai": _c01, "rho_at_window_start": _rw})
+        if rec_state:
+            _fi = [p_ for p_ in pre_spikes if p_ > ind_start_ms - 500.0]          # induction pre spikes (full: after C01)
+            _t_on = float(min(min(_fi) if _fi else ind_start_ms, ind_start_ms))   # onset = first induction event (pre spike or post pulse)
+            _ix = max(0, int(np.searchsorted(t, _t_on, side="left")) - 1)                 # last record strictly before onset (held values)
+            _ist = {"t_on": _t_on, "t_rec_prev": float(t[_ix]), "global_ids": list(global_ids), "fp_mode": bool(fp_mode),
+                    "n_pre_before_onset": int(np.sum(pre_spikes < _t_on))}
+            _cols = {}
+            for _sid, _d in state_vecs.items():
+                _row = {k: float(np.interp(_t_on, t, np.array(_d[k], dtype=np.float64))) for k in ("Use_GB", "gmax_AMPA", "rho_GB")}
+                for _k in ("u", "tsyn", "recovered", "unrecovered"):
+                    _row[_k] = float(np.array(_d[_k])[_ix]) if _k in _d else float("nan")
+                _row.update(state_const[_sid])
+                _row["p_rec"] = 1.0 - float(np.exp(-(_t_on - _row["tsyn"]) / _row["Dep"]))
+                _row["rec_frac_expected"] = (_row["recovered"] + _row["unrecovered"] * _row["p_rec"]) / _row["Nrrp"]
+                _row["u_next"] = _row["Use_GB"] + _row["u"] * (1.0 - _row["Use_GB"]) * float(np.exp(-(_t_on - _row["tsyn"]) / _row["Fac"]))
+                _row["p_rel_first"] = _row["rec_frac_expected"] * _row["u_next"]
+                for _k, _vv in _row.items():
+                    _cols.setdefault(_k, []).append(_vv)
+            _ist.update({k: list(v) for k, v in _cols.items()})
+            results["ind_state"] = _ist
+        # ---- END OGK-26 (results) ----
         conn.send(results)
 
     except Exception as e:
@@ -1200,7 +1359,7 @@ def _cpre_cpost_only_process(conn, workdir, fit_params, node_pop, edge_pop, fixh
 def compute_cpre_cpost_for_workdir(workdir, fit_params=None,
                                     node_pop=NODE_POP_DEFAULT,
                                     edge_pop=EDGE_POP_DEFAULT,
-                                    fixhp=True,
+                                    fixhp=FIXHP_DEFAULT,
                                     circuit_config=None,
                                     extracellular_calcium=None):
     """
@@ -1242,7 +1401,7 @@ def runconnectedpair_prefire_from_edges(workdir, fit_params=None,
                                         fastforward=None,
                                         node_pop=NODE_POP_DEFAULT,
                                         edge_pop=EDGE_POP_DEFAULT,
-                                        fixhp=True,
+                                        fixhp=FIXHP_DEFAULT,
                                         traces_output_dir=None,
                                         bluecellulab_output_dir=None,
                                         cpre_cpost_cache=None,

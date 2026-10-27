@@ -1,0 +1,85 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 101.5,
+    "gamma_p_GB_GluSynapse": 199.773931,
+    "a00": 1.0571570199601616,
+    "a01": 1.1532696102557813,
+    "a10": 1.3516836958164042,
+    "a11": 1.4787588059475545,
+    "a20": 1.0571570199601616,
+    "a21": 1.1532696102557813,
+    "a30": 1.3516836958164042,
+    "a31": 1.4787588059475545,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 4.33726035140821,
+  "evaluations": 3360,
+  "offline_curve": {
+    "mrk97_01": 0.9723416362172865,
+    "mrk97_02": 0.9374401723128277,
+    "mrk97_07": 1.1493838290315521,
+    "mrk97_08": 0.8167448196292642,
+    "sjh06_02": 1.1670770169884073
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.9723416362172865,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.9374401723128277,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.1493838290315521,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.8167448196292642,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "sjh06_02": {
+      "proto": "50Hz_10ms",
+      "target": 1.06,
+      "sem": 0.09,
+      "pred": 1.1670770169884073,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l23l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l23l5/extracted; /scratch/dhuruva/ogk_kb2/l5/extracted",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "16",
+    "--maxiter",
+    "150",
+    "--stride",
+    "1",
+    "--seed",
+    "3",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08,sjh06_02",
+    "--proto-map",
+    "{\"sjh06_02\":{\"extracted\":\"/scratch/dhuruva/ogk_kb2/l23l5/extracted\",\"basis\":\"/scratch/dhuruva/ogk_kb2/l23l5/basis\"}}",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-joint_s3.json"
+  ]
+}

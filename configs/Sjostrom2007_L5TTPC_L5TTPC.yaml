@@ -1,0 +1,73 @@
+# T30 (glusynapse_v2): Sjostrom, Turrigiano & Nelson 2007 (Neuropharmacology 52:176), "Multiple forms of
+# long-term plasticity at unitary neocortical layer 5 synapses". Unitary L5 TTPC -> L5 TTPC paired recordings
+# (quadruple whole-cell), rat visual cortex, P14-P21, 32-34 C, ACSF 2 mM Ca / 1 mM Mg (Methods 2.1).
+# Induction (Methods 2.1; Results 3, Fig 1Ab): "pairing 200-ms-long current injections 30 times every 10 s"
+# (Markram & Tsodyks 1996) in the pre AND the post cell; APs at 40-60 Hz (Results) / 40-80 Hz (Methods), "not
+# precisely timed"; induction current 0.5-1.8 nA, mean 1.2 +- 0.08 nA (n = 31); Fig 1A example 0.5 nA steps.
+# Baseline: 1 pre AP every 10 s or 6 APs at 30 Hz every 18 s; LTP read out >= 15 min after induction.
+# Notes and the paper numbers: ebner/things_to_note.md, "Sjostrom 2007".
+#
+# Same Sabrina simulations folder (label/seed/npairs/sims_dir) as Sjostrom2003_L5TTPC_L5TTPC.yaml, own
+# index_label; pairs_from = the 24 subset24 pairs (glusynapse_v2/subset24_pairs.txt as csv), so the npz extract
+# together with the sj03 ones. prefire_only: pairing sims only (no C01/C02 test pulses).
+#
+# Step protocols (plastyfire/config.py `protocols`): post_type step = one step_duration ms step on the post
+# cell per repetition (input "step0", a pulse of width step_duration at 1000 / T Hz); pre_type step = the pre
+# spikes are the APs the presynaptic cell itself fires in the same step (searched on the pre gid, delta
+# emodel). dt 0 / dt_ref stim: pre and post steps start together ("paired ... current injections").
+# Step amplitude per cell: lowest amplitude on the amp grid with >= step_nspikes APs in the 200 ms step,
+# accepted if <= step_nspikes_max. 10-12 APs = 50-60 Hz, inside the paper's 40-60 Hz (Results).
+label: Sabrina_L5TTPC_L5TTPC_STDP
+index_label: Sjostrom2007_L5TTPC_L5TTPC
+reference: Sjostrom, Turrigiano & Nelson 2007 Neuropharmacology 52:176 (Methods 2.1, Figs 1, 5)
+seed: 20262009
+npairs: 120
+pairs_from: "/project/rrg-emuller/dhuruva/plastyfire/configs/Sjostrom2007_subset24_pairs.csv"
+prefire_only: true
+circuit:
+    pre_simwriter_config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_modified_ion_channels_circuit_config_pre_cell_selection.json"
+    config: "/project/rrg-emuller/dhuruva/plastyfire/data/dhuruva_delta_circuit_config.json"  # delta emodels; also used for calibration
+    node_set: "/project/rrg-emuller/datasets/SSCx_plasticity/O1_2023a_Ecker/node_sets.json"
+    target: "hex_O1Excitatory"
+    node_pop: "S1nonbarrel_neurons"
+    edge_pop: "S1nonbarrel_neurons__S1nonbarrel_neurons__chemical"
+pregid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+postgid_conf:
+    mtype: ["L5_TPC:A", "L5_TPC:B"]
+geom_cons:
+    max_dist: [50., 50., 10.]  # [x, y, z] um
+sims_dir: "/project/rrg-emuller/dhuruva/plastyfire/refitting_results"
+simulator:
+    account: "rrg-emuller"
+    env: "/project/rrg-emuller/dhuruva/plastyfire/setupenv.sh"
+    run: "/project/rrg-emuller/dhuruva/plastyfire/plastyfire/pairrunner.py"
+stimulus:  # defaults for the protocols below
+    freq: [0.1]  # Hz, repetition rate ("every 10 s"); a step has no intra-burst frequency
+    amp: "find"  # nA
+    amp_min: 0.1  # step search grid 0.1-3.0 nA in 0.02 nA steps (covers the paper's 0.5-1.8 nA)
+    amp_max: 3.0
+    amp_lev: 146
+    nspikes: 1
+    dt: [0.0]  # ms
+    width: 3.0  # unused by step protocols (they use step_duration)
+    T: 10000  # ms, "30 times every 10 s" (Methods 2.1)
+    offset: 1000  # ms
+    nreps: 30  # "30 times" (Methods 2.1)
+    C01_duration: 4  # min (not written: prefire_only). Paper baseline: 1 AP / 10 s = C01_T default (T)
+    C02_duration: 4  # min
+protocols:
+    # --- LTP: paired 200 ms steps in pre and post, 30x at 0.1 Hz (Methods 2.1, Fig 1Ab); the pharmacology
+    #     conditions (AM251, L-NAME, cPTIO; Fig 5A) use this same induction ---
+    - {id: sjostrom07_step200ms_pair, n_pre: 1, n_post: 1, pre_type: step, post_type: step, step_duration: 200.,
+       dt: 0., dt_ref: stim, step_nspikes: 10, step_nspikes_max: 12}
+    # --- controls: "only pre or only postsynaptic firing was elicited during the induction period" (Fig 1B open
+    #     circles, pooled n = 12, no plasticity) ---
+    - {id: sjostrom07_step200ms_pre_only, n_pre: 1, n_post: 0, pre_type: step, post_type: step, step_duration: 200.,
+       dt: 0., dt_ref: stim, step_nspikes: 10, step_nspikes_max: 12}
+    - {id: sjostrom07_step200ms_post_only, n_pre: 0, n_post: 1, pre_type: step, post_type: step, step_duration: 200.,
+       dt: 0., dt_ref: stim, step_nspikes: 10, step_nspikes_max: 12}
+    # --- same pairing at the paper's mean induction current, 1.2 nA in both cells (Methods 2.1: "mean of
+    #     1.2 +- 0.08 nA (n = 31)"), no rate criterion (any AP count >= 1 accepted, recorded per step) ---
+    - {id: sjostrom07_step200ms_1.2nA_pair, n_pre: 1, n_post: 1, pre_type: step, post_type: step,
+       step_duration: 200., amp: 1.2, dt: 0., dt_ref: stim, step_nspikes: 1, step_nspikes_max: 1000}

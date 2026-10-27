@@ -1,0 +1,823 @@
+{
+ "figure": "figV5_vs_CH0",
+ "models": {
+  "CH0": "CH0 (Chindemi + licence + NO, no eCB)",
+  "t150_k0.6_N5": "V5 eCB arm (t150_k0.6_N5)"
+ },
+ "class_match_core": {
+  "CH0": 11,
+  "t150_k0.6_N5": 13
+ },
+ "inputs": [
+  "/scratch/dhuruva/basics/bio/V5/v5_outcomes.csv",
+  "/scratch/dhuruva/basics/mech/M9/summary.json"
+ ],
+ "rows": [
+  {
+   "proto": "sjostrom_0.1hz_dt-10ms",
+   "label": "0.1 Hz -10",
+   "core": true,
+   "data_mean": 0.69,
+   "data_sem": 0.07,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (0.1 Hz bar)",
+   "CH0": {
+    "mean": 1.0059660276221716,
+    "sem": 0.0049962955898376,
+    "n": 21,
+    "z2": 20.37439400231325,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.7939405570925974,
+    "sem": 0.0204830668518246,
+    "n": 21,
+    "z2": 2.2048243691264293,
+    "counted_per_pair": 210.23809523809524,
+    "blanked_per_pair": 87.57142857142857,
+    "d_end": -0.1993883248314394
+   }
+  },
+  {
+   "proto": "sjostrom_0.1hz_dt+10ms",
+   "label": "0.1 Hz +10",
+   "core": true,
+   "data_mean": 0.97,
+   "data_sem": 0.04,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (0.1 Hz bar); also Fig 3B squares",
+   "CH0": {
+    "mean": 0.9650707890081058,
+    "sem": 0.044475081042329,
+    "n": 22,
+    "z2": 0.015185700626631255,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9650707890081058,
+    "sem": 0.044475081042329,
+    "n": 22,
+    "z2": 0.015185700626631255,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   }
+  },
+  {
+   "proto": "sjostrom_10hz_dt-10ms",
+   "label": "10 Hz -10",
+   "core": true,
+   "data_mean": 0.57,
+   "data_sem": 0.11,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (10 Hz bar)",
+   "CH0": {
+    "mean": 0.954454941601364,
+    "sem": 0.0958647068837422,
+    "n": 21,
+    "z2": 12.215339018322997,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.6988991282923034,
+    "sem": 0.0713447043695088,
+    "n": 21,
+    "z2": 1.373139278885595,
+    "counted_per_pair": 389.4285714285714,
+    "blanked_per_pair": 123.0,
+    "d_end": -0.2783558509294013
+   }
+  },
+  {
+   "proto": "sjostrom_10hz_dt+10ms",
+   "label": "10 Hz +10",
+   "core": true,
+   "data_mean": 1.16,
+   "data_sem": 0.09,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (10 Hz bar)",
+   "CH0": {
+    "mean": 0.9898339713719394,
+    "sem": 0.0970059674325877,
+    "n": 22,
+    "z2": 3.5748737406229525,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9769431274745152,
+    "sem": 0.0976756529506883,
+    "n": 22,
+    "z2": 4.137014639359453,
+    "counted_per_pair": 11.954545454545457,
+    "blanked_per_pair": 159.3181818181818,
+    "d_end": -0.0230771961854075
+   }
+  },
+  {
+   "proto": "sjostrom_20hz_dt-10ms",
+   "label": "20 Hz -10",
+   "core": true,
+   "data_mean": 0.65,
+   "data_sem": 0.09,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (20 Hz bar)",
+   "CH0": {
+    "mean": 1.3224346504515545,
+    "sem": 0.0951671436664179,
+    "n": 22,
+    "z2": 55.82325421332152,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9747048296927598,
+    "sem": 0.0725383532253284,
+    "n": 22,
+    "z2": 13.016447706889403,
+    "counted_per_pair": 346.22727272727275,
+    "blanked_per_pair": 94.54545454545456,
+    "d_end": -0.2815544362319478
+   }
+  },
+  {
+   "proto": "sjostrom_20hz_dt+10ms",
+   "label": "20 Hz +10",
+   "core": true,
+   "data_mean": 1.31,
+   "data_sem": 0.14,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (20 Hz bar)",
+   "CH0": {
+    "mean": 1.3404637527599503,
+    "sem": 0.1045851119372911,
+    "n": 22,
+    "z2": 0.04734899143976419,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.3125129699220286,
+    "sem": 0.1055049586475692,
+    "n": 22,
+    "z2": 0.00032219478719490457,
+    "counted_per_pair": 18.863636363636363,
+    "blanked_per_pair": 96.3181818181818,
+    "d_end": -0.0457794675187167
+   }
+  },
+  {
+   "proto": "sjostrom_40hz_dt-10ms",
+   "label": "40 Hz -10",
+   "core": true,
+   "data_mean": 1.51,
+   "data_sem": 0.31,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (40 Hz bar)",
+   "CH0": {
+    "mean": 1.3594637981077944,
+    "sem": 0.0918843116409996,
+    "n": 22,
+    "z2": 0.2358079925091664,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.0021783087024756,
+    "sem": 0.0703225721635236,
+    "n": 22,
+    "z2": 2.6834846009602304,
+    "counted_per_pair": 262.04545454545456,
+    "blanked_per_pair": 148.0,
+    "d_end": -0.2819536358509217
+   }
+  },
+  {
+   "proto": "sjostrom_40hz_dt+10ms",
+   "label": "40 Hz +10",
+   "core": true,
+   "data_mean": 1.53,
+   "data_sem": 0.14,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 6B legend (text: 'normal 40 Hz induction' 153 +- 14%, n=11)",
+   "CH0": {
+    "mean": 1.3883013006672735,
+    "sem": 0.1076513133340703,
+    "n": 22,
+    "z2": 1.0244143567646136,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.3225867763093375,
+    "sem": 0.1150446220469217,
+    "n": 22,
+    "z2": 2.1949104776404487,
+    "counted_per_pair": 34.45454545454545,
+    "blanked_per_pair": 47.36363636363637,
+    "d_end": -0.0910902700698369
+   }
+  },
+  {
+   "proto": "sjostrom_50hz_dt-10ms",
+   "label": "50 Hz -10",
+   "core": true,
+   "data_mean": 1.7,
+   "data_sem": 0.19,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 7B (50 Hz bar)",
+   "CH0": {
+    "mean": 1.3836734668742594,
+    "sem": 0.0952411980902931,
+    "n": 22,
+    "z2": 2.771813727405823,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.0250314195333714,
+    "sem": 0.074891868688056,
+    "n": 22,
+    "z2": 12.620016194380486,
+    "counted_per_pair": 242.5,
+    "blanked_per_pair": 173.04545454545453,
+    "d_end": -0.2801785365573853
+   }
+  },
+  {
+   "proto": "sjostrom_50hz_dt+10ms",
+   "label": "50 Hz +10",
+   "core": true,
+   "data_mean": 1.57,
+   "data_sem": 0.26,
+   "source": "Sjostrom, Turrigiano & Nelson 2001 Neuron 32:1149, Fig 1D (50 Hz bar)",
+   "CH0": {
+    "mean": 1.4053112424864718,
+    "sem": 0.105144883265729,
+    "n": 22,
+    "z2": 0.4012187404045817,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.3405587477585137,
+    "sem": 0.1131602429477316,
+    "n": 22,
+    "z2": 0.7787468673097835,
+    "counted_per_pair": 35.81818181818182,
+    "blanked_per_pair": 35.27272727272727,
+    "d_end": -0.0818243788489249
+   }
+  },
+  {
+   "proto": "10Hz_-10ms",
+   "label": "Markram 10 Hz -10",
+   "core": true,
+   "data_mean": 0.7922,
+   "data_sem": 0.0259,
+   "source": "Markram 1997",
+   "CH0": {
+    "mean": 1.0385244595018028,
+    "sem": 0.0810286609921714,
+    "n": 21,
+    "z2": 90.45145324138774,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.763822572970457,
+    "sem": 0.0597471498740412,
+    "n": 21,
+    "z2": 1.2004567087804896,
+    "counted_per_pair": 259.6190476190476,
+    "blanked_per_pair": 81.33333333333333,
+    "d_end": -0.2756580168989295
+   }
+  },
+  {
+   "proto": "10Hz_10ms",
+   "label": "Markram 10 Hz +10",
+   "core": true,
+   "data_mean": 1.2013,
+   "data_sem": 0.0626,
+   "source": "Markram 1997",
+   "CH0": {
+    "mean": 1.188241914091374,
+    "sem": 0.099778532559804,
+    "n": 22,
+    "z2": 0.04351213332713843,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.1760197232314156,
+    "sem": 0.1011050202361905,
+    "n": 22,
+    "z2": 0.16308536207785912,
+    "counted_per_pair": 7.409090909090909,
+    "blanked_per_pair": 106.5909090909091,
+    "d_end": -0.021584657918333
+   }
+  },
+  {
+   "proto": "sjostrom_0.1hz_dt-25ms",
+   "label": "0.1 Hz -25",
+   "core": true,
+   "data_mean": 0.65,
+   "data_sem": 0.09,
+   "source": "Sjostrom 2003 Fig 9C Ctrl dt -25 ms [digitised]",
+   "CH0": {
+    "mean": 1.0059660276221716,
+    "sem": 0.0049962955898376,
+    "n": 21,
+    "z2": 15.643433681618347,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.7943900562945562,
+    "sem": 0.0207864016327368,
+    "n": 21,
+    "z2": 2.573887451450011,
+    "counted_per_pair": 211.8095238095238,
+    "blanked_per_pair": 83.42857142857143,
+    "d_end": -0.2005043253841821
+   }
+  },
+  {
+   "proto": "sjostrom_0.1hz_dt-120ms",
+   "label": "0.1 Hz -120",
+   "core": true,
+   "data_mean": 1.05,
+   "data_sem": 0.0989949493661166,
+   "source": "Sjostrom 2003 Fig 9C Ctrl dt -120/-200/-400 pooled (1.05 +- 0.07) [digitised]; SEM x sqrt2, shared with -200",
+   "CH0": {
+    "mean": 1.0052510753085022,
+    "sem": 0.0048171325035972,
+    "n": 22,
+    "z2": 0.2043332919434027,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.0052510753085022,
+    "sem": 0.0048171325035972,
+    "n": 22,
+    "z2": 0.2043332919434027,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   }
+  },
+  {
+   "proto": "sjostrom_0.1hz_dt-200ms",
+   "label": "0.1 Hz -200",
+   "core": true,
+   "data_mean": 1.05,
+   "data_sem": 0.0989949493661166,
+   "source": "as -120 (pooled bar)",
+   "CH0": {
+    "mean": 1.0052510753085022,
+    "sem": 0.0048171325035972,
+    "n": 22,
+    "z2": 0.2043332919434027,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.0052510753085022,
+    "sem": 0.0048171325035972,
+    "n": 22,
+    "z2": 0.2043332919434027,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   }
+  },
+  {
+   "proto": "sjostrom_burst5x20hz_r50_dt-120ms",
+   "label": "burst -120",
+   "core": true,
+   "data_mean": 0.79,
+   "data_sem": 0.0848528137423857,
+   "source": "Sjostrom 2003 Fig 9C Burst, pre 120 or 200 ms after the burst (0.79 +- 0.06) [digitised]; SEM x sqrt2, shared with -200",
+   "CH0": {
+    "mean": 0.8019596547993001,
+    "sem": 0.0526973542168546,
+    "n": 22,
+    "z2": 0.019865742072002902,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.6513211698565843,
+    "sem": 0.0483333519962581,
+    "n": 22,
+    "z2": 2.671085823603661,
+    "counted_per_pair": 214.45454545454547,
+    "blanked_per_pair": 85.5909090909091,
+    "d_end": -0.1953430759247578
+   }
+  },
+  {
+   "proto": "sjostrom_burst5x20hz_r50_dt-200ms",
+   "label": "burst -200",
+   "core": true,
+   "data_mean": 0.79,
+   "data_sem": 0.0848528137423857,
+   "source": "as -120 (pooled bar)",
+   "CH0": {
+    "mean": 0.8375508370073445,
+    "sem": 0.0473876670254709,
+    "n": 22,
+    "z2": 0.3140391805693105,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.7680177118934548,
+    "sem": 0.0476456172345788,
+    "n": 22,
+    "z2": 0.06711402644432779,
+    "counted_per_pair": 85.54545454545455,
+    "blanked_per_pair": 10.227272727272728,
+    "d_end": -0.0799337144706148
+   }
+  },
+  {
+   "proto": "sjostrom_0.1hz_dt0ms",
+   "label": "0.1 Hz 0",
+   "core": false,
+   "data_mean": 0.910125,
+   "data_sem": 0.139103,
+   "source": "Sjostrom 2001 (sjs01_11) 0.1 Hz dt 0, 50 sweeps [csv]",
+   "CH0": {
+    "mean": 1.0058707243977394,
+    "sem": 0.0454601260463752,
+    "n": 22,
+    "z2": 0.47376806787365816,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9915932909704708,
+    "sem": 0.0461840669942753,
+    "n": 22,
+    "z2": 0.34300797599983945,
+    "counted_per_pair": 14.636363636363637,
+    "blanked_per_pair": 1.2727272727272727,
+    "d_end": -0.0160518648540791
+   }
+  },
+  {
+   "proto": "sjostrom_20hz_dt-25ms",
+   "label": "20 Hz -25",
+   "core": false,
+   "data_mean": 0.70462,
+   "data_sem": 0.06994,
+   "source": "Sjostrom 2001 (sjs01_14) 20 Hz -25 ms [csv]",
+   "CH0": {
+    "mean": 1.335475690110779,
+    "sem": 0.0939242487087839,
+    "n": 22,
+    "z2": 81.35959785154036,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9837056687510934,
+    "sem": 0.0712646861671309,
+    "n": 22,
+    "z2": 15.922960417774865,
+    "counted_per_pair": 256.54545454545456,
+    "blanked_per_pair": 87.5,
+    "d_end": -0.2801902099964749
+   }
+  },
+  {
+   "proto": "sjostrom_20hz_dt0ms",
+   "label": "20 Hz 0",
+   "core": false,
+   "data_mean": 0.760771,
+   "data_sem": 0.099366,
+   "source": "Sjostrom 2001 (sjs01_13) 20 Hz dt 0 [csv]",
+   "CH0": {
+    "mean": 1.3277149664066763,
+    "sem": 0.1275475947689751,
+    "n": 22,
+    "z2": 32.554022582367764,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.177911188648187,
+    "sem": 0.122054228438937,
+    "n": 22,
+    "z2": 17.62334938767761,
+    "counted_per_pair": 67.86363636363636,
+    "blanked_per_pair": 115.4090909090909,
+    "d_end": -0.1063861732259176
+   }
+  },
+  {
+   "proto": "sjostrom_20hz_dt+25ms",
+   "label": "20 Hz +25",
+   "core": false,
+   "data_mean": 0.6519,
+   "data_sem": 0.18373,
+   "source": "Sjostrom 2001 (sjs01_12) 20 Hz +25 ms [csv]",
+   "CH0": {
+    "mean": 1.3110844803302404,
+    "sem": 0.0952252468935008,
+    "n": 22,
+    "z2": 12.8722301959753,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.1160064795418465,
+    "sem": 0.0899280487169311,
+    "n": 22,
+    "z2": 6.380799723918804,
+    "counted_per_pair": 86.77272727272727,
+    "blanked_per_pair": 54.90909090909091,
+    "d_end": -0.1792439084078162
+   }
+  },
+  {
+   "proto": "sjostrom_40hz_dt0ms",
+   "label": "40 Hz 0",
+   "core": false,
+   "data_mean": 0.928899,
+   "data_sem": 0.0384392,
+   "source": "Sjostrom 2001 (sjs01_15) 40 Hz dt 0, pooled 40/50 Hz [csv]",
+   "CH0": {
+    "mean": 1.5222011505760653,
+    "sem": 0.125624514761882,
+    "n": 21,
+    "z2": 238.2336825923075,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.3808386563921706,
+    "sem": 0.123786407402154,
+    "n": 21,
+    "z2": 138.23315524456413,
+    "counted_per_pair": 54.23809523809524,
+    "blanked_per_pair": 66.0952380952381,
+    "d_end": -0.1084455806043767
+   }
+  },
+  {
+   "proto": "2Hz_5ms",
+   "label": "Markram 2 Hz +5",
+   "core": false,
+   "data_mean": 0.9886,
+   "data_sem": 0.04,
+   "source": "Markram 1997 (mrk97_01) 2 Hz +5 ms [csv]",
+   "CH0": {
+    "mean": 0.7628934012036743,
+    "sem": 0.0617843045931108,
+    "n": 21,
+    "z2": 31.839667962628454,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.7557908140978673,
+    "sem": 0.0609962529889427,
+    "n": 21,
+    "z2": 33.87507315025862,
+    "counted_per_pair": 2.238095238095238,
+    "blanked_per_pair": 18.047619047619047,
+    "d_end": -0.0119525853899987
+   }
+  },
+  {
+   "proto": "5Hz_5ms",
+   "label": "Markram 5 Hz +5",
+   "core": false,
+   "data_mean": 1.0161,
+   "data_sem": 0.0727,
+   "source": "Markram 1997 (mrk97_02) 5 Hz +5 ms [csv]",
+   "CH0": {
+    "mean": 0.803722811667531,
+    "sem": 0.0949322896947623,
+    "n": 21,
+    "z2": 8.53388747334678,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.794814429792658,
+    "sem": 0.0955083445750692,
+    "n": 21,
+    "z2": 9.264828151717023,
+    "counted_per_pair": 3.4761904761904763,
+    "blanked_per_pair": 91.38095238095238,
+    "d_end": -0.0146109874237334
+   }
+  },
+  {
+   "proto": "10Hz_5ms",
+   "label": "Markram 10 Hz +5",
+   "core": false,
+   "data_mean": 1.2038,
+   "data_sem": 0.0644,
+   "source": "Markram 1997",
+   "CH0": {
+    "mean": 1.191055181364312,
+    "sem": 0.1197553084906913,
+    "n": 21,
+    "z2": 0.03916477037358222,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.1805527522048114,
+    "sem": 0.1197469691486175,
+    "n": 21,
+    "z2": 0.1303080827444209,
+    "counted_per_pair": 5.190476190476191,
+    "blanked_per_pair": 101.9047619047619,
+    "d_end": -0.0177807705309864
+   }
+  },
+  {
+   "proto": "20Hz_5ms",
+   "label": "Markram 20 Hz +5",
+   "core": false,
+   "data_mean": 1.3687,
+   "data_sem": 0.0909,
+   "source": "Markram 1997 (mrk97_04) 20 Hz +5 ms [csv]",
+   "CH0": {
+    "mean": 1.410898511920568,
+    "sem": 0.1007372729456375,
+    "n": 21,
+    "z2": 0.215509543159084,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.3861176286127692,
+    "sem": 0.1024646815665887,
+    "n": 21,
+    "z2": 0.03671557091260188,
+    "counted_per_pair": 9.571428571428571,
+    "blanked_per_pair": 68.9047619047619,
+    "d_end": -0.029817928924797
+   }
+  },
+  {
+   "proto": "30Hz_5ms",
+   "label": "Markram 30 Hz +5",
+   "core": false,
+   "data_mean": 1.4239,
+   "data_sem": 0.0745,
+   "source": "Markram 1997 (mrk97_05) 30 Hz +5 ms [csv]",
+   "CH0": {
+    "mean": 1.5064816491494768,
+    "sem": 0.1150261883135218,
+    "n": 21,
+    "z2": 1.2287246117287132,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.473941341292451,
+    "sem": 0.1189954581319763,
+    "n": 21,
+    "z2": 0.45117532333634675,
+    "counted_per_pair": 14.761904761904765,
+    "blanked_per_pair": 56.0,
+    "d_end": -0.0445613929059254
+   }
+  },
+  {
+   "proto": "40Hz_5ms",
+   "label": "Markram 40 Hz +5",
+   "core": false,
+   "data_mean": 1.5008,
+   "data_sem": 0.12,
+   "source": "Markram 1997 (mrk97_06) 40 Hz +5 ms [csv]",
+   "CH0": {
+    "mean": 1.5565905442323584,
+    "sem": 0.1025565375234308,
+    "n": 22,
+    "z2": 0.2161517240099134,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.505692505975842,
+    "sem": 0.1079350149236554,
+    "n": 22,
+    "z2": 0.0016622649113645681,
+    "counted_per_pair": 20.772727272727277,
+    "blanked_per_pair": 46.68181818181818,
+    "d_end": -0.0630207587524495
+   }
+  },
+  {
+   "proto": "sjostrom07_step200ms_pair",
+   "label": "S07 pair",
+   "core": false,
+   "data_mean": 1.62,
+   "data_sem": 0.07,
+   "source": "Sjostrom 2007 Results 3 + Fig 1B: paired 200 ms steps, LTP 162 +- 7% [text]",
+   "CH0": {
+    "mean": 1.611421885436569,
+    "sem": 0.1484342025502521,
+    "n": 21,
+    "z2": 0.015017152951704034,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 1.382319972363805,
+    "sem": 0.1461018902950912,
+    "n": 21,
+    "z2": 11.528937864722941,
+    "counted_per_pair": 336.8095238095238,
+    "blanked_per_pair": 314.2857142857143,
+    "d_end": -0.1685639175623714
+   }
+  },
+  {
+   "proto": "sjostrom07_step200ms_pre_only",
+   "label": "S07 pre only",
+   "core": false,
+   "data_mean": 1.0,
+   "data_sem": 0.0707106781186547,
+   "source": "Sjostrom 2007 Fig 1B open circles, pre/post-only pooled n=12 [digitised; SEM assumed]; SEM x sqrt2, shared with post_only",
+   "CH0": {
+    "mean": 0.8702847718996704,
+    "sem": 0.0313298414582212,
+    "n": 21,
+    "z2": 3.3652080802241153,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.8253507199708496,
+    "sem": 0.0334205177176069,
+    "n": 21,
+    "z2": 6.100474202940125,
+    "counted_per_pair": 54.80952380952381,
+    "blanked_per_pair": 44.80952380952381,
+    "d_end": -0.0488773972501346
+   }
+  },
+  {
+   "proto": "sjostrom07_step200ms_post_only",
+   "label": "S07 post only",
+   "core": false,
+   "data_mean": 1.0,
+   "data_sem": 0.0707106781186547,
+   "source": "as pre_only (pooled bar)",
+   "CH0": {
+    "mean": 0.9098187752644716,
+    "sem": 0.0692298953386105,
+    "n": 22,
+    "z2": 1.6265306589599775,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   },
+   "t150_k0.6_N5": {
+    "mean": 0.9098187752644716,
+    "sem": 0.0692298953386105,
+    "n": 22,
+    "z2": 1.6265306589599775,
+    "counted_per_pair": 0.0,
+    "blanked_per_pair": 0.0,
+    "d_end": 0.0
+   }
+  }
+ ]
+}

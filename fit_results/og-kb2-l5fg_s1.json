@@ -1,0 +1,91 @@
+{
+  "params": {
+    "gamma_d_GB_GluSynapse": 99.81320960221805,
+    "gamma_p_GB_GluSynapse": 201.4075647587847,
+    "a00": 1.0422864067759614,
+    "a01": 1.2776420611589228,
+    "a10": 1.251917275351027,
+    "a11": 2.054194631522888,
+    "a20": 1.0422864067759614,
+    "a21": 1.2776420611589228,
+    "a30": 1.251917275351027,
+    "a31": 2.054194631522888,
+    "tau_effca_GB_GluSynapse": 278.3177658387
+  },
+  "weighted_err": 1.4222693815034193,
+  "evaluations": 7248,
+  "offline_curve": {
+    "mrk97_01": 0.9848937594675272,
+    "mrk97_02": 0.9680252746522874,
+    "mrk97_07": 1.1579023321291266,
+    "mrk97_08": 0.810436959212579
+  },
+  "protocols": {
+    "mrk97_01": {
+      "proto": "2Hz_5ms",
+      "target": 0.9886,
+      "sem": 0.04,
+      "pred": 0.9848937594675272,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_02": {
+      "proto": "5Hz_5ms",
+      "target": 1.0161,
+      "sem": 0.0727,
+      "pred": 0.9680252746522874,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_07": {
+      "proto": "10Hz_10ms",
+      "target": 1.2013,
+      "sem": 0.0626,
+      "pred": 1.1579023321291266,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    },
+    "mrk97_08": {
+      "proto": "10Hz_-10ms",
+      "target": 0.7922,
+      "sem": 0.0259,
+      "pred": 0.810436959212579,
+      "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+      "basis": "/scratch/dhuruva/ogk_kb2/l5/basis"
+    }
+  },
+  "extracted": "/scratch/dhuruva/ogk_kb2/l5/extracted",
+  "argv": [
+    "fit.py",
+    "--de",
+    "--workers",
+    "24",
+    "--maxiter",
+    "150",
+    "--stride",
+    "1",
+    "--seed",
+    "1",
+    "--targets",
+    "mrk97_01,mrk97_02,mrk97_07,mrk97_08",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-l5pre101_s1.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-l5pre101_s2.json",
+    "--x0",
+    "/scratch/dhuruva/og_stdp_bk25/fit_results/og-delta-split2-bk25-mk10_s2.json",
+    "--x0",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/cooker.json",
+    "--fit-gamma",
+    "--gd-lo",
+    "20",
+    "--gd-hi",
+    "250",
+    "--gp-lo",
+    "100",
+    "--gp-hi",
+    "600",
+    "--save-json",
+    "/project/rrg-emuller/dhuruva/plastyfire/fit_results/og-kb2-l5fg_s1.json"
+  ]
+}
